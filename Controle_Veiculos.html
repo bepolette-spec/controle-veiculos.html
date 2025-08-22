@@ -285,6 +285,10 @@
             }
         }
     </style>
+    
+    <!-- Firebase App (a versão COMPATÍVEL) -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 <body>
     <div class="container">
@@ -493,11 +497,6 @@
         <p>Sistema de Controle de Veículos &copy; 2023 - Desenvolvido para gerenciamento de frotas</p>
     </footer>
 
-    <!-- Firebase App (o core do Firebase) -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js"></script>
-    <!-- Firebase Database -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js"></script>
-
     <script>
         // Suas configurações do Firebase
         const firebaseConfig = {
@@ -512,8 +511,10 @@
         };
 
         // Initialize Firebase
-        const app = firebase.initializeApp(firebaseConfig);
+        firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
+        
+        console.log("Firebase conectado com sucesso!");
     </script>
 
     <script>
@@ -552,14 +553,16 @@
             carregarHistorico();
             atualizarSelects();
             
-            // Alternar abas
+            // Alternar abas - CORRIGIDO
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
                     const tabId = tab.getAttribute('data-tab');
                     
+                    // Remover classe active de todas as abas
                     tabs.forEach(t => t.classList.remove('active'));
                     tabContents.forEach(tc => tc.classList.remove('active'));
                     
+                    // Adicionar classe active à aba clicada
                     tab.classList.add('active');
                     document.getElementById(tabId).classList.add('active');
                 });
