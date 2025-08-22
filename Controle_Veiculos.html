@@ -282,6 +282,14 @@
             font-weight: 500;
         }
         
+        .admin-access {
+            background: #FFF3E0;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
         footer {
             text-align: center;
             padding: 20px;
@@ -362,6 +370,18 @@
                     </div>
                     
                     <div class="form-group">
+                        <label for="combustivelRetirada">Nível de Combustível na Retirada</label>
+                        <select id="combustivelRetirada" required>
+                            <option value="">Selecione o nível</option>
+                            <option value="Reserva">Reserva</option>
+                            <option value="1/4">1/4</option>
+                            <option value="1/2">1/2</option>
+                            <option value="3/4">3/4</option>
+                            <option value="Cheio">Cheio</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
                         <label for="destino">Destino</label>
                         <input type="text" id="destino" placeholder="Destino da viagem" required>
                     </div>
@@ -394,8 +414,8 @@
                     </div>
                     
                     <div class="form-group">
-                        <label for="combustivel">Nível de Combustível</label>
-                        <select id="combustivel" required>
+                        <label for="combustivelDevolucao">Nível de Combustível na Devolução</label>
+                        <select id="combustivelDevolucao" required>
                             <option value="">Selecione o nível</option>
                             <option value="Reserva">Reserva</option>
                             <option value="1/4">1/4</option>
@@ -426,8 +446,11 @@
                             <th>Data/Hora</th>
                             <th>Veículo</th>
                             <th>Motorista</th>
-                            <th>Retirada</th>
-                            <th>Devolução</th>
+                            <th>Km Retirada</th>
+                            <th>Combustível Retirada</th>
+                            <th>Km Devolução</th>
+                            <th>Combustível Devolução</th>
+                            <th>Destino</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -442,18 +465,23 @@
             
             <div id="authArea">
                 <div class="card">
-                    <div class="card-title">Autenticação</div>
-                    <p>Para acessar as funções administrativas, digite a senha de administração:</p>
+                    <div class="card-title">Acesso Restrito</div>
+                    <p>Esta área é restrita aos administradores do sistema.</p>
                     
-                    <div class="form-group">
-                        <label for="senhaAdmin">Senha de Administração</label>
-                        <div class="password-toggle">
-                            <input type="password" id="senhaAdmin" placeholder="Digite a senha">
-                            <i class="fas fa-eye" id="togglePassword"></i>
+                    <div class="admin-access">
+                        <i class="fas fa-lock" style="font-size: 48px; color: #F44336; margin-bottom: 15px;"></i>
+                        <h3>Acesso Administrativo</h3>
+                        <p>Para acessar as funções administrativas, digite a senha de administração:</p>
+                        
+                        <div class="form-group">
+                            <div class="password-toggle">
+                                <input type="password" id="senhaAdmin" placeholder="Digite a senha de administração">
+                                <i class="fas fa-eye" id="togglePassword"></i>
+                            </div>
                         </div>
+                        
+                        <button id="btnAutenticar"><i class="fas fa-key"></i> Acessar Área Administrativa</button>
                     </div>
-                    
-                    <button id="btnAutenticar"><i class="fas fa-key"></i> Autenticar</button>
                 </div>
             </div>
             
@@ -520,6 +548,12 @@
                         </tbody>
                     </table>
                 </div>
+
+                <div class="card">
+                    <div class="card-title">Encerrar Sessão</div>
+                    <p>Para sair da área administrativa, clique no botão abaixo:</p>
+                    <button id="btnLogout" style="background: #F44336;"><i class="fas fa-sign-out-alt"></i> Encerrar Sessão Administrativa</button>
+                </div>
             </div>
         </div>
         
@@ -559,6 +593,7 @@
             const togglePassword = document.getElementById('togglePassword');
             const senhaAdmin = document.getElementById('senhaAdmin');
             const btnAutenticar = document.getElementById('btnAutenticar');
+            const btnLogout = document.getElementById('btnLogout');
             const formVeiculo = document.getElementById('formVeiculo');
             const formPessoa = document.getElementById('formPessoa');
             const formRetirada = document.getElementById('formRetirada');
@@ -570,6 +605,7 @@
             const veiculoRetirada = document.getElementById('veiculoRetirada');
             const veiculoDevolucao = document.getElementById('veiculoDevolucao');
             const motoristaRetirada = document.getElementById('motoristaRetirada');
+            const combustivelRetirada = document.getElementById('combustivelRetirada');
             const alertaReservaRetirada = document.getElementById('alertaReservaRetirada');
             
             // Dados iniciais
@@ -618,9 +654,18 @@
                     localStorage.setItem('autenticado', 'true');
                     atualizarInterfaceAutenticacao();
                     mostrarNotificacao('Autenticação realizada com sucesso!', 'success');
+                    senhaAdmin.value = ''; // Limpar campo de senha
                 } else {
                     mostrarNotificacao('Senha incorreta. Tente novamente.', 'error');
                 }
+            });
+            
+            // Logout administrativo
+            btnLogout.addEventListener('click', () => {
+                autenticado = false;
+                localStorage.removeItem('autenticado');
+                atualizarInterfaceAutenticacao();
+                mostrarNotificacao('Sessão administrativa encerrada.', 'success');
             });
             
             // Adicionar veículo
@@ -704,6 +749,7 @@
                 const veiculoId = veiculoRetirada.value;
                 const motoristaId = motoristaRetirada.value;
                 const km = document.getElementById('kmRetirada').value;
+                const combustivel = combustivelRetirada.value;
                 const destino = document.getElementById('destino').value;
                 
                 if (!veiculoId || !motoristaId) {
@@ -723,6 +769,7 @@
                 database.ref('veiculos/' + veiculoId).update({
                     status: 'Em uso',
                     km: km,
+                    combustivel: combustivel,
                     motorista: motorista.nomeCompleto,
                     motoristaTelefone: motorista.telefone,
                     destino: destino
@@ -732,12 +779,15 @@
                     const historicoRef = database.ref('historico').push();
                     const dataHora = new Date().toLocaleString('pt-BR');
                     historicoRef.set({
-                        data: dataHora,
-                        veiculo: veiculo.placa,
-                        motorista: motorista.nomeCompleto,
-                        tipo: 'Retirada',
-                        detalhes: `Destino: ${destino}, Km: ${km}`,
                         dataRetirada: dataHora,
+                        veiculo: veiculo.placa,
+                        modelo: veiculo.modelo,
+                        motorista: motorista.nomeCompleto,
+                        telefoneMotorista: motorista.telefone,
+                        kmRetirada: km,
+                        combustivelRetirada: combustivel,
+                        destino: destino,
+                        status: 'Em uso',
                         veiculoId: veiculoId
                     })
                     .then(() => {
@@ -757,7 +807,7 @@
                 
                 const veiculoId = veiculoDevolucao.value;
                 const km = document.getElementById('kmDevolucao').value;
-                const combustivel = document.getElementById('combustivel').value;
+                const combustivel = document.getElementById('combustivelDevolucao').value;
                 const observacoes = document.getElementById('observacoes').value;
                 
                 if (!veiculoId) {
@@ -782,26 +832,29 @@
                     destino: ''
                 })
                 .then(() => {
-                    // Registrar no histórico
+                    // Registrar no histórico - encontrar a retirada correspondente
                     const historicoRef = database.ref('historico');
-                    // Encontrar a retirada correspondente
                     historicoRef.orderByChild('veiculoId').equalTo(veiculoId).once('value')
                         .then((snapshot) => {
                             let retiradaKey = null;
+                            let movimentoData = null;
+                            
                             snapshot.forEach((childSnapshot) => {
                                 const movimento = childSnapshot.val();
-                                if (movimento.tipo === 'Retirada' && !movimento.dataDevolucao) {
+                                if (movimento.status === 'Em uso' && !movimento.dataDevolucao) {
                                     retiradaKey = childSnapshot.key;
+                                    movimentoData = movimento;
                                 }
                             });
                             
-                            if (retiradaKey) {
+                            if (retiradaKey && movimentoData) {
                                 // Atualizar a retirada com dados da devolução
                                 historicoRef.child(retiradaKey).update({
                                     dataDevolucao: new Date().toLocaleString('pt-BR'),
                                     kmDevolucao: km,
                                     combustivelDevolucao: combustivel,
-                                    observacoes: observacoes
+                                    observacoes: observacoes,
+                                    status: 'Devolvido'
                                 })
                                 .then(() => {
                                     formDevolucao.reset();
@@ -811,11 +864,15 @@
                                 // Caso não encontre a retirada, criar novo registro
                                 const novaDevolucaoRef = historicoRef.push();
                                 novaDevolucaoRef.set({
-                                    data: new Date().toLocaleString('pt-BR'),
+                                    dataDevolucao: new Date().toLocaleString('pt-BR'),
                                     veiculo: veiculo.placa,
+                                    modelo: veiculo.modelo,
                                     motorista: veiculo.motorista || 'N/A',
-                                    tipo: 'Devolução',
-                                    detalhes: `Km: ${km}, Combustível: ${combustivel}, Obs: ${observacoes || 'Nenhuma'}`
+                                    kmDevolucao: km,
+                                    combustivelDevolucao: combustivel,
+                                    observacoes: observacoes,
+                                    status: 'Devolvido',
+                                    veiculoId: veiculoId
                                 })
                                 .then(() => {
                                     formDevolucao.reset();
@@ -894,7 +951,11 @@
                     }
                     
                     // Ordenar por data (mais recente primeiro)
-                    historico.sort((a, b) => new Date(b.data) - new Date(a.data));
+                    historico.sort((a, b) => {
+                        const dateA = a.dataRetirada ? new Date(a.dataRetirada) : new Date(a.dataDevolucao);
+                        const dateB = b.dataRetirada ? new Date(b.dataRetirada) : new Date(b.dataDevolucao);
+                        return dateB - dateA;
+                    });
                     
                     renderizarHistorico();
                 });
@@ -957,7 +1018,7 @@
                     
                     tr.innerHTML = `
                         <td>${veiculo.modelo}</td>
-                        <td>${veiculo.placa}</td>
+                        <td>${veiculo.placa</td>
                         <td>${veiculo.status}</td>
                         <td class="actions admin-only">
                             <button class="btn-delete" onclick="excluirVeiculo('${veiculo.id}')"><i class="fas fa-trash"></i> Excluir</button>
@@ -991,59 +1052,31 @@
                 const tbody = tabelaHistorico.querySelector('tbody');
                 tbody.innerHTML = '';
                 
-                // Agrupar retiradas e devoluções por veículo
-                const movimentosAgrupados = {};
-                
                 historico.forEach(movimento => {
-                    if (!movimentosAgrupados[movimento.veiculo]) {
-                        movimentosAgrupados[movimento.veiculo] = {};
-                    }
+                    const tr = document.createElement('tr');
                     
-                    if (movimento.tipo === 'Retirada') {
-                        if (!movimentosAgrupados[movimento.veiculo][movimento.motorista]) {
-                            movimentosAgrupados[movimento.veiculo][movimento.motorista] = {};
-                        }
-                        
-                        if (!movimentosAgrupados[movimento.veiculo][movimento.motorista].retirada) {
-                            movimentosAgrupados[movimento.veiculo][movimento.motorista].retirada = movimento;
-                        }
-                    } else if (movimento.tipo === 'Devolução') {
-                        if (!movimentosAgrupados[movimento.veiculo][movimento.motorista]) {
-                            movimentosAgrupados[movimento.veiculo][movimento.motorista] = {};
-                        }
-                        
-                        movimentosAgrupados[movimento.veiculo][movimento.motorista].devolucao = movimento;
-                    }
+                    // Formatar dados para exibição
+                    const dataRetirada = movimento.dataRetirada || 'N/A';
+                    const dataDevolucao = movimento.dataDevolucao || 'N/A';
+                    const kmRetirada = movimento.kmRetirada || 'N/A';
+                    const kmDevolucao = movimento.kmDevolucao || 'N/A';
+                    const combustivelRetirada = movimento.combustivelRetirada || 'N/A';
+                    const combustivelDevolucao = movimento.combustivelDevolucao || 'N/A';
+                    const destino = movimento.destino || 'N/A';
+                    
+                    tr.innerHTML = `
+                        <td>${dataRetirada}<br>${dataDevolucao}</td>
+                        <td>${movimento.veiculo || movimento.modelo || 'N/A'}</td>
+                        <td>${movimento.motorista || 'N/A'}</td>
+                        <td>${kmRetirada}</td>
+                        <td>${combustivelRetirada}</td>
+                        <td>${kmDevolucao}</td>
+                        <td>${combustivelDevolucao}</td>
+                        <td>${destino}</td>
+                    `;
+                    
+                    tbody.appendChild(tr);
                 });
-                
-                // Renderizar histórico agrupado
-                for (const veiculo in movimentosAgrupados) {
-                    for (const motorista in movimentosAgrupados[veiculo]) {
-                        const movimento = movimentosAgrupados[veiculo][motorista];
-                        const tr = document.createElement('tr');
-                        
-                        let retiradaInfo = 'N/A';
-                        let devolucaoInfo = 'N/A';
-                        
-                        if (movimento.retirada) {
-                            retiradaInfo = `${movimento.retirada.data} - ${movimento.retirada.detalhes}`;
-                        }
-                        
-                        if (movimento.devolucao) {
-                            devolucaoInfo = `${movimento.devolucao.data} - Km: ${movimento.devolucao.kmDevolucao || 'N/A'}, Combustível: ${movimento.devolucao.combustivelDevolucao || 'N/A'}`;
-                        }
-                        
-                        tr.innerHTML = `
-                            <td>${movimento.retirada?.data || movimento.devolucao?.data || 'N/A'}</td>
-                            <td>${veiculo}</td>
-                            <td>${motorista}</td>
-                            <td>${retiradaInfo}</td>
-                            <td>${devolucaoInfo}</td>
-                        `;
-                        
-                        tbody.appendChild(tr);
-                    }
-                }
             }
             
             function atualizarSelects() {
