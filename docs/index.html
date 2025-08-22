@@ -204,6 +204,12 @@
             border-left: 4px solid #C5221F;
         }
         
+        .warning {
+            background: #FEF7E0;
+            color: #E37400;
+            border-left: 4px solid #F9AB00;
+        }
+        
         .card {
             background: white;
             border-radius: 8px;
@@ -233,6 +239,7 @@
             padding: 20px;
             width: calc(50% - 20px);
             margin-bottom: 20px;
+            position: relative;
         }
         
         .veiculo-disponivel {
@@ -241,6 +248,10 @@
         
         .veiculo-indisponivel {
             border-left: 4px solid #EA4335;
+        }
+        
+        .veiculo-reserva {
+            border-left: 4px solid #F9AB00;
         }
         
         .status-badge {
@@ -260,6 +271,15 @@
         .indisponivel {
             background: #FCE8E6;
             color: #C5221F;
+        }
+        
+        .reserva-alerta {
+            background: #FEF7E0;
+            color: #E37400;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: 500;
         }
         
         footer {
@@ -346,6 +366,10 @@
                         <input type="text" id="destino" placeholder="Destino da viagem" required>
                     </div>
                     
+                    <div id="alertaReservaRetirada" class="reserva-alerta" style="display: none;">
+                        <i class="fas fa-exclamation-triangle"></i> Veículo na reserva, favor abastecer!
+                    </div>
+                    
                     <button type="submit"><i class="fas fa-check-circle"></i> Registrar Retirada</button>
                 </form>
             </div>
@@ -373,7 +397,7 @@
                         <label for="combustivel">Nível de Combustível</label>
                         <select id="combustivel" required>
                             <option value="">Selecione o nível</option>
-                            <option value="Vazio">Vazio</option>
+                            <option value="Reserva">Reserva</option>
                             <option value="1/4">1/4</option>
                             <option value="1/2">1/2</option>
                             <option value="3/4">3/4</option>
@@ -402,8 +426,8 @@
                             <th>Data/Hora</th>
                             <th>Veículo</th>
                             <th>Motorista</th>
-                            <th>Tipo</th>
-                            <th>Detalhes</th>
+                            <th>Retirada</th>
+                            <th>Devolução</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -449,6 +473,21 @@
                         
                         <button type="submit" style="background: #34A853;"><i class="fas fa-plus"></i> Adicionar Veículo</button>
                     </form>
+                    
+                    <div class="card-title" style="margin-top: 20px;">Veículos Cadastrados</div>
+                    <table id="tabelaVeiculos">
+                        <thead>
+                            <tr>
+                                <th>Modelo</th>
+                                <th>Placa</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Os veículos serão listados aqui via JavaScript -->
+                        </tbody>
+                    </table>
                 </div>
                 
                 <div class="card">
@@ -457,11 +496,6 @@
                         <div class="form-group">
                             <label for="nomeCompleto">Nome Completo</label>
                             <input type="text" id="nomeCompleto" placeholder="Ex: João Silva" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="email">E-mail</label>
-                            <input type="email" id="email" placeholder="Ex: joao.silva@email.com" required>
                         </div>
                         
                         <div class="form-group">
@@ -477,7 +511,6 @@
                         <thead>
                             <tr>
                                 <th>Nome Completo</th>
-                                <th>E-mail</th>
                                 <th>Telefone</th>
                                 <th>Ações</th>
                             </tr>
@@ -532,10 +565,12 @@
             const formDevolucao = document.getElementById('formDevolucao');
             const listaVeiculos = document.getElementById('lista-veiculos');
             const tabelaPessoas = document.getElementById('tabelaPessoas');
+            const tabelaVeiculos = document.getElementById('tabelaVeiculos');
             const tabelaHistorico = document.getElementById('tabelaHistorico');
             const veiculoRetirada = document.getElementById('veiculoRetirada');
             const veiculoDevolucao = document.getElementById('veiculoDevolucao');
             const motoristaRetirada = document.getElementById('motoristaRetirada');
+            const alertaReservaRetirada = document.getElementById('alertaReservaRetirada');
             
             // Dados iniciais
             let veiculos = [];
@@ -643,38 +678,23 @@
                 }
                 
                 const nomeCompleto = document.getElementById('nomeCompleto').value;
-                const email = document.getElementById('email').value;
                 const telefone = document.getElementById('telefone').value;
                 
-                // Verificar se já existe uma pessoa com este e-mail
+                // Salvar no Firebase
                 const pessoasRef = database.ref('pessoas');
-                pessoasRef.orderByChild('email').equalTo(email).once('value')
-                    .then((snapshot) => {
-                        if (snapshot.exists()) {
-                            mostrarNotificacao('Já existe uma pessoa com este e-mail.', 'error');
-                            return;
-                        }
-                        
-                        // Salvar no Firebase
-                        const novaPessoaRef = pessoasRef.push();
-                        novaPessoaRef.set({
-                            nomeCompleto: nomeCompleto,
-                            email: email,
-                            telefone: telefone
-                        })
-                        .then(() => {
-                            formPessoa.reset();
-                            mostrarNotificacao('Pessoa adicionada com sucesso!', 'success');
-                        })
-                        .catch((error) => {
-                            console.error('Erro ao salvar pessoa:', error);
-                            mostrarNotificacao('Erro ao salvar pessoa. Tente novamente.', 'error');
-                        });
-                    })
-                    .catch((error) => {
-                        console.error('Erro ao verificar e-mail:', error);
-                        mostrarNotificacao('Erro ao verificar e-mail. Tente novamente.', 'error');
-                    });
+                const novaPessoaRef = pessoasRef.push();
+                novaPessoaRef.set({
+                    nomeCompleto: nomeCompleto,
+                    telefone: telefone
+                })
+                .then(() => {
+                    formPessoa.reset();
+                    mostrarNotificacao('Pessoa adicionada com sucesso!', 'success');
+                })
+                .catch((error) => {
+                    console.error('Erro ao salvar pessoa:', error);
+                    mostrarNotificacao('Erro ao salvar pessoa. Tente novamente.', 'error');
+                });
             });
             
             // Registrar retirada
@@ -704,17 +724,21 @@
                     status: 'Em uso',
                     km: km,
                     motorista: motorista.nomeCompleto,
+                    motoristaTelefone: motorista.telefone,
                     destino: destino
                 })
                 .then(() => {
                     // Registrar no histórico
                     const historicoRef = database.ref('historico').push();
+                    const dataHora = new Date().toLocaleString('pt-BR');
                     historicoRef.set({
-                        data: new Date().toLocaleString('pt-BR'),
+                        data: dataHora,
                         veiculo: veiculo.placa,
                         motorista: motorista.nomeCompleto,
                         tipo: 'Retirada',
-                        detalhes: `Destino: ${destino}, Km: ${km}`
+                        detalhes: `Destino: ${destino}, Km: ${km}`,
+                        dataRetirada: dataHora,
+                        veiculoId: veiculoId
                     })
                     .then(() => {
                         formRetirada.reset();
@@ -754,27 +778,68 @@
                     km: km,
                     combustivel: combustivel,
                     motorista: '',
+                    motoristaTelefone: '',
                     destino: ''
                 })
                 .then(() => {
                     // Registrar no histórico
-                    const historicoRef = database.ref('historico').push();
-                    historicoRef.set({
-                        data: new Date().toLocaleString('pt-BR'),
-                        veiculo: veiculo.placa,
-                        motorista: veiculo.motorista || 'N/A',
-                        tipo: 'Devolução',
-                        detalhes: `Km: ${km}, Combustível: ${combustivel}, Obs: ${observacoes || 'Nenhuma'}`
-                    })
-                    .then(() => {
-                        formDevolucao.reset();
-                        mostrarNotificacao('Devolução registrada com sucesso!', 'success');
-                    });
+                    const historicoRef = database.ref('historico');
+                    // Encontrar a retirada correspondente
+                    historicoRef.orderByChild('veiculoId').equalTo(veiculoId).once('value')
+                        .then((snapshot) => {
+                            let retiradaKey = null;
+                            snapshot.forEach((childSnapshot) => {
+                                const movimento = childSnapshot.val();
+                                if (movimento.tipo === 'Retirada' && !movimento.dataDevolucao) {
+                                    retiradaKey = childSnapshot.key;
+                                }
+                            });
+                            
+                            if (retiradaKey) {
+                                // Atualizar a retirada com dados da devolução
+                                historicoRef.child(retiradaKey).update({
+                                    dataDevolucao: new Date().toLocaleString('pt-BR'),
+                                    kmDevolucao: km,
+                                    combustivelDevolucao: combustivel,
+                                    observacoes: observacoes
+                                })
+                                .then(() => {
+                                    formDevolucao.reset();
+                                    mostrarNotificacao('Devolução registrada com sucesso!', 'success');
+                                });
+                            } else {
+                                // Caso não encontre a retirada, criar novo registro
+                                const novaDevolucaoRef = historicoRef.push();
+                                novaDevolucaoRef.set({
+                                    data: new Date().toLocaleString('pt-BR'),
+                                    veiculo: veiculo.placa,
+                                    motorista: veiculo.motorista || 'N/A',
+                                    tipo: 'Devolução',
+                                    detalhes: `Km: ${km}, Combustível: ${combustivel}, Obs: ${observacoes || 'Nenhuma'}`
+                                })
+                                .then(() => {
+                                    formDevolucao.reset();
+                                    mostrarNotificacao('Devolução registrada com sucesso!', 'success');
+                                });
+                            }
+                        });
                 })
                 .catch((error) => {
                     console.error('Erro ao registrar devolução:', error);
                     mostrarNotificacao('Erro ao registrar devolução. Tente novamente.', 'error');
                 });
+            });
+            
+            // Verificar combustível na reserva ao selecionar veículo
+            veiculoRetirada.addEventListener('change', () => {
+                const veiculoId = veiculoRetirada.value;
+                const veiculo = veiculos.find(v => v.id === veiculoId);
+                
+                if (veiculo && veiculo.combustivel === 'Reserva') {
+                    alertaReservaRetirada.style.display = 'block';
+                } else {
+                    alertaReservaRetirada.style.display = 'none';
+                }
             });
             
             // Funções de carregamento de dados
@@ -792,6 +857,7 @@
                     }
                     
                     renderizarVeiculos();
+                    renderizarTabelaVeiculos();
                     atualizarSelects();
                 });
             }
@@ -840,20 +906,65 @@
                 
                 veiculos.forEach(veiculo => {
                     const veiculoCard = document.createElement('div');
-                    veiculoCard.className = `veiculo-card ${veiculo.status === 'Disponível' ? 'veiculo-disponivel' : 'veiculo-indisponivel'}`;
+                    let cardClass = 'veiculo-card ';
                     
-                    veiculoCard.innerHTML = `
+                    if (veiculo.status === 'Disponível') {
+                        cardClass += 'veiculo-disponivel';
+                    } else if (veiculo.combustivel === 'Reserva') {
+                        cardClass += 'veiculo-reserva';
+                    } else {
+                        cardClass += 'veiculo-indisponivel';
+                    }
+                    
+                    veiculoCard.className = cardClass;
+                    
+                    let veiculoHTML = `
                         <div class="status-badge ${veiculo.status === 'Disponível' ? 'disponivel' : 'indisponivel'}">
                             ${veiculo.status}
                         </div>
                         <h3>${veiculo.modelo} - ${veiculo.placa}</h3>
                         <p>Km atual: ${veiculo.km} km</p>
                         <p>Combustível: ${veiculo.combustivel}</p>
-                        ${veiculo.status !== 'Disponível' ? `<p>Motorista: ${veiculo.motorista}</p>` : ''}
-                        ${veiculo.status !== 'Disponível' ? `<p>Destino: ${veiculo.destino}</p>` : ''}
                     `;
                     
+                    if (veiculo.status !== 'Disponível') {
+                        veiculoHTML += `
+                            <p>Motorista: ${veiculo.motorista}</p>
+                            <p>Telefone: ${veiculo.motoristaTelefone || 'N/A'}</p>
+                            <p>Destino: ${veiculo.destino}</p>
+                        `;
+                    }
+                    
+                    if (veiculo.combustivel === 'Reserva') {
+                        veiculoHTML += `
+                            <div class="reserva-alerta">
+                                <i class="fas fa-exclamation-triangle"></i> Veículo na reserva, favor abastecer!
+                            </div>
+                        `;
+                    }
+                    
+                    veiculoCard.innerHTML = veiculoHTML;
                     listaVeiculos.appendChild(veiculoCard);
+                });
+            }
+            
+            function renderizarTabelaVeiculos() {
+                const tbody = tabelaVeiculos.querySelector('tbody');
+                tbody.innerHTML = '';
+                
+                veiculos.forEach((veiculo) => {
+                    const tr = document.createElement('tr');
+                    
+                    tr.innerHTML = `
+                        <td>${veiculo.modelo}</td>
+                        <td>${veiculo.placa}</td>
+                        <td>${veiculo.status}</td>
+                        <td class="actions admin-only">
+                            <button class="btn-delete" onclick="excluirVeiculo('${veiculo.id}')"><i class="fas fa-trash"></i> Excluir</button>
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(tr);
                 });
             }
             
@@ -861,12 +972,11 @@
                 const tbody = tabelaPessoas.querySelector('tbody');
                 tbody.innerHTML = '';
                 
-                pessoas.forEach((pessoa, index) => {
+                pessoas.forEach((pessoa) => {
                     const tr = document.createElement('tr');
                     
                     tr.innerHTML = `
                         <td>${pessoa.nomeCompleto}</td>
-                        <td>${pessoa.email}</td>
                         <td>${pessoa.telefone}</td>
                         <td class="actions admin-only">
                             <button class="btn-delete" onclick="excluirPessoa('${pessoa.id}')"><i class="fas fa-trash"></i> Excluir</button>
@@ -881,19 +991,59 @@
                 const tbody = tabelaHistorico.querySelector('tbody');
                 tbody.innerHTML = '';
                 
-                historico.forEach(item => {
-                    const tr = document.createElement('tr');
+                // Agrupar retiradas e devoluções por veículo
+                const movimentosAgrupados = {};
+                
+                historico.forEach(movimento => {
+                    if (!movimentosAgrupados[movimento.veiculo]) {
+                        movimentosAgrupados[movimento.veiculo] = {};
+                    }
                     
-                    tr.innerHTML = `
-                        <td>${item.data}</td>
-                        <td>${item.veiculo}</td>
-                        <td>${item.motorista}</td>
-                        <td>${item.tipo}</td>
-                        <td>${item.detalhes}</td>
-                    `;
-                    
-                    tbody.appendChild(tr);
+                    if (movimento.tipo === 'Retirada') {
+                        if (!movimentosAgrupados[movimento.veiculo][movimento.motorista]) {
+                            movimentosAgrupados[movimento.veiculo][movimento.motorista] = {};
+                        }
+                        
+                        if (!movimentosAgrupados[movimento.veiculo][movimento.motorista].retirada) {
+                            movimentosAgrupados[movimento.veiculo][movimento.motorista].retirada = movimento;
+                        }
+                    } else if (movimento.tipo === 'Devolução') {
+                        if (!movimentosAgrupados[movimento.veiculo][movimento.motorista]) {
+                            movimentosAgrupados[movimento.veiculo][movimento.motorista] = {};
+                        }
+                        
+                        movimentosAgrupados[movimento.veiculo][movimento.motorista].devolucao = movimento;
+                    }
                 });
+                
+                // Renderizar histórico agrupado
+                for (const veiculo in movimentosAgrupados) {
+                    for (const motorista in movimentosAgrupados[veiculo]) {
+                        const movimento = movimentosAgrupados[veiculo][motorista];
+                        const tr = document.createElement('tr');
+                        
+                        let retiradaInfo = 'N/A';
+                        let devolucaoInfo = 'N/A';
+                        
+                        if (movimento.retirada) {
+                            retiradaInfo = `${movimento.retirada.data} - ${movimento.retirada.detalhes}`;
+                        }
+                        
+                        if (movimento.devolucao) {
+                            devolucaoInfo = `${movimento.devolucao.data} - Km: ${movimento.devolucao.kmDevolucao || 'N/A'}, Combustível: ${movimento.devolucao.combustivelDevolucao || 'N/A'}`;
+                        }
+                        
+                        tr.innerHTML = `
+                            <td>${movimento.retirada?.data || movimento.devolucao?.data || 'N/A'}</td>
+                            <td>${veiculo}</td>
+                            <td>${motorista}</td>
+                            <td>${retiradaInfo}</td>
+                            <td>${devolucaoInfo}</td>
+                        `;
+                        
+                        tbody.appendChild(tr);
+                    }
+                }
             }
             
             function atualizarSelects() {
@@ -903,6 +1053,9 @@
                     const option = document.createElement('option');
                     option.value = veiculo.id;
                     option.textContent = `${veiculo.modelo} - ${veiculo.placa}`;
+                    if (veiculo.combustivel === 'Reserva') {
+                        option.textContent += ' (Reserva)';
+                    }
                     veiculoRetirada.appendChild(option);
                 });
                 
@@ -920,7 +1073,7 @@
                 pessoas.forEach(pessoa => {
                     const option = document.createElement('option');
                     option.value = pessoa.id;
-                    option.textContent = pessoa.nomeCompleto;
+                    option.textContent = `${pessoa.nomeCompleto} - ${pessoa.telefone}`;
                     motoristaRetirada.appendChild(option);
                 });
             }
@@ -950,6 +1103,24 @@
             }
             
             // Funções globais
+            window.excluirVeiculo = function(veiculoId) {
+                if (!autenticado) {
+                    mostrarNotificacao('Você precisa se autenticar como administrador.', 'error');
+                    return;
+                }
+                
+                if (confirm('Tem certeza que deseja excluir este veículo?')) {
+                    database.ref('veiculos/' + veiculoId).remove()
+                        .then(() => {
+                            mostrarNotificacao('Veículo excluído com sucesso!', 'success');
+                        })
+                        .catch((error) => {
+                            console.error('Erro ao excluir veículo:', error);
+                            mostrarNotificacao('Erro ao excluir veículo. Tente novamente.', 'error');
+                        });
+                }
+            };
+            
             window.excluirPessoa = function(pessoaId) {
                 if (!autenticado) {
                     mostrarNotificacao('Você precisa se autenticar como administrador.', 'error');
