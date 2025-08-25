@@ -451,6 +451,8 @@
                             <th>Km Devolução</th>
                             <th>Combustível Devolução</th>
                             <th>Destino</th>
+                            <th>Observações</th>
+                            <th class="admin-only">Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -1063,6 +1065,7 @@
                     const combustivelRetirada = movimento.combustivelRetirada || 'N/A';
                     const combustivelDevolucao = movimento.combustivelDevolucao || 'N/A';
                     const destino = movimento.destino || 'N/A';
+                    const observacoes = movimento.observacoes || 'N/A';
                     
                     tr.innerHTML = `
                         <td>${dataRetirada}<br>${dataDevolucao}</td>
@@ -1073,6 +1076,10 @@
                         <td>${kmDevolucao}</td>
                         <td>${combustivelDevolucao}</td>
                         <td>${destino}</td>
+                        <td>${observacoes}</td>
+                        <td class="actions admin-only">
+                            <button class="btn-delete" onclick="excluirHistorico('${movimento.id}')"><i class="fas fa-trash"></i> Excluir</button>
+                        </td>
                     `;
                     
                     tbody.appendChild(tr);
@@ -1168,6 +1175,24 @@
                         .catch((error) => {
                             console.error('Erro ao excluir pessoa:', error);
                             mostrarNotificacao('Erro ao excluir pessoa. Tente novamente.', 'error');
+                        });
+                }
+            };
+            
+            window.excluirHistorico = function(historicoId) {
+                if (!autenticado) {
+                    mostrarNotificacao('Você precisa se autenticar como administrador.', 'error');
+                    return;
+                }
+                
+                if (confirm('Tem certeza que deseja excluir este registro do histórico?')) {
+                    database.ref('historico/' + historicoId).remove()
+                        .then(() => {
+                            mostrarNotificacao('Registro do histórico excluído com sucesso!', 'success');
+                        })
+                        .catch((error) => {
+                            console.error('Erro ao excluir registro do histórico:', error);
+                            mostrarNotificacao('Erro ao excluir registro do histórico. Tente novamente.', 'error');
                         });
                 }
             };
