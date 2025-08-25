@@ -473,7 +473,7 @@
                     <div class="admin-access">
                         <i class="fas fa-lock" style="font-size: 48px; color: #F44336; margin-bottom: 15px;"></i>
                         <h3>Acesso Administrativo</h3>
-                        <p>Para acessar as funções administrativas, digite a senha de administração:</p>
+                        <p>Para acessar las funções administrativas, digite a senha de administração:</p>
                         
                         <div class="form-group">
                             <div class="password-toggle">
@@ -791,7 +791,8 @@
                         combustivelRetirada: combustivel,
                         destino: destino,
                         status: 'Em uso',
-                        veiculoId: veiculoId
+                        veiculoId: veiculoId,
+                        timestamp: Date.now() // Adicionar timestamp para ordenação
                     })
                     .then(() => {
                         formRetirada.reset();
@@ -857,7 +858,8 @@
                                     kmDevolucao: km,
                                     combustivelDevolucao: combustivel,
                                     observacoes: observacoes,
-                                    status: 'Devolvido'
+                                    status: 'Devolvido',
+                                    timestamp: Date.now() // Atualizar timestamp para ordenação
                                 })
                                 .then(() => {
                                     formDevolucao.reset();
@@ -876,7 +878,8 @@
                                     combustivelDevolucao: combustivel,
                                     observacoes: observacoes,
                                     status: 'Devolvido',
-                                    veiculoId: veiculoId
+                                    veiculoId: veiculoId,
+                                    timestamp: Date.now() // Adicionar timestamp para ordenação
                                 })
                                 .then(() => {
                                     formDevolucao.reset();
@@ -954,14 +957,14 @@
                         }
                     }
                     
-                    // Ordenar por data (mais recente primeiro) - CORRIGIDO
+                    // Ordenar por timestamp (mais recente primeiro) - CORREÇÃO
                     historico.sort((a, b) => {
-                        // Usar data de devolução se disponível, caso contrário usar data de retirada
-                        const dateA = a.dataDevolucao ? new Date(a.dataDevolucao) : new Date(a.dataRetirada);
-                        const dateB = b.dataDevolucao ? new Date(b.dataDevolucao) : new Date(b.dataRetirada);
+                        // Usar timestamp se disponível, caso contrário usar data
+                        const timestampA = a.timestamp || (a.dataDevolucao ? new Date(a.dataDevolucao).getTime() : new Date(a.dataRetirada).getTime());
+                        const timestampB = b.timestamp || (b.dataDevolucao ? new Date(b.dataDevolucao).getTime() : new Date(b.dataRetirada).getTime());
                         
                         // Ordenar do mais recente para o mais antigo
-                        return dateB - dateA;
+                        return timestampB - timestampA;
                     });
                     
                     renderizarHistorico();
