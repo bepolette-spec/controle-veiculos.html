@@ -415,23 +415,23 @@
                 <h1>Controle de Veículos</h1>
             </div>
             <ul class="menu">
-                <li class="menu-item active" data-target="status">
+                <li class="menu-item active">
                     <i class="fas fa-car"></i>
                     <span>Status dos Veículos</span>
                 </li>
-                <li class="menu-item" data-target="withdraw">
+                <li class="menu-item">
                     <i class="fas fa-key"></i>
                     <span>Registrar Retirada</span>
                 </li>
-                <li class="menu-item" data-target="return">
+                <li class="menu-item">
                     <i class="fas fa-undo"></i>
                     <span>Registrar Devolução</span>
                 </li>
-                <li class="menu-item" data-target="history">
+                <li class="menu-item">
                     <i class="fas fa-history"></i>
                     <span>Histórico</span>
                 </li>
-                <li class="menu-item" data-target="admin">
+                <li class="menu-item">
                     <i class="fas fa-cog"></i>
                     <span>Administração</span>
                 </li>
@@ -524,7 +524,7 @@
                             <td><span class="status available">Disponível</span></td>
                             <td>-</td>
                             <td>
-                                <button class="action-btn btn-primary" onclick="openWithdrawModal('HB20', 'ABC-1234')">Retirar</button>
+                                <button class="action-btn btn-primary">Retirar</button>
                                 <button class="action-btn btn-secondary">Detalhes</button>
                             </td>
                         </tr>
@@ -535,7 +535,7 @@
                             <td><span class="status unavailable">Em uso</span></td>
                             <td>Maria Santos</td>
                             <td>
-                                <button class="action-btn btn-primary" onclick="openReturnModal('Corolla', 'DEF-5678')">Devolver</button>
+                                <button class="action-btn btn-primary">Devolver</button>
                                 <button class="action-btn btn-secondary">Detalhes</button>
                             </td>
                         </tr>
@@ -556,7 +556,7 @@
                             <td><span class="status available">Disponível</span></td>
                             <td>-</td>
                             <td>
-                                <button class="action-btn btn-primary" onclick="openWithdrawModal('Compass', 'JKL-3456')">Retirar</button>
+                                <button class="action-btn btn-primary">Retirar</button>
                                 <button class="action-btn btn-secondary">Detalhes</button>
                             </td>
                         </tr>
@@ -567,38 +567,10 @@
                             <td><span class="status unavailable">Em uso</span></td>
                             <td>João Oliveira</td>
                             <td>
-                                <button class="action-btn btn-primary" onclick="openReturnModal('Strada', 'MNO-7890')">Devolver</button>
+                                <button class="action-btn btn-primary">Devolver</button>
                                 <button class="action-btn btn-secondary">Detalhes</button>
                             </td>
                         </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <!-- History Section (Initially Hidden) -->
-            <div class="table-section" id="history-section" style="display: none;">
-                <div class="table-header">
-                    <div class="table-title">Histórico de Movimentações</div>
-                    <div class="search-box">
-                        <i class="fas fa-search"></i>
-                        <input type="text" placeholder="Buscar no histórico..." id="history-search">
-                    </div>
-                </div>
-                
-                <table id="history-table">
-                    <thead>
-                        <tr>
-                            <th>Data/Hora</th>
-                            <th>Veículo</th>
-                            <th>Placa</th>
-                            <th>Tipo</th>
-                            <th>Responsável</th>
-                            <th>Observações</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="history-body">
-                        <!-- Histórico será carregado aqui -->
                     </tbody>
                 </table>
             </div>
@@ -631,74 +603,13 @@
                     </div>
                 </div>
                 
-                <div class="form-group">
-                    <label for="notes">Observações</label>
-                    <textarea id="notes" rows="2" placeholder="Adicione observações sobre a retirada do veículo"></textarea>
-                </div>
-                
-                <button class="submit-btn" onclick="registerQuickWithdrawal()">Registrar Retirada</button>
+                <button class="submit-btn">Registrar Retirada</button>
             </div>
 
             <!-- Footer -->
             <div class="footer">
                 Sistema de Controle de Veículos © 2023 - Desenvolvido para gerenciamento de frotas
             </div>
-        </div>
-    </div>
-
-    <!-- Modal para retirada de veículo -->
-    <div id="withdraw-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Registrar Retirada</h3>
-                <span class="close" onclick="closeModal('withdraw-modal')">&times;</span>
-            </div>
-            <div class="form-group">
-                <label for="withdraw-vehicle">Veículo</label>
-                <input type="text" id="withdraw-vehicle" readonly>
-            </div>
-            <div class="form-group">
-                <label for="withdraw-plate">Placa</label>
-                <input type="text" id="withdraw-plate" readonly>
-            </div>
-            <div class="form-group">
-                <label for="withdraw-driver">Motorista</label>
-                <select id="withdraw-driver">
-                    <option value="">Selecione um motorista</option>
-                    <option value="1">Carlos Silva</option>
-                    <option value="2">Maria Santos</option>
-                    <option value="3">João Oliveira</option>
-                    <option value="4">Ana Costa</option>
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="withdraw-notes">Observações</label>
-                <textarea id="withdraw-notes" rows="3" placeholder="Adicione observações sobre a retirada"></textarea>
-            </div>
-            <button class="submit-btn" onclick="registerWithdrawal()">Confirmar Retirada</button>
-        </div>
-    </div>
-
-    <!-- Modal para devolução de veículo -->
-    <div id="return-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Registrar Devolução</h3>
-                <span class="close" onclick="closeModal('return-modal')">&times;</span>
-            </div>
-            <div class="form-group">
-                <label for="return-vehicle">Veículo</label>
-                <input type="text" id="return-vehicle" readonly>
-            </div>
-            <div class="form-group">
-                <label for="return-plate">Placa</label>
-                <input type="text" id="return-plate" readonly>
-            </div>
-            <div class="form-group">
-                <label for="return-notes">Observações</label>
-                <textarea id="return-notes" rows="3" placeholder="Adicione observações sobre a devolução"></textarea>
-            </div>
-            <button class="submit-btn" onclick="registerReturn()">Confirmar Devolução</button>
         </div>
     </div>
 
@@ -769,8 +680,14 @@
                     menuItems.forEach(i => i.classList.remove('active'));
                     this.classList.add('active');
                     
-                    const target = this.getAttribute('data-target');
-                    changeSection(target);
+                    // Verifica se é o menu de histórico
+                    if (this.querySelector('span').textContent === 'Histórico') {
+                        showHistory();
+                    } 
+                    // Verifica se é o menu de administração
+                    else if (this.querySelector('span').textContent === 'Administração') {
+                        openModal('admin-modal');
+                    }
                 });
             });
             
@@ -779,58 +696,123 @@
             actionButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     if (this.textContent === 'Retirar') {
-                        // Já tratado pelo onclick
+                        // Simular registro de retirada com observações
+                        const row = this.closest('tr');
+                        const vehicle = row.cells[0].textContent;
+                        const plate = row.cells[1].textContent;
+                        
+                        const notes = prompt("Digite as observações para a retirada:");
+                        if (notes !== null) {
+                            registerHistory(vehicle, plate, "Retirada", "Usuário", notes);
+                            alert('Retirada registrada com sucesso!');
+                        }
                     } else if (this.textContent === 'Devolver') {
-                        // Já tratado pelo onclick
+                        // Simular registro de devolução com observações
+                        const row = this.closest('tr');
+                        const vehicle = row.cells[0].textContent;
+                        const plate = row.cells[1].textContent;
+                        
+                        const notes = prompt("Digite as observações para a devolução:");
+                        if (notes !== null) {
+                            registerHistory(vehicle, plate, "Devolução", "Usuário", notes);
+                            alert('Devolução registrada com sucesso!');
+                        }
                     } else {
                         alert('Exibindo detalhes do veículo...');
                     }
                 });
             });
             
-            // Carregar histórico inicial
-            loadHistory();
+            // Botão de registro rápido
+            const submitBtn = document.querySelector('.submit-btn');
+            submitBtn.addEventListener('click', function() {
+                const vehicle = document.getElementById('vehicle').value;
+                const driver = document.getElementById('driver').value;
+                
+                if (!vehicle || !driver) {
+                    alert('Por favor, selecione um veículo e um motorista.');
+                    return;
+                }
+                
+                const notes = prompt("Digite as observações para a retirada:");
+                if (notes !== null) {
+                    const vehicleText = document.getElementById('vehicle').options[document.getElementById('vehicle').selectedIndex].text;
+                    const vehicleParts = vehicleText.split(' - ');
+                    
+                    registerHistory(vehicleParts[0], vehicleParts[1], "Retirada", "Usuário", notes);
+                    alert('Retirada registrada com sucesso!');
+                }
+            });
         });
 
-        // Função para mudar de seção
-        function changeSection(section) {
-            if (section === 'history') {
-                document.getElementById('history-section').style.display = 'block';
-                document.querySelector('.table-section').style.display = 'none';
-                document.querySelector('.form-section').style.display = 'none';
-                document.querySelector('.header h2').textContent = 'Histórico de Movimentações';
-            } else if (section === 'admin') {
-                openModal('admin-modal');
-            } else {
-                document.getElementById('history-section').style.display = 'none';
-                document.querySelector('.table-section').style.display = 'block';
-                document.querySelector('.form-section').style.display = 'block';
-                
-                if (section === 'status') {
-                    document.querySelector('.header h2').textContent = 'Status dos Veículos';
-                } else if (section === 'withdraw') {
-                    document.querySelector('.header h2').textContent = 'Registrar Retirada';
-                } else if (section === 'return') {
-                    document.querySelector('.header h2').textContent = 'Registrar Devolução';
+        // Função para registrar no histórico
+        function registerHistory(vehicle, plate, type, driver, notes) {
+            const now = new Date();
+            const dateTime = now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR');
+            
+            // Adicionar ao histórico (ordenado por data mais recente primeiro)
+            historyData.unshift({
+                id: historyData.length > 0 ? Math.max(...historyData.map(item => item.id)) + 1 : 1,
+                date: dateTime,
+                vehicle: vehicle,
+                plate: plate,
+                type: type,
+                driver: driver,
+                notes: notes
+            });
+        }
+
+        // Função para mostrar histórico
+        function showHistory() {
+            // Criar modal para histórico
+            const historyModal = document.createElement('div');
+            historyModal.className = 'modal';
+            historyModal.innerHTML = `
+                <div class="modal-content" style="max-width: 90%; max-height: 80%; overflow: auto;">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Histórico de Movimentações</h3>
+                        <span class="close" onclick="document.body.removeChild(this.parentNode.parentNode.parentNode)">&times;</span>
+                    </div>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data/Hora</th>
+                                <th>Veículo</th>
+                                <th>Placa</th>
+                                <th>Tipo</th>
+                                <th>Responsável</th>
+                                <th>Observações</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${historyData.map(item => `
+                                <tr>
+                                    <td>${item.date}</td>
+                                    <td>${item.vehicle}</td>
+                                    <td>${item.plate}</td>
+                                    <td>${item.type}</td>
+                                    <td>${item.driver}</td>
+                                    <td>${item.notes}</td>
+                                    <td>
+                                        ${isAdmin ? `<button class="action-btn btn-danger" onclick="deleteHistoryItem(${item.id})">Excluir</button>` : ''}
+                                    </td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            
+            historyModal.style.display = 'flex';
+            document.body.appendChild(historyModal);
+            
+            // Fechar modal ao clicar fora dele
+            historyModal.addEventListener('click', function(e) {
+                if (e.target === historyModal) {
+                    document.body.removeChild(historyModal);
                 }
-            }
-        }
-
-        // Função para abrir modal de retirada
-        function openWithdrawModal(vehicle, plate) {
-            document.getElementById('withdraw-vehicle').value = vehicle;
-            document.getElementById('withdraw-plate').value = plate;
-            document.getElementById('withdraw-driver').value = "";
-            document.getElementById('withdraw-notes').value = "";
-            openModal('withdraw-modal');
-        }
-
-        // Função para abrir modal de devolução
-        function openReturnModal(vehicle, plate) {
-            document.getElementById('return-vehicle').value = vehicle;
-            document.getElementById('return-plate').value = plate;
-            document.getElementById('return-notes').value = "";
-            openModal('return-modal');
+            });
         }
 
         // Função para abrir modal
@@ -843,127 +825,6 @@
             document.getElementById(modalId).style.display = 'none';
         }
 
-        // Registrar retirada
-        function registerWithdrawal() {
-            const vehicle = document.getElementById('withdraw-vehicle').value;
-            const plate = document.getElementById('withdraw-plate').value;
-            const driverSelect = document.getElementById('withdraw-driver');
-            const driver = driverSelect.options[driverSelect.selectedIndex].text;
-            const notes = document.getElementById('withdraw-notes').value;
-            
-            if (!driver) {
-                alert('Por favor, selecione um motorista.');
-                return;
-            }
-            
-            // Adicionar ao histórico (ordenado por data mais recente primeiro)
-            const now = new Date();
-            const dateTime = now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR');
-            
-            historyData.unshift({
-                id: historyData.length > 0 ? Math.max(...historyData.map(item => item.id)) + 1 : 1,
-                date: dateTime,
-                vehicle: vehicle,
-                plate: plate,
-                type: "Retirada",
-                driver: driver,
-                notes: notes
-            });
-            
-            loadHistory();
-            closeModal('withdraw-modal');
-            alert('Retirada registrada com sucesso!');
-        }
-
-        // Registrar devolução
-        function registerReturn() {
-            const vehicle = document.getElementById('return-vehicle').value;
-            const plate = document.getElementById('return-plate').value;
-            const notes = document.getElementById('return-notes').value;
-            
-            // Adicionar ao histórico (ordenado por data mais recente primeiro)
-            const now = new Date();
-            const dateTime = now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR');
-            
-            historyData.unshift({
-                id: historyData.length > 0 ? Math.max(...historyData.map(item => item.id)) + 1 : 1,
-                date: dateTime,
-                vehicle: vehicle,
-                plate: plate,
-                type: "Devolução",
-                driver: "Sistema",
-                notes: notes
-            });
-            
-            loadHistory();
-            closeModal('return-modal');
-            alert('Devolução registrada com sucesso!');
-        }
-
-        // Registrar retirada rápida
-        function registerQuickWithdrawal() {
-            const vehicleSelect = document.getElementById('vehicle');
-            const vehicleText = vehicleSelect.options[vehicleSelect.selectedIndex].text;
-            const driverSelect = document.getElementById('driver');
-            const driver = driverSelect.options[driverSelect.selectedIndex].text;
-            const notes = document.getElementById('notes').value;
-            
-            if (!vehicleText || vehicleText === "Selecione um veículo" || !driver || driver === "Selecione um motorista") {
-                alert('Por favor, selecione um veículo e um motorista.');
-                return;
-            }
-            
-            const vehicleParts = vehicleText.split(' - ');
-            const vehicle = vehicleParts[0];
-            const plate = vehicleParts[1];
-            
-            // Adicionar ao histórico (ordenado por data mais recente primeiro)
-            const now = new Date();
-            const dateTime = now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR');
-            
-            historyData.unshift({
-                id: historyData.length > 0 ? Math.max(...historyData.map(item => item.id)) + 1 : 1,
-                date: dateTime,
-                vehicle: vehicle,
-                plate: plate,
-                type: "Retirada",
-                driver: driver,
-                notes: notes
-            });
-            
-            loadHistory();
-            alert('Retirada registrada com sucesso!');
-            
-            // Limpar formulário
-            vehicleSelect.value = "";
-            driverSelect.value = "";
-            document.getElementById('notes').value = "";
-        }
-
-        // Carregar histórico (ordenado do mais recente para o mais antigo)
-        function loadHistory() {
-            const historyBody = document.getElementById('history-body');
-            historyBody.innerHTML = '';
-            
-            historyData.forEach(item => {
-                const row = document.createElement('tr');
-                
-                row.innerHTML = `
-                    <td>${item.date}</td>
-                    <td>${item.vehicle}</td>
-                    <td>${item.plate}</td>
-                    <td>${item.type}</td>
-                    <td>${item.driver}</td>
-                    <td>${item.notes}</td>
-                    <td>
-                        ${isAdmin ? `<button class="action-btn btn-danger" onclick="deleteHistoryItem(${item.id})">Excluir</button>` : ''}
-                    </td>
-                `;
-                
-                historyBody.appendChild(row);
-            });
-        }
-
         // Login de administração
         function loginAdmin() {
             const password = document.getElementById('admin-password').value;
@@ -972,7 +833,6 @@
             if (password === "admin123") {
                 isAdmin = true;
                 closeModal('admin-modal');
-                loadHistory(); // Recarregar histórico para mostrar botões de exclusão
                 alert('Acesso de administração concedido.');
             } else {
                 alert('Senha incorreta. Tente novamente.');
@@ -988,7 +848,14 @@
             
             if (confirm('Tem certeza que deseja excluir este item do histórico?')) {
                 historyData = historyData.filter(item => item.id !== id);
-                loadHistory();
+                
+                // Fechar e reabrir o histórico para atualizar
+                const historyModal = document.querySelector('.modal');
+                if (historyModal) {
+                    document.body.removeChild(historyModal);
+                }
+                showHistory();
+                
                 alert('Item excluído com sucesso.');
             }
         }
