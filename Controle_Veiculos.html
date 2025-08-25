@@ -256,11 +256,6 @@
             color: #2a5298;
         }
         
-        .btn-danger {
-            background-color: #f44336;
-            color: white;
-        }
-        
         /* Forms */
         .form-section {
             background: white;
@@ -288,7 +283,7 @@
             color: #555;
         }
         
-        .form-group input, .form-group select, .form-group textarea {
+        .form-group input, .form-group select {
             width: 100%;
             padding: 12px 15px;
             border: 1px solid #ddd;
@@ -314,52 +309,6 @@
             cursor: pointer;
             font-size: 16px;
             font-weight: 500;
-        }
-        
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .modal-content {
-            background-color: white;
-            border-radius: 10px;
-            padding: 20px;
-            width: 400px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-        }
-        
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-        
-        .modal-title {
-            font-size: 18px;
-            color: #2a5298;
-            font-weight: 600;
-        }
-        
-        .close {
-            color: #aaa;
-            font-size: 24px;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        
-        .close:hover {
-            color: #333;
         }
         
         /* Footer */
@@ -399,10 +348,6 @@
             .form-row {
                 flex-direction: column;
                 gap: 0;
-            }
-            
-            .modal-content {
-                width: 90%;
             }
         }
     </style>
@@ -613,64 +558,7 @@
         </div>
     </div>
 
-    <!-- Modal de administração -->
-    <div id="admin-modal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title">Acesso de Administração</h3>
-                <span class="close" onclick="closeModal('admin-modal')">&times;</span>
-            </div>
-            <div class="form-group">
-                <label for="admin-password">Senha de Administração</label>
-                <input type="password" id="admin-password" placeholder="Digite a senha de administração">
-            </div>
-            <button class="submit-btn" onclick="loginAdmin()">Acessar</button>
-        </div>
-    </div>
-
     <script>
-        // Dados de exemplo para o histórico
-        let historyData = [
-            {
-                id: 1,
-                date: "2023-10-15 14:30",
-                vehicle: "HB20",
-                plate: "ABC-1234",
-                type: "Retirada",
-                driver: "Carlos Silva",
-                notes: "Viagem para reunião com cliente"
-            },
-            {
-                id: 2,
-                date: "2023-10-15 09:15",
-                vehicle: "Corolla",
-                plate: "DEF-5678",
-                type: "Devolução",
-                driver: "Maria Santos",
-                notes: "Veículo com tanque cheio"
-            },
-            {
-                id: 3,
-                date: "2023-10-14 16:45",
-                vehicle: "Strada",
-                plate: "MNO-7890",
-                type: "Retirada",
-                driver: "João Oliveira",
-                notes: "Transporte de materiais para obra"
-            },
-            {
-                id: 4,
-                date: "2023-10-14 11:20",
-                vehicle: "Compass",
-                plate: "JKL-3456",
-                type: "Devolução",
-                driver: "Ana Costa",
-                notes: "Veículo lavado e revisado"
-            }
-        ];
-
-        let isAdmin = false;
-
         // Simulação de interatividade
         document.addEventListener('DOMContentLoaded', function() {
             // Menu interativo
@@ -679,15 +567,6 @@
                 item.addEventListener('click', function() {
                     menuItems.forEach(i => i.classList.remove('active'));
                     this.classList.add('active');
-                    
-                    // Verifica se é o menu de histórico
-                    if (this.querySelector('span').textContent === 'Histórico') {
-                        showHistory();
-                    } 
-                    // Verifica se é o menu de administração
-                    else if (this.querySelector('span').textContent === 'Administração') {
-                        openModal('admin-modal');
-                    }
                 });
             });
             
@@ -696,27 +575,9 @@
             actionButtons.forEach(button => {
                 button.addEventListener('click', function() {
                     if (this.textContent === 'Retirar') {
-                        // Simular registro de retirada com observações
-                        const row = this.closest('tr');
-                        const vehicle = row.cells[0].textContent;
-                        const plate = row.cells[1].textContent;
-                        
-                        const notes = prompt("Digite as observações para a retirada:");
-                        if (notes !== null) {
-                            registerHistory(vehicle, plate, "Retirada", "Usuário", notes);
-                            alert('Retirada registrada com sucesso!');
-                        }
+                        alert('Registrando retirada do veículo...');
                     } else if (this.textContent === 'Devolver') {
-                        // Simular registro de devolução com observações
-                        const row = this.closest('tr');
-                        const vehicle = row.cells[0].textContent;
-                        const plate = row.cells[1].textContent;
-                        
-                        const notes = prompt("Digite as observações para a devolução:");
-                        if (notes !== null) {
-                            registerHistory(vehicle, plate, "Devolução", "Usuário", notes);
-                            alert('Devolução registrada com sucesso!');
-                        }
+                        alert('Registrando devolução do veículo...');
                     } else {
                         alert('Exibindo detalhes do veículo...');
                     }
@@ -734,131 +595,9 @@
                     return;
                 }
                 
-                const notes = prompt("Digite as observações para a retirada:");
-                if (notes !== null) {
-                    const vehicleText = document.getElementById('vehicle').options[document.getElementById('vehicle').selectedIndex].text;
-                    const vehicleParts = vehicleText.split(' - ');
-                    
-                    registerHistory(vehicleParts[0], vehicleParts[1], "Retirada", "Usuário", notes);
-                    alert('Retirada registrada com sucesso!');
-                }
+                alert('Retirada registrada com sucesso!');
             });
         });
-
-        // Função para registrar no histórico
-        function registerHistory(vehicle, plate, type, driver, notes) {
-            const now = new Date();
-            const dateTime = now.toLocaleDateString('pt-BR') + ' ' + now.toLocaleTimeString('pt-BR');
-            
-            // Adicionar ao histórico (ordenado por data mais recente primeiro)
-            historyData.unshift({
-                id: historyData.length > 0 ? Math.max(...historyData.map(item => item.id)) + 1 : 1,
-                date: dateTime,
-                vehicle: vehicle,
-                plate: plate,
-                type: type,
-                driver: driver,
-                notes: notes
-            });
-        }
-
-        // Função para mostrar histórico
-        function showHistory() {
-            // Criar modal para histórico
-            const historyModal = document.createElement('div');
-            historyModal.className = 'modal';
-            historyModal.innerHTML = `
-                <div class="modal-content" style="max-width: 90%; max-height: 80%; overflow: auto;">
-                    <div class="modal-header">
-                        <h3 class="modal-title">Histórico de Movimentações</h3>
-                        <span class="close" onclick="document.body.removeChild(this.parentNode.parentNode.parentNode)">&times;</span>
-                    </div>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Data/Hora</th>
-                                <th>Veículo</th>
-                                <th>Placa</th>
-                                <th>Tipo</th>
-                                <th>Responsável</th>
-                                <th>Observações</th>
-                                <th>Ações</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            ${historyData.map(item => `
-                                <tr>
-                                    <td>${item.date}</td>
-                                    <td>${item.vehicle}</td>
-                                    <td>${item.plate}</td>
-                                    <td>${item.type}</td>
-                                    <td>${item.driver}</td>
-                                    <td>${item.notes}</td>
-                                    <td>
-                                        ${isAdmin ? `<button class="action-btn btn-danger" onclick="deleteHistoryItem(${item.id})">Excluir</button>` : ''}
-                                    </td>
-                                </tr>
-                            `).join('')}
-                        </tbody>
-                    </table>
-                </div>
-            `;
-            
-            historyModal.style.display = 'flex';
-            document.body.appendChild(historyModal);
-            
-            // Fechar modal ao clicar fora dele
-            historyModal.addEventListener('click', function(e) {
-                if (e.target === historyModal) {
-                    document.body.removeChild(historyModal);
-                }
-            });
-        }
-
-        // Função para abrir modal
-        function openModal(modalId) {
-            document.getElementById(modalId).style.display = 'flex';
-        }
-
-        // Função para fechar modal
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        // Login de administração
-        function loginAdmin() {
-            const password = document.getElementById('admin-password').value;
-            
-            // Senha de exemplo (em um sistema real, isso seria validado no servidor)
-            if (password === "admin123") {
-                isAdmin = true;
-                closeModal('admin-modal');
-                alert('Acesso de administração concedido.');
-            } else {
-                alert('Senha incorreta. Tente novamente.');
-            }
-        }
-
-        // Excluir item do histórico
-        function deleteHistoryItem(id) {
-            if (!isAdmin) {
-                alert('Acesso negado. É necessário ter permissões de administrador.');
-                return;
-            }
-            
-            if (confirm('Tem certeza que deseja excluir este item do histórico?')) {
-                historyData = historyData.filter(item => item.id !== id);
-                
-                // Fechar e reabrir o histórico para atualizar
-                const historyModal = document.querySelector('.modal');
-                if (historyModal) {
-                    document.body.removeChild(historyModal);
-                }
-                showHistory();
-                
-                alert('Item excluído com sucesso.');
-            }
-        }
     </script>
 </body>
 </html>
