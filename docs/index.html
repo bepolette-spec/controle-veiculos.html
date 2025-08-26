@@ -20,7 +20,7 @@
         }
         
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
             background: white;
             border-radius: 10px;
@@ -323,6 +323,15 @@
             margin-right: 10px;
         }
         
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+        }
+        
         footer {
             text-align: center;
             padding: 20px;
@@ -331,7 +340,12 @@
             margin-top: 30px;
         }
         
-        @media (max-width: 768px) {
+        @media (max-width: 992px) {
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
             .tabs {
                 flex-direction: column;
             }
@@ -453,24 +467,21 @@
                         </select>
                     </div>
                     
-                    <div class="form-group">
-                        <label for="dataReserva">Data da Reserva</label>
-                        <input type="date" id="dataReserva" required min="">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="dataInicioReserva">Data e Hora de Início</label>
+                            <input type="datetime-local" id="dataInicioReserva" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="dataFimReserva">Data e Hora de Término</label>
+                            <input type="datetime-local" id="dataFimReserva" required>
+                        </div>
                     </div>
                     
                     <div class="form-group">
-                        <label for="periodoReserva">Período</label>
-                        <select id="periodoReserva" required>
-                            <option value="">Selecione o período</option>
-                            <option value="Manhã">Manhã (08:00 - 12:00)</option>
-                            <option value="Tarde">Tarde (13:00 - 18:00)</option>
-                            <option value="Dia Todo">Dia Todo (08:00 - 18:00)</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="destinoReserva">Destino</label>
-                        <input type="text" id="destinoReserva" placeholder="Destino da viagem" required>
+                        <label for="destinoReserva">Destino/Finalidade</label>
+                        <input type="text" id="destinoReserva" placeholder="Destino ou finalidade da reserva" required>
                     </div>
                     
                     <div id="alertaCnhReserva" class="cnh-alerta" style="display: none;">
@@ -479,6 +490,10 @@
                     
                     <div id="alertaPermissaoReserva" class="reserva-alerta" style="display: none;">
                         <i class="fas fa-exclamation-triangle"></i> Esta pessoa não tem permissão para reservar veículos.
+                    </div>
+                    
+                    <div id="alertaDataReserva" class="reserva-alerta" style="display: none;">
+                        <i class="fas fa-exclamation-triangle"></i> A data de término deve ser posterior à data de início.
                     </div>
                     
                     <button type="submit" id="btnRegistrarReserva"><i class="fas fa-calendar-check"></i> Reservar Veículo</button>
@@ -661,8 +676,8 @@
                             <tr>
                                 <th>Veículo</th>
                                 <th>Motorista</th>
-                                <th>Data</th>
-                                <th>Período</th>
+                                <th>Início</th>
+                                <th>Término</th>
                                 <th>Destino</th>
                                 <th>Ações</th>
                             </tr>
@@ -734,11 +749,13 @@
             const motoristaRetirada = document.getElementById('motoristaRetirada');
             const motoristaReserva = document.getElementById('motoristaReserva');
             const combustivelRetirada = document.getElementById('combustivelRetirada');
+            const dataInicioReserva = document.getElementById('dataInicioReserva');
+            const dataFimReserva = document.getElementById('dataFimReserva');
             const alertaReservaRetirada = document.getElementById('alertaReservaRetirada');
             const alertaCnhRetirada = document.getElementById('alertaCnhRetirada');
             const alertaCnhReserva = document.getElementById('alertaCnhReserva');
             const alertaPermissaoReserva = document.getElementById('alertaPermissaoReserva');
-            const dataReserva = document.getElementById('dataReserva');
+            const alertaDataReserva = document.getElementById('alertaDataReserva');
             const btnRegistrarRetirada = document.getElementById('btnRegistrarRetirada');
             const btnRegistrarReserva = document.getElementById('btnRegistrarReserva');
             
@@ -760,10 +777,36 @@
             carregarReservas();
             atualizarSelects();
             
-            // Definir data mínima para reservas (amanhã)
-            const amanha = new Date();
-            amanha.setDate(amanha.getDate() + 1);
-            dataReserva.min = amanha.toISOString().split('T')[0];
+            // Definir data/hora mínima para reservas (agora)
+            const agora = new Date();
+            // Ajustar para o próximo minuto para evitar problemas com segundos
+            agora.setMinutes(agora.getMinutes() + 1);
+            dataInicioReserva.min = formatarDataParaInput(agora);
+            
+            // Quando a data de início muda, atualizar a data mínima de fim
+            dataInicioReserva.addEventListener('change', () => {
+                if (dataInicioReserva.value) {
+                    dataFimReserva.min = dataInicioReserva.value;
+                    validarDatasReserva();
+                }
+            });
+            
+            dataFimReserva.addEventListener('change', validarDatasReserva);
+            
+            function validarDatasReserva() {
+                if (dataInicioReserva.value && dataFimReserva.value) {
+                    const inicio = new Date(dataInicioReserva.value);
+                    const fim = new Date(dataFimReserva.value);
+                    
+                    if (fim <= inicio) {
+                        alertaDataReserva.style.display = 'block';
+                        btnRegistrarReserva.disabled = true;
+                    } else {
+                        alertaDataReserva.style.display = 'none';
+                        btnRegistrarReserva.disabled = false;
+                    }
+                }
+            }
             
             // Alternar abas
             tabs.forEach(tab => {
@@ -965,11 +1008,11 @@
                 
                 const veiculoId = veiculoReserva.value;
                 const motoristaId = motoristaReserva.value;
-                const data = dataReserva.value;
-                const periodo = document.getElementById('periodoReserva').value;
+                const dataInicio = dataInicioReserva.value;
+                const dataFim = dataFimReserva.value;
                 const destino = document.getElementById('destinoReserva').value;
                 
-                if (!veiculoId || !motoristaId || !data || !periodo) {
+                if (!veiculoId || !motoristaId || !dataInicio || !dataFim) {
                     mostrarNotificacao('Preencha todos os campos obrigatórios.', 'error');
                     return;
                 }
@@ -994,21 +1037,39 @@
                     return;
                 }
                 
-                // Verificar se já existe reserva para este veículo na mesma data
+                // Verificar se data de fim é posterior à data de início
+                const inicio = new Date(dataInicio);
+                const fim = new Date(dataFim);
+                if (fim <= inicio) {
+                    mostrarNotificacao('A data de término deve ser posterior à data de início.', 'error');
+                    return;
+                }
+                
+                // Verificar se já existe reserva para este veículo no mesmo período
                 const reservasRef = database.ref('reservas');
                 reservasRef.orderByChild('veiculoId').equalTo(veiculoId).once('value')
                     .then((snapshot) => {
                         let conflito = false;
+                        const novaInicio = new Date(dataInicio);
+                        const novaFim = new Date(dataFim);
                         
                         snapshot.forEach((childSnapshot) => {
                             const reserva = childSnapshot.val();
-                            if (reserva.data === data && reserva.status !== 'Cancelada') {
-                                conflito = true;
+                            if (reserva.status !== 'Cancelada') {
+                                const reservaInicio = new Date(reserva.dataInicio);
+                                const reservaFim = new Date(reserva.dataFim);
+                                
+                                // Verificar se há sobreposição de períodos
+                                if ((novaInicio >= reservaInicio && novaInicio < reservaFim) ||
+                                    (novaFim > reservaInicio && novaFim <= reservaFim) ||
+                                    (novaInicio <= reservaInicio && novaFim >= reservaFim)) {
+                                    conflito = true;
+                                }
                             }
                         });
                         
                         if (conflito) {
-                            mostrarNotificacao('Já existe uma reserva para este veículo nesta data.', 'error');
+                            mostrarNotificacao('Já existe uma reserva para este veículo neste período.', 'error');
                             return;
                         }
                         
@@ -1019,21 +1080,33 @@
                             veiculoId: veiculoId,
                             motorista: motorista.nomeCompleto,
                             motoristaId: motoristaId,
-                            data: data,
-                            periodo: periodo,
+                            dataInicio: dataInicio,
+                            dataFim: dataFim,
                             destino: destino,
                             status: 'Reservado',
                             timestamp: Date.now()
                         })
                         .then(() => {
-                            // Atualizar status do veículo
-                            database.ref('veiculos/' + veiculoId).update({
-                                status: 'Reservado'
-                            })
-                            .then(() => {
-                                formReserva.reset();
-                                mostrarNotificacao('Reserva registrada com sucesso!', 'success');
-                            });
+                            // Atualizar status do veículo apenas se a reserva começar hoje
+                            const hoje = new Date();
+                            const inicioReserva = new Date(dataInicio);
+                            
+                            // Se a reserva começa hoje, marca o veículo como reservado
+                            if (inicioReserva.toDateString() === hoje.toDateString()) {
+                                database.ref('veiculos/' + veiculoId).update({
+                                    status: 'Reservado'
+                                });
+                            }
+                            
+                            formReserva.reset();
+                            // Resetar as datas mínimas
+                            const novoAgora = new Date();
+                            novoAgora.setMinutes(novoAgora.getMinutes() + 1);
+                            dataInicioReserva.min = formatarDataParaInput(novoAgora);
+                            dataInicioReserva.value = '';
+                            dataFimReserva.value = '';
+                            
+                            mostrarNotificacao('Reserva registrada com sucesso!', 'success');
                         })
                         .catch((error) => {
                             console.error('Erro ao registrar reserva:', error);
@@ -1176,7 +1249,8 @@
                     } else {
                         alertaCnhReserva.style.display = 'none';
                         alertaPermissaoReserva.style.display = 'none';
-                        btnRegistrarReserva.disabled = false;
+                        // Só habilita o botão se as datas também estiverem válidas
+                        validarDatasReserva();
                     }
                 }
             });
@@ -1258,7 +1332,45 @@
                         }
                     }
                     
+                    // Verificar e atualizar status dos veículos com base nas reservas
+                    verificarReservasAtivas();
                     renderizarReservas();
+                });
+            }
+            
+            function verificarReservasAtivas() {
+                const agora = new Date();
+                
+                // Para cada veículo, verificar se tem reserva ativa
+                veiculos.forEach(veiculo => {
+                    const reservasVeiculo = reservas.filter(r => 
+                        r.veiculoId === veiculo.id && 
+                        r.status === 'Reservado'
+                    );
+                    
+                    let temReservaAtiva = false;
+                    
+                    for (const reserva of reservasVeiculo) {
+                        const inicio = new Date(reserva.dataInicio);
+                        const fim = new Date(reserva.dataFim);
+                        
+                        // Se agora está dentro do período da reserva
+                        if (agora >= inicio && agora <= fim) {
+                            temReservaAtiva = true;
+                            break;
+                        }
+                    }
+                    
+                    // Atualizar status do veículo se necessário
+                    if (temReservaAtiva && veiculo.status !== 'Reservado') {
+                        database.ref('veiculos/' + veiculo.id).update({
+                            status: 'Reservado'
+                        });
+                    } else if (!temReservaAtiva && veiculo.status === 'Reservado') {
+                        database.ref('veiculos/' + veiculo.id).update({
+                            status: 'Disponível'
+                        });
+                    }
                 });
             }
             
@@ -1300,13 +1412,24 @@
                     }
                     
                     if (veiculo.status === 'Reservado') {
-                        const reserva = reservas.find(r => r.veiculoId === veiculo.id && r.status === 'Reservado');
-                        if (reserva) {
+                        const reservaAtiva = reservas.find(r => 
+                            r.veiculoId === veiculo.id && 
+                            r.status === 'Reservado'
+                        );
+                        
+                        if (reservaAtiva) {
+                            const inicio = new Date(reservaAtiva.dataInicio);
+                            const fim = new Date(reservaAtiva.dataFim);
+                            const agora = new Date();
+                            
                             veiculoHTML += `
-                                <p><strong>Reservado para:</strong> ${reserva.motorista}</p>
-                                <p><strong>Data:</strong> ${formatarData(reserva.data)}</p>
-                                <p><strong>Período:</strong> ${reserva.periodo}</p>
+                                <p><strong>Reservado para:</strong> ${reservaAtiva.motorista}</p>
+                                <p><strong>Período:</strong> ${formatarDataHora(inicio)} - ${formatarDataHora(fim)}</p>
                             `;
+                            
+                            if (agora >= inicio && agora <= fim) {
+                                veiculoHTML += `<p><strong>Status:</strong> Em uso por reserva</p>`;
+                            }
                         }
                     }
                     
@@ -1332,7 +1455,7 @@
                     
                     tr.innerHTML = `
                         <td>${veiculo.modelo}</td>
-                        <td>${veiculo.placa}</td>
+                        <td>${veiculo.placa</td>
                         <td>${veiculo.status}</td>
                         <td class="actions admin-only">
                             <button class="btn-delete" onclick="excluirVeiculo('${veiculo.id}')"><i class="fas fa-trash"></i> Excluir</button>
@@ -1412,12 +1535,14 @@
                 
                 reservasAtivas.forEach((reserva) => {
                     const tr = document.createElement('tr');
+                    const inicio = new Date(reserva.dataInicio);
+                    const fim = new Date(reserva.dataFim);
                     
                     tr.innerHTML = `
                         <td>${reserva.veiculo}</td>
                         <td>${reserva.motorista}</td>
-                        <td>${formatarData(reserva.data)}</td>
-                        <td>${reserva.periodo}</td>
+                        <td>${formatarDataHora(inicio)}</td>
+                        <td>${formatarDataHora(fim)}</td>
                         <td>${reserva.destino || 'N/A'}</td>
                         <td class="actions admin-only">
                             <button class="btn-delete" onclick="cancelarReserva('${reserva.id}', '${reserva.veiculoId}')"><i class="fas fa-times"></i> Cancelar</button>
@@ -1517,6 +1642,28 @@
                 
                 const dataObj = new Date(data);
                 return dataObj.toLocaleDateString('pt-BR');
+            }
+            
+            // Função para formatar data e hora
+            function formatarDataHora(data) {
+                if (!data) return 'N/A';
+                
+                const dataObj = new Date(data);
+                return dataObj.toLocaleString('pt-BR');
+            }
+            
+            // Função para formatar data para input datetime-local
+            function formatarDataParaInput(data) {
+                if (!data) return '';
+                
+                const dataObj = new Date(data);
+                const ano = dataObj.getFullYear();
+                const mes = String(dataObj.getMonth() + 1).padStart(2, '0');
+                const dia = String(dataObj.getDate()).padStart(2, '0');
+                const horas = String(dataObj.getHours()).padStart(2, '0');
+                const minutos = String(dataObj.getMinutes()).padStart(2, '0');
+                
+                return `${ano}-${mes}-${dia}T${horas}:${minutos}`;
             }
             
             // Funções globais
