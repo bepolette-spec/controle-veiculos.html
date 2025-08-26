@@ -98,7 +98,7 @@
             color: #555;
         }
         
-        input, select {
+        input, select, textarea {
             width: 100%;
             padding: 12px;
             border: 1px solid #ddd;
@@ -155,6 +155,10 @@
         
         .btn-delete {
             background: #DB4437;
+        }
+        
+        .btn-reserve {
+            background: #9C27B0;
         }
         
         .auth-container {
@@ -254,6 +258,10 @@
             border-left: 4px solid #F9AB00;
         }
         
+        .veiculo-reservado {
+            border-left: 4px solid #9C27B0;
+        }
+        
         .status-badge {
             display: inline-block;
             padding: 5px 10px;
@@ -273,9 +281,23 @@
             color: #C5221F;
         }
         
+        .reservado {
+            background: #F3E5F5;
+            color: #7B1FA2;
+        }
+        
         .reserva-alerta {
             background: #FEF7E0;
             color: #E37400;
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: 500;
+        }
+        
+        .cnh-alerta {
+            background: #FFEBEE;
+            color: #D32F2F;
             margin-top: 10px;
             padding: 10px;
             border-radius: 5px;
@@ -288,6 +310,17 @@
             border-radius: 8px;
             text-align: center;
             margin: 20px 0;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .checkbox-group input {
+            width: auto;
+            margin-right: 10px;
         }
         
         footer {
@@ -330,6 +363,7 @@
         <div class="tabs">
             <div class="tab active" data-tab="status">Status dos Veículos</div>
             <div class="tab" data-tab="retirada">Registrar Retirada</div>
+            <div class="tab" data-tab="reserva">Reservar Veículo</div>
             <div class="tab" data-tab="devolucao">Registrar Devolução</div>
             <div class="tab" data-tab="historico">Histórico</div>
             <div class="tab" data-tab="administracao">Administração</div>
@@ -390,7 +424,64 @@
                         <i class="fas fa-exclamation-triangle"></i> Veículo na reserva, favor abastecer!
                     </div>
                     
-                    <button type="submit"><i class="fas fa-check-circle"></i> Registrar Retirada</button>
+                    <div id="alertaCnhRetirada" class="cnh-alerta" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> ATENÇÃO: CNH vencida! Não é possível retirar veículo.
+                    </div>
+                    
+                    <button type="submit" id="btnRegistrarRetirada"><i class="fas fa-check-circle"></i> Registrar Retirada</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="tab-content" id="reserva">
+            <h2><i class="fas fa-calendar-check"></i> Reservar Veículo</h2>
+            
+            <div class="card">
+                <div class="card-title">Fazer Reserva de Veículo</div>
+                <form id="formReserva">
+                    <div class="form-group">
+                        <label for="veiculoReserva">Veículo</label>
+                        <select id="veiculoReserva" required>
+                            <option value="">Selecione um veículo</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="motoristaReserva">Motorista</label>
+                        <select id="motoristaReserva" required>
+                            <option value="">Selecione um motorista</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="dataReserva">Data da Reserva</label>
+                        <input type="date" id="dataReserva" required min="">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="periodoReserva">Período</label>
+                        <select id="periodoReserva" required>
+                            <option value="">Selecione o período</option>
+                            <option value="Manhã">Manhã (08:00 - 12:00)</option>
+                            <option value="Tarde">Tarde (13:00 - 18:00)</option>
+                            <option value="Dia Todo">Dia Todo (08:00 - 18:00)</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="destinoReserva">Destino</label>
+                        <input type="text" id="destinoReserva" placeholder="Destino da viagem" required>
+                    </div>
+                    
+                    <div id="alertaCnhReserva" class="cnh-alerta" style="display: none;">
+                        <i class="fas fa-exclamation-circle"></i> ATENÇÃO: CNH vencida! Não é possível reservar veículo.
+                    </div>
+                    
+                    <div id="alertaPermissaoReserva" class="reserva-alerta" style="display: none;">
+                        <i class="fas fa-exclamation-triangle"></i> Esta pessoa não tem permissão para reservar veículos.
+                    </div>
+                    
+                    <button type="submit" id="btnRegistrarReserva"><i class="fas fa-calendar-check"></i> Reservar Veículo</button>
                 </form>
             </div>
         </div>
@@ -473,7 +564,7 @@
                     <div class="admin-access">
                         <i class="fas fa-lock" style="font-size: 48px; color: #F44336; margin-bottom: 15px;"></i>
                         <h3>Acesso Administrativo</h3>
-                        <p>Para acessar las funções administrativas, digite a senha de administração:</p>
+                        <p>Para acessar as funções administrativas, digite a senha de administração:</p>
                         
                         <div class="form-group">
                             <div class="password-toggle">
@@ -533,6 +624,16 @@
                             <input type="tel" id="telefone" placeholder="Ex: (11) 99999-9999" required>
                         </div>
                         
+                        <div class="form-group">
+                            <label for="cnhVencimento">Data de Vencimento da CNH</label>
+                            <input type="date" id="cnhVencimento" required>
+                        </div>
+                        
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="podeReservar">
+                            <label for="podeReservar">Esta pessoa pode reservar veículos</label>
+                        </div>
+                        
                         <button type="submit" style="background: #34A853;"><i class="fas fa-user-plus"></i> Adicionar Pessoa</button>
                     </form>
                     
@@ -542,11 +643,32 @@
                             <tr>
                                 <th>Nome Completo</th>
                                 <th>Telefone</th>
+                                <th>CNH Vencimento</th>
+                                <th>Pode Reservar</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
                             <!-- As pessoas serão listadas aqui via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="card">
+                    <div class="card-title">Reservas Ativas</div>
+                    <table id="tabelaReservas">
+                        <thead>
+                            <tr>
+                                <th>Veículo</th>
+                                <th>Motorista</th>
+                                <th>Data</th>
+                                <th>Período</th>
+                                <th>Destino</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- As reservas serão listadas aqui via JavaScript -->
                         </tbody>
                     </table>
                 </div>
@@ -599,21 +721,32 @@
             const formVeiculo = document.getElementById('formVeiculo');
             const formPessoa = document.getElementById('formPessoa');
             const formRetirada = document.getElementById('formRetirada');
+            const formReserva = document.getElementById('formReserva');
             const formDevolucao = document.getElementById('formDevolucao');
             const listaVeiculos = document.getElementById('lista-veiculos');
             const tabelaPessoas = document.getElementById('tabelaPessoas');
             const tabelaVeiculos = document.getElementById('tabelaVeiculos');
             const tabelaHistorico = document.getElementById('tabelaHistorico');
+            const tabelaReservas = document.getElementById('tabelaReservas');
             const veiculoRetirada = document.getElementById('veiculoRetirada');
+            const veiculoReserva = document.getElementById('veiculoReserva');
             const veiculoDevolucao = document.getElementById('veiculoDevolucao');
             const motoristaRetirada = document.getElementById('motoristaRetirada');
+            const motoristaReserva = document.getElementById('motoristaReserva');
             const combustivelRetirada = document.getElementById('combustivelRetirada');
             const alertaReservaRetirada = document.getElementById('alertaReservaRetirada');
+            const alertaCnhRetirada = document.getElementById('alertaCnhRetirada');
+            const alertaCnhReserva = document.getElementById('alertaCnhReserva');
+            const alertaPermissaoReserva = document.getElementById('alertaPermissaoReserva');
+            const dataReserva = document.getElementById('dataReserva');
+            const btnRegistrarRetirada = document.getElementById('btnRegistrarRetirada');
+            const btnRegistrarReserva = document.getElementById('btnRegistrarReserva');
             
             // Dados iniciais
             let veiculos = [];
             let pessoas = [];
             let historico = [];
+            let reservas = [];
             let autenticado = localStorage.getItem('autenticado') === 'true';
             
             // Senha de administração
@@ -624,9 +757,15 @@
             carregarVeiculos();
             carregarPessoas();
             carregarHistorico();
+            carregarReservas();
             atualizarSelects();
             
-            // Alternar abas - CORRIGIDO
+            // Definir data mínima para reservas (amanhã)
+            const amanha = new Date();
+            amanha.setDate(amanha.getDate() + 1);
+            dataReserva.min = amanha.toISOString().split('T')[0];
+            
+            // Alternar abas
             tabs.forEach(tab => {
                 tab.addEventListener('click', () => {
                     const tabId = tab.getAttribute('data-tab');
@@ -638,6 +777,11 @@
                     // Adicionar classe active à aba clicada
                     tab.classList.add('active');
                     document.getElementById(tabId).classList.add('active');
+                    
+                    // Atualizar selects quando mudar de aba
+                    if (tabId === 'retirada' || tabId === 'reserva' || tabId === 'devolucao') {
+                        atualizarSelects();
+                    }
                 });
             });
             
@@ -682,7 +826,7 @@
                 const placa = document.getElementById('placa').value;
                 const modelo = document.getElementById('modelo').value;
                 
-                // Verificar if já existe um veículo com esta placa
+                // Verificar se já existe um veículo com esta placa
                 const veiculosRef = database.ref('veiculos');
                 veiculosRef.orderByChild('placa').equalTo(placa).once('value')
                     .then((snapshot) => {
@@ -726,13 +870,17 @@
                 
                 const nomeCompleto = document.getElementById('nomeCompleto').value;
                 const telefone = document.getElementById('telefone').value;
+                const cnhVencimento = document.getElementById('cnhVencimento').value;
+                const podeReservar = document.getElementById('podeReservar').checked;
                 
                 // Salvar no Firebase
                 const pessoasRef = database.ref('pessoas');
                 const novaPessoaRef = pessoasRef.push();
                 novaPessoaRef.set({
                     nomeCompleto: nomeCompleto,
-                    telefone: telefone
+                    telefone: telefone,
+                    cnhVencimento: cnhVencimento,
+                    podeReservar: podeReservar
                 })
                 .then(() => {
                     formPessoa.reset();
@@ -767,6 +915,12 @@
                     return;
                 }
                 
+                // Verificar se CNH está vencida
+                if (cnhVencida(motorista.cnhVencimento)) {
+                    mostrarNotificacao('Não é possível retirar veículo. CNH vencida!', 'error');
+                    return;
+                }
+                
                 // Atualizar status do veículo
                 database.ref('veiculos/' + veiculoId).update({
                     status: 'Em uso',
@@ -792,7 +946,7 @@
                         destino: destino,
                         status: 'Em uso',
                         veiculoId: veiculoId,
-                        timestamp: Date.now() // Adicionar timestamp para ordenação
+                        timestamp: Date.now()
                     })
                     .then(() => {
                         formRetirada.reset();
@@ -803,6 +957,93 @@
                     console.error('Erro ao registrar retirada:', error);
                     mostrarNotificacao('Erro ao registrar retirada. Tente novamente.', 'error');
                 });
+            });
+            
+            // Registrar reserva
+            formReserva.addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const veiculoId = veiculoReserva.value;
+                const motoristaId = motoristaReserva.value;
+                const data = dataReserva.value;
+                const periodo = document.getElementById('periodoReserva').value;
+                const destino = document.getElementById('destinoReserva').value;
+                
+                if (!veiculoId || !motoristaId || !data || !periodo) {
+                    mostrarNotificacao('Preencha todos os campos obrigatórios.', 'error');
+                    return;
+                }
+                
+                const veiculo = veiculos.find(v => v.id === veiculoId);
+                const motorista = pessoas.find(p => p.id === motoristaId);
+                
+                if (!veiculo || !motorista) {
+                    mostrarNotificacao('Dados inválidos.', 'error');
+                    return;
+                }
+                
+                // Verificar se CNH está vencida
+                if (cnhVencida(motorista.cnhVencimento)) {
+                    mostrarNotificacao('Não é possível reservar veículo. CNH vencida!', 'error');
+                    return;
+                }
+                
+                // Verificar se pessoa pode reservar
+                if (!motorista.podeReservar) {
+                    mostrarNotificacao('Esta pessoa não tem permissão para reservar veículos.', 'error');
+                    return;
+                }
+                
+                // Verificar se já existe reserva para este veículo na mesma data
+                const reservasRef = database.ref('reservas');
+                reservasRef.orderByChild('veiculoId').equalTo(veiculoId).once('value')
+                    .then((snapshot) => {
+                        let conflito = false;
+                        
+                        snapshot.forEach((childSnapshot) => {
+                            const reserva = childSnapshot.val();
+                            if (reserva.data === data && reserva.status !== 'Cancelada') {
+                                conflito = true;
+                            }
+                        });
+                        
+                        if (conflito) {
+                            mostrarNotificacao('Já existe uma reserva para este veículo nesta data.', 'error');
+                            return;
+                        }
+                        
+                        // Registrar a reserva
+                        const novaReservaRef = reservasRef.push();
+                        novaReservaRef.set({
+                            veiculo: veiculo.modelo + ' - ' + veiculo.placa,
+                            veiculoId: veiculoId,
+                            motorista: motorista.nomeCompleto,
+                            motoristaId: motoristaId,
+                            data: data,
+                            periodo: periodo,
+                            destino: destino,
+                            status: 'Reservado',
+                            timestamp: Date.now()
+                        })
+                        .then(() => {
+                            // Atualizar status do veículo
+                            database.ref('veiculos/' + veiculoId).update({
+                                status: 'Reservado'
+                            })
+                            .then(() => {
+                                formReserva.reset();
+                                mostrarNotificacao('Reserva registrada com sucesso!', 'success');
+                            });
+                        })
+                        .catch((error) => {
+                            console.error('Erro ao registrar reserva:', error);
+                            mostrarNotificacao('Erro ao registrar reserva. Tente novamente.', 'error');
+                        });
+                    })
+                    .catch((error) => {
+                        console.error('Erro ao verificar reservas:', error);
+                        mostrarNotificacao('Erro ao verificar reservas. Tente novamente.', 'error');
+                    });
             });
             
             // Registrar devolução
@@ -858,8 +1099,7 @@
                                     kmDevolucao: km,
                                     combustivelDevolucao: combustivel,
                                     observacoes: observacoes,
-                                    status: 'Devolvido',
-                                    timestamp: Date.now() // Atualizar timestamp para ordenação
+                                    status: 'Devolvido'
                                 })
                                 .then(() => {
                                     formDevolucao.reset();
@@ -878,8 +1118,7 @@
                                     combustivelDevolucao: combustivel,
                                     observacoes: observacoes,
                                     status: 'Devolvido',
-                                    veiculoId: veiculoId,
-                                    timestamp: Date.now() // Adicionar timestamp para ordenação
+                                    veiculoId: veiculoId
                                 })
                                 .then(() => {
                                     formDevolucao.reset();
@@ -903,6 +1142,42 @@
                     alertaReservaRetirada.style.display = 'block';
                 } else {
                     alertaReservaRetirada.style.display = 'none';
+                }
+            });
+            
+            // Verificar CNH ao selecionar motorista para retirada
+            motoristaRetirada.addEventListener('change', () => {
+                const motoristaId = motoristaRetirada.value;
+                const motorista = pessoas.find(p => p.id === motoristaId);
+                
+                if (motorista && cnhVencida(motorista.cnhVencimento)) {
+                    alertaCnhRetirada.style.display = 'block';
+                    btnRegistrarRetirada.disabled = true;
+                } else {
+                    alertaCnhRetirada.style.display = 'none';
+                    btnRegistrarRetirada.disabled = false;
+                }
+            });
+            
+            // Verificar CNH e permissão ao selecionar motorista para reserva
+            motoristaReserva.addEventListener('change', () => {
+                const motoristaId = motoristaReserva.value;
+                const motorista = pessoas.find(p => p.id === motoristaId);
+                
+                if (motorista) {
+                    if (cnhVencida(motorista.cnhVencimento)) {
+                        alertaCnhReserva.style.display = 'block';
+                        alertaPermissaoReserva.style.display = 'none';
+                        btnRegistrarReserva.disabled = true;
+                    } else if (!motorista.podeReservar) {
+                        alertaCnhReserva.style.display = 'none';
+                        alertaPermissaoReserva.style.display = 'block';
+                        btnRegistrarReserva.disabled = true;
+                    } else {
+                        alertaCnhReserva.style.display = 'none';
+                        alertaPermissaoReserva.style.display = 'none';
+                        btnRegistrarReserva.disabled = false;
+                    }
                 }
             });
             
@@ -957,9 +1232,8 @@
                         }
                     }
                     
-                    // Ordenar por timestamp (mais recente primeiro) - CORREÇÃO
+                    // Ordenar por timestamp (mais recente primeiro)
                     historico.sort((a, b) => {
-                        // Usar timestamp se disponível, caso contrário usar data
                         const timestampA = a.timestamp || (a.dataDevolucao ? new Date(a.dataDevolucao).getTime() : new Date(a.dataRetirada).getTime());
                         const timestampB = b.timestamp || (b.dataDevolucao ? new Date(b.dataDevolucao).getTime() : new Date(b.dataRetirada).getTime());
                         
@@ -968,6 +1242,23 @@
                     });
                     
                     renderizarHistorico();
+                });
+            }
+            
+            function carregarReservas() {
+                const reservasRef = database.ref('reservas');
+                
+                reservasRef.on('value', (snapshot) => {
+                    const data = snapshot.val();
+                    reservas = [];
+                    
+                    if (data) {
+                        for (let id in data) {
+                            reservas.push({ id, ...data[id] });
+                        }
+                    }
+                    
+                    renderizarReservas();
                 });
             }
             
@@ -981,6 +1272,8 @@
                     
                     if (veiculo.status === 'Disponível') {
                         cardClass += 'veiculo-disponivel';
+                    } else if (veiculo.status === 'Reservado') {
+                        cardClass += 'veiculo-reservado';
                     } else if (veiculo.combustivel === 'Reserva') {
                         cardClass += 'veiculo-reserva';
                     } else {
@@ -990,7 +1283,7 @@
                     veiculoCard.className = cardClass;
                     
                     let veiculoHTML = `
-                        <div class="status-badge ${veiculo.status === 'Disponível' ? 'disponivel' : 'indisponivel'}">
+                        <div class="status-badge ${veiculo.status === 'Disponível' ? 'disponivel' : veiculo.status === 'Reservado' ? 'reservado' : 'indisponivel'}">
                             ${veiculo.status}
                         </div>
                         <h3>${veiculo.modelo} - ${veiculo.placa}</h3>
@@ -998,12 +1291,23 @@
                         <p>Combustível: ${veiculo.combustivel}</p>
                     `;
                     
-                    if (veiculo.status !== 'Disponível') {
+                    if (veiculo.status !== 'Disponível' && veiculo.status !== 'Reservado') {
                         veiculoHTML += `
                             <p>Motorista: ${veiculo.motorista}</p>
                             <p>Telefone: ${veiculo.motoristaTelefone || 'N/A'}</p>
                             <p>Destino: ${veiculo.destino}</p>
                         `;
+                    }
+                    
+                    if (veiculo.status === 'Reservado') {
+                        const reserva = reservas.find(r => r.veiculoId === veiculo.id && r.status === 'Reservado');
+                        if (reserva) {
+                            veiculoHTML += `
+                                <p><strong>Reservado para:</strong> ${reserva.motorista}</p>
+                                <p><strong>Data:</strong> ${formatarData(reserva.data)}</p>
+                                <p><strong>Período:</strong> ${reserva.periodo}</p>
+                            `;
+                        }
                     }
                     
                     if (veiculo.combustivel === 'Reserva') {
@@ -1045,10 +1349,15 @@
                 
                 pessoas.forEach((pessoa) => {
                     const tr = document.createElement('tr');
+                    const cnhVencimento = pessoa.cnhVencimento ? formatarData(pessoa.cnhVencimento) : 'N/A';
+                    const podeReservar = pessoa.podeReservar ? 'Sim' : 'Não';
+                    const cnhStyle = cnhVencida(pessoa.cnhVencimento) ? 'style="color: red; font-weight: bold;"' : '';
                     
                     tr.innerHTML = `
                         <td>${pessoa.nomeCompleto}</td>
                         <td>${pessoa.telefone}</td>
+                        <td ${cnhStyle}>${cnhVencimento}</td>
+                        <td>${podeReservar}</td>
                         <td class="actions admin-only">
                             <button class="btn-delete" onclick="excluirPessoa('${pessoa.id}')"><i class="fas fa-trash"></i> Excluir</button>
                         </td>
@@ -1094,6 +1403,31 @@
                 });
             }
             
+            function renderizarReservas() {
+                const tbody = tabelaReservas.querySelector('tbody');
+                tbody.innerHTML = '';
+                
+                // Filtrar apenas reservas ativas
+                const reservasAtivas = reservas.filter(r => r.status === 'Reservado');
+                
+                reservasAtivas.forEach((reserva) => {
+                    const tr = document.createElement('tr');
+                    
+                    tr.innerHTML = `
+                        <td>${reserva.veiculo}</td>
+                        <td>${reserva.motorista}</td>
+                        <td>${formatarData(reserva.data)}</td>
+                        <td>${reserva.periodo}</td>
+                        <td>${reserva.destino || 'N/A'}</td>
+                        <td class="actions admin-only">
+                            <button class="btn-delete" onclick="cancelarReserva('${reserva.id}', '${reserva.veiculoId}')"><i class="fas fa-times"></i> Cancelar</button>
+                        </td>
+                    `;
+                    
+                    tbody.appendChild(tr);
+                });
+            }
+            
             function atualizarSelects() {
                 // Atualizar select de veículos para retirada
                 veiculoRetirada.innerHTML = '<option value="">Selecione um veículo</option>';
@@ -1107,6 +1441,15 @@
                     veiculoRetirada.appendChild(option);
                 });
                 
+                // Atualizar select de veículos para reserva
+                veiculoReserva.innerHTML = '<option value="">Selecione um veículo</option>';
+                veiculos.filter(v => v.status === 'Disponível').forEach(veiculo => {
+                    const option = document.createElement('option');
+                    option.value = veiculo.id;
+                    option.textContent = `${veiculo.modelo} - ${veiculo.placa}`;
+                    veiculoReserva.appendChild(option);
+                });
+                
                 // Atualizar select de veículos para devolução
                 veiculoDevolucao.innerHTML = '<option value="">Selecione um veículo</option>';
                 veiculos.filter(v => v.status === 'Em uso').forEach(veiculo => {
@@ -1116,13 +1459,22 @@
                     veiculoDevolucao.appendChild(option);
                 });
                 
-                // Atualizar select de motoristas
+                // Atualizar select de motoristas para retirada
                 motoristaRetirada.innerHTML = '<option value="">Selecione um motorista</option>';
                 pessoas.forEach(pessoa => {
                     const option = document.createElement('option');
                     option.value = pessoa.id;
                     option.textContent = `${pessoa.nomeCompleto} - ${pessoa.telefone}`;
                     motoristaRetirada.appendChild(option);
+                });
+                
+                // Atualizar select de motoristas para reserva
+                motoristaReserva.innerHTML = '<option value="">Selecione um motorista</option>';
+                pessoas.forEach(pessoa => {
+                    const option = document.createElement('option');
+                    option.value = pessoa.id;
+                    option.textContent = `${pessoa.nomeCompleto} - ${pessoa.telefone}`;
+                    motoristaReserva.appendChild(option);
                 });
             }
             
@@ -1148,6 +1500,23 @@
                 setTimeout(() => {
                     notification.remove();
                 }, 5000);
+            }
+            
+            // Função para verificar se CNH está vencida
+            function cnhVencida(dataVencimento) {
+                if (!dataVencimento) return false;
+                
+                const hoje = new Date();
+                const vencimento = new Date(dataVencimento);
+                return vencimento < hoje;
+            }
+            
+            // Função para formatar data
+            function formatarData(data) {
+                if (!data) return 'N/A';
+                
+                const dataObj = new Date(data);
+                return dataObj.toLocaleDateString('pt-BR');
             }
             
             // Funções globais
@@ -1202,6 +1571,33 @@
                             console.error('Erro ao excluir registro do histórico:', error);
                             mostrarNotificacao('Erro ao excluir registro do histórico. Tente novamente.', 'error');
                         });
+                }
+            };
+            
+            window.cancelarReserva = function(reservaId, veiculoId) {
+                if (!autenticado) {
+                    mostrarNotificacao('Você precisa se autenticar como administrador.', 'error');
+                    return;
+                }
+                
+                if (confirm('Tem certeza que deseja cancelar esta reserva?')) {
+                    // Atualizar status da reserva
+                    database.ref('reservas/' + reservaId).update({
+                        status: 'Cancelada'
+                    })
+                    .then(() => {
+                        // Atualizar status do veículo
+                        database.ref('veiculos/' + veiculoId).update({
+                            status: 'Disponível'
+                        })
+                        .then(() => {
+                            mostrarNotificacao('Reserva cancelada com sucesso!', 'success');
+                        });
+                    })
+                    .catch((error) => {
+                        console.error('Erro ao cancelar reserva:', error);
+                        mostrarNotificacao('Erro ao cancelar reserva. Tente novamente.', 'error');
+                    });
                 }
             };
         });
