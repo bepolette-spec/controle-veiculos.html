@@ -307,7 +307,7 @@
             border-left: 4px solid #34A853;
         }
         
-        .veiculo-indisponivel {
+        .veiculo-em-uso {
             border-left: 4px solid #EA4335;
         }
         
@@ -333,7 +333,7 @@
             color: #137333;
         }
         
-        .indisponivel {
+        .em-uso {
             background: #FCE8E6;
             color: #C5221F;
         }
@@ -424,6 +424,19 @@
             margin-bottom: 8px;
             color: #555;
             font-size: 14px;
+        }
+        
+        .veiculo-info {
+            margin-top: 10px;
+        }
+        
+        .veiculo-info p {
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        
+        .veiculo-info strong {
+            color: #555;
         }
         
         @media (max-width: 768px) {
@@ -751,7 +764,8 @@
                                 <label for="statusVeiculo">Status</label>
                                 <select id="statusVeiculo" required>
                                     <option value="Disponível">Disponível</option>
-                                    <option value="Indisponível">Indisponível</option>
+                                    <option value="Em uso">Em uso</option>
+                                    <option value="Reservado">Reservado</option>
                                     <option value="Em Manutenção">Em Manutenção</option>
                                 </select>
                             </div>
@@ -786,6 +800,16 @@
                             <div class="form-group">
                                 <label for="nomeMotorista">Nome do Motorista</label>
                                 <input type="text" id="nomeMotorista" placeholder="Nome completo" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="telefoneMotorista">Telefone</label>
+                                <input type="text" id="telefoneMotorista" placeholder="(11) 99999-9999" required>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="senhaMotorista">Senha</label>
+                                <input type="password" id="senhaMotorista" placeholder="Senha para login" required>
                             </div>
                             
                             <div class="form-group">
@@ -824,6 +848,7 @@
                                 <thead>
                                     <tr>
                                         <th>Nome</th>
+                                        <th>Telefone</th>
                                         <th>CNH</th>
                                         <th>Validade</th>
                                         <th>Categoria</th>
@@ -873,20 +898,21 @@
         let veiculos = [
             { id: 1, modelo: "Fiat Uno", placa: "ABC-1234", cor: "Prata", status: "Disponível" },
             { id: 2, modelo: "Volkswagen Gol", placa: "DEF-5678", cor: "Preto", status: "Disponível" },
-            { id: 3, modelo: "Ford Ka", placa: "GHI-9012", cor: "Branco", status: "Indisponível" },
-            { id: 4, modelo: "Chevrolet Onix", placa: "JKL-3456", cor: "Vermelho", status: "Em Manutenção" }
+            { id: 3, modelo: "Ford Ka", placa: "GHI-9012", cor: "Branco", status: "Em Manutenção" },
+            { id: 4, modelo: "Chevrolet Onix", placa: "JKL-3456", cor: "Vermelho", status: "Disponível" }
         ];
 
         let motoristas = [
-            { id: 1, nome: "João Silva", cnh: "123456789", validade: "2025-12-31", categoria: "B", permiteReserva: true },
-            { id: 2, nome: "Maria Santos", cnh: "987654321", validade: "2024-06-30", categoria: "C", permiteReserva: true },
-            { id: 3, nome: "Pedro Almeida", cnh: "456789123", validade: "2023-09-15", categoria: "B", permiteReserva: false }
+            { id: 1, nome: "João Silva", telefone: "(11) 99999-1111", senha: "joao123", cnh: "123456789", validade: "2025-12-31", categoria: "B", permiteReserva: true },
+            { id: 2, nome: "Maria Santos", telefone: "(11) 99999-2222", senha: "maria123", cnh: "987654321", validade: "2024-06-30", categoria: "C", permiteReserva: true },
+            { id: 3, nome: "Pedro Almeida", telefone: "(11) 99999-3333", senha: "pedro123", cnh: "456789123", validade: "2023-09-15", categoria: "B", permiteReserva: false }
         ];
 
         let historico = [];
         let usuarioLogado = null;
         let modoEdicaoVeiculo = false;
         let modoEdicaoMotorista = false;
+        let usoAtual = [];
 
         // Inicialização quando o DOM estiver carregado
         document.addEventListener('DOMContentLoaded', function() {
@@ -940,13 +966,25 @@
             e.preventDefault();
             const password = document.getElementById('password').value;
             
-            // Verificar senha (simulação)
+            // Verificar senha
             let usuarioEncontrado = null;
             
-            if (password === 'joao123') usuarioEncontrado = { nome: 'João Silva', admin: false };
-            else if (password === 'maria123') usuarioEncontrado = { nome: 'Maria Santos', admin: false };
-            else if (password === 'pedro123') usuarioEncontrado = { nome: 'Pedro Almeida', admin: false };
-            else if (password === 'admin123') usuarioEncontrado = { nome: 'Administrador', admin: true };
+            // Verificar se é um motorista
+            for (const motorista of motoristas) {
+                if (motorista.senha === password) {
+                    usuarioEncontrado = { 
+                        nome: motorista.nome, 
+                        admin: false,
+                        motoristaId: motorista.id
+                    };
+                    break;
+                }
+            }
+            
+            // Verificar se é admin
+            if (password === 'admin123') {
+                usuarioEncontrado = { nome: 'Administrador', admin: true };
+            }
             
             if (usuarioEncontrado) {
                 usuarioLogado = usuarioEncontrado;
@@ -1022,6 +1060,8 @@
                 // Resetar formulários administrativos
                 document.getElementById('conteudoAdmin').style.display = 'none';
                 document.getElementById('senhaAdmin').value = '';
+            } else if (tabName === 'devolucao') {
+                carregarVeiculosDevolucao();
             }
         }
 
@@ -1030,19 +1070,54 @@
             listaVeiculos.innerHTML = '';
             
             veiculos.forEach(veiculo => {
-                const statusClass = veiculo.status === 'Disponível' ? 'disponivel' : 
-                                  veiculo.status === 'Indisponível' ? 'indisponivel' : 'reservado';
+                // Encontrar informações de uso atual
+                const uso = usoAtual.find(u => u.veiculoId === veiculo.id && u.tipo === 'retirada');
+                const reserva = usoAtual.find(u => u.veiculoId === veiculo.id && u.tipo === 'reserva');
                 
-                const statusText = veiculo.status === 'Disponível' ? 'Disponível' : 
-                                 veiculo.status === 'Indisponível' ? 'Indisponível' : 'Em Manutenção';
+                let statusClass, statusText, detalhes;
+                
+                if (veiculo.status === 'Disponível') {
+                    statusClass = 'disponivel';
+                    statusText = 'Disponível';
+                    detalhes = '<p><strong>Motorista:</strong> -</p>';
+                } else if (veiculo.status === 'Em uso' && uso) {
+                    statusClass = 'em-uso';
+                    statusText = 'Em uso';
+                    const motorista = motoristas.find(m => m.id === uso.motoristaId);
+                    detalhes = `
+                        <p><strong>Motorista:</strong> ${motorista.nome}</p>
+                        <p><strong>Telefone:</strong> ${motorista.telefone}</p>
+                        <p><strong>Quilometragem:</strong> ${uso.km}</p>
+                        <p><strong>Combustível:</strong> ${uso.combustivel}</p>
+                        <p><strong>Destino:</strong> ${uso.destino}</p>
+                    `;
+                } else if (veiculo.status === 'Reservado' && reserva) {
+                    statusClass = 'reservado';
+                    statusText = 'Reservado';
+                    const motorista = motoristas.find(m => m.id === reserva.motoristaId);
+                    detalhes = `
+                        <p><strong>Motorista:</strong> ${motorista.nome}</p>
+                        <p><strong>Telefone:</strong> ${motorista.telefone}</p>
+                        <p><strong>Data/Hora Início:</strong> ${reserva.dataInicio} ${reserva.horaInicio}</p>
+                        <p><strong>Data/Hora Fim:</strong> ${reserva.dataFim} ${reserva.horaFim}</p>
+                        <p><strong>Destino:</strong> ${reserva.destino}</p>
+                    `;
+                } else {
+                    statusClass = 'indisponivel';
+                    statusText = veiculo.status;
+                    detalhes = '<p><strong>Motorista:</strong> -</p>';
+                }
                 
                 const veiculoCard = document.createElement('div');
-                veiculoCard.className = `veiculo-card veiculo-${veiculo.status.toLowerCase().replace(' ', '-')}`;
+                veiculoCard.className = `veiculo-card veiculo-${statusText.toLowerCase().replace(' ', '-')}`;
                 veiculoCard.innerHTML = `
                     <span class="status-badge ${statusClass}">${statusText}</span>
                     <h3>${veiculo.modelo}</h3>
                     <p><strong>Placa:</strong> ${veiculo.placa}</p>
                     <p><strong>Cor:</strong> ${veiculo.cor}</p>
+                    <div class="veiculo-info">
+                        ${detalhes}
+                    </div>
                 `;
                 
                 listaVeiculos.appendChild(veiculoCard);
@@ -1051,8 +1126,7 @@
             // Atualizar selects de veículos nos formulários
             const selectsVeiculos = [
                 'veiculoRetirada', 
-                'veiculoReserva', 
-                'veiculoDevolucao'
+                'veiculoReserva'
             ];
             
             selectsVeiculos.forEach(selectId => {
@@ -1067,6 +1141,19 @@
                     option.textContent = `${veiculo.modelo} - ${veiculo.placa}`;
                     select.appendChild(option);
                 });
+            });
+        }
+
+        function carregarVeiculosDevolucao() {
+            const select = document.getElementById('veiculoDevolucao');
+            select.innerHTML = '<option value="">Selecione um veículo</option>';
+            
+            // Adicionar veículos em uso
+            veiculos.filter(v => v.status === 'Em uso').forEach(veiculo => {
+                const option = document.createElement('option');
+                option.value = veiculo.id;
+                option.textContent = `${veiculo.modelo} - ${veiculo.placa}`;
+                select.appendChild(option);
             });
         }
 
@@ -1171,7 +1258,18 @@
             const motorista = motoristas.find(m => m.id == motoristaId);
             
             // Atualizar status do veículo
-            veiculo.status = 'Indisponível';
+            veiculo.status = 'Em uso';
+            
+            // Registrar uso atual
+            usoAtual.push({
+                veiculoId: parseInt(veiculoId),
+                motoristaId: parseInt(motoristaId),
+                km: km,
+                combustivel: combustivel,
+                destino: destino,
+                tipo: 'retirada',
+                data: new Date().toLocaleString()
+            });
             
             // Registrar no histórico
             const registro = {
@@ -1180,7 +1278,8 @@
                 motorista: motorista.nome,
                 kmRetirada: km,
                 combustivelRetirada: combustivel,
-                destino: destino
+                destino: destino,
+                tipo: 'Retirada'
             };
             
             historico.push(registro);
@@ -1208,6 +1307,19 @@
             
             // Atualizar status do veículo
             veiculo.status = 'Reservado';
+            
+            // Registrar uso atual
+            usoAtual.push({
+                veiculoId: parseInt(veiculoId),
+                motoristaId: parseInt(motoristaId),
+                dataInicio: dataInicio,
+                horaInicio: horaInicio,
+                dataFim: dataFim,
+                horaFim: horaFim,
+                destino: destino,
+                tipo: 'reserva',
+                data: new Date().toLocaleString()
+            });
             
             // Registrar no histórico
             const registro = {
@@ -1241,9 +1353,12 @@
             // Atualizar status do veículo
             veiculo.status = 'Disponível';
             
+            // Remover do uso atual
+            usoAtual = usoAtual.filter(u => u.veiculoId != veiculoId);
+            
             // Encontrar o registro de retirada mais recente para este veículo
             const registroRetirada = historico
-                .filter(r => r.veiculo === veiculo.modelo && !r.kmDevolucao)
+                .filter(r => r.veiculo === veiculo.modelo && !r.kmDevolucao && r.tipo === 'Retirada')
                 .pop();
             
             if (registroRetirada) {
@@ -1255,6 +1370,7 @@
             
             // Atualizar interface
             carregarVeiculos();
+            carregarVeiculosDevolucao();
             document.getElementById('formDevolucao').reset();
             
             mostrarNotificacao(`Devolução do veículo ${veiculo.modelo} registrada com sucesso!`, 'success');
@@ -1330,6 +1446,7 @@
                 
                 tr.innerHTML = `
                     <td>${motorista.nome}</td>
+                    <td>${motorista.telefone}</td>
                     <td>${motorista.cnh}</td>
                     <td>${motorista.validade} <span style="color: ${cnhValida ? 'green' : 'red'}">(${cnhStatus})</span></td>
                     <td>${motorista.categoria}</td>
@@ -1361,6 +1478,8 @@
             
             document.getElementById('motoristaId').value = motorista.id;
             document.getElementById('nomeMotorista').value = motorista.nome;
+            document.getElementById('telefoneMotorista').value = motorista.telefone;
+            document.getElementById('senhaMotorista').value = motorista.senha;
             document.getElementById('cnhMotorista').value = motorista.cnh;
             document.getElementById('validadeCnh').value = motorista.validade;
             document.getElementById('categoriaCnh').value = motorista.categoria;
@@ -1403,6 +1522,8 @@
             
             const id = document.getElementById('motoristaId').value;
             const nome = document.getElementById('nomeMotorista').value;
+            const telefone = document.getElementById('telefoneMotorista').value;
+            const senha = document.getElementById('senhaMotorista').value;
             const cnh = document.getElementById('cnhMotorista').value;
             const validade = document.getElementById('validadeCnh').value;
             const categoria = document.getElementById('categoriaCnh').value;
@@ -1411,12 +1532,30 @@
             if (modoEdicaoMotorista) {
                 // Editar motorista existente
                 const index = motoristas.findIndex(m => m.id == id);
-                motoristas[index] = { id: parseInt(id), nome, cnh, validade, categoria, permiteReserva };
+                motoristas[index] = { 
+                    id: parseInt(id), 
+                    nome, 
+                    telefone,
+                    senha,
+                    cnh, 
+                    validade, 
+                    categoria, 
+                    permiteReserva 
+                };
                 mostrarNotificacao('Motorista atualizado com sucesso!', 'success');
             } else {
                 // Adicionar novo motorista
                 const novoId = motoristas.length > 0 ? Math.max(...motoristas.map(m => m.id)) + 1 : 1;
-                motoristas.push({ id: novoId, nome, cnh, validade, categoria, permiteReserva });
+                motoristas.push({ 
+                    id: novoId, 
+                    nome, 
+                    telefone,
+                    senha,
+                    cnh, 
+                    validade, 
+                    categoria, 
+                    permiteReserva 
+                });
                 mostrarNotificacao('Motorista adicionado com sucesso!', 'success');
             }
             
@@ -1476,9 +1615,11 @@
         function limparDados() {
             if (confirm('ATENÇÃO: Esta ação irá apagar TODOS os dados do sistema. Tem certeza?')) {
                 historico = [];
+                usoAtual = [];
                 localStorage.removeItem('historicoVeiculos');
                 mostrarNotificacao('Todos os dados foram removidos com sucesso!', 'success');
                 carregarHistorico();
+                carregarVeiculos();
             }
         }
 
