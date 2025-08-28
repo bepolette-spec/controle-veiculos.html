@@ -286,6 +286,13 @@
             width: auto;
         }
         
+        .btn-cancel {
+            background: #FF5722;
+            padding: 8px 12px;
+            font-size: 14px;
+            width: auto;
+        }
+        
         .veiculo-status {
             display: flex;
             flex-wrap: wrap;
@@ -439,6 +446,25 @@
             color: #555;
         }
         
+        .historico-actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        
+        .ultima-km {
+            background-color: #f0f7ff;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            border-left: 4px solid #1a73e8;
+        }
+        
+        .ultima-km p {
+            margin: 5px 0;
+            font-size: 14px;
+        }
+        
         @media (max-width: 768px) {
             .tabs {
                 flex-direction: column;
@@ -461,6 +487,10 @@
             .actions {
                 flex-direction: column;
                 gap: 5px;
+            }
+            
+            .historico-actions {
+                flex-direction: column;
             }
         }
     </style>
@@ -489,14 +519,6 @@
                 
                 <button type="submit"><i class="fas fa-sign-in-alt"></i> Acessar Sistema</button>
             </form>
-            
-            <div class="admin-info">
-                <h3><i class="fas fa-info-circle"></i> Senhas para Teste</h3>
-                <p><strong>João Silva:</strong> joao123</p>
-                <p><strong>Maria Santos:</strong> maria123</p>
-                <p><strong>Pedro Almeida:</strong> pedro123</p>
-                <p><strong>Admin:</strong> admin123</p>
-            </div>
             
             <div class="support">
                 <p>Problemas de acesso? <a href="#" id="contactAdmin">Contate o administrador</a></p>
@@ -540,6 +562,12 @@
             
             <div class="card">
                 <div class="card-title">Registrar Nova Retirada</div>
+                
+                <div class="ultima-km" id="infoUltimaKm" style="display: none;">
+                    <p><strong>Última Quilometragem Registrada:</strong> <span id="valorUltimaKm">0</span> km</p>
+                    <p><strong>Data do Úximo Registro:</strong> <span id="dataUltimaKm">-</span></p>
+                </div>
+                
                 <form id="formRetirada">
                     <div class="form-group">
                         <label for="veiculoRetirada">Veículo</label>
@@ -697,6 +725,13 @@
             
             <div class="card">
                 <div class="card-title">Histórico de Movimentações</div>
+                
+                <div class="historico-actions">
+                    <button id="btnLimparHistorico" style="width: auto; background: #EA4335;">
+                        <i class="fas fa-trash"></i> Limpar Histórico Antigo
+                    </button>
+                </div>
+                
                 <table id="tabelaHistorico">
                     <thead>
                         <tr>
@@ -709,6 +744,7 @@
                             <th>Combustível Devolução</th>
                             <th>Destino</th>
                             <th>Observações</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -761,6 +797,11 @@
                             </div>
                             
                             <div class="form-group">
+                                <label for="ultimaKmVeiculo">Última Quilometragem</label>
+                                <input type="number" id="ultimaKmVeiculo" placeholder="Última km registrada">
+                            </div>
+                            
+                            <div class="form-group">
                                 <label for="statusVeiculo">Status</label>
                                 <select id="statusVeiculo" required>
                                     <option value="Disponível">Disponível</option>
@@ -782,6 +823,7 @@
                                         <th>Modelo</th>
                                         <th>Placa</th>
                                         <th>Cor</th>
+                                        <th>Última KM</th>
                                         <th>Status</th>
                                         <th>Ações</th>
                                     </tr>
@@ -864,6 +906,29 @@
                     </div>
                     
                     <div class="card">
+                        <div class="card-title">Reservas Ativas</div>
+                        
+                        <div style="margin-top: 20px;">
+                            <h3>Reservas em Andamento</h3>
+                            <table id="tabelaReservas">
+                                <thead>
+                                    <tr>
+                                        <th>Veículo</th>
+                                        <th>Motorista</th>
+                                        <th>Data Início</th>
+                                        <th>Data Fim</th>
+                                        <th>Destino</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- As reservas serão carregadas dinamicamente -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
                         <div class="card-title">Configurações do Sistema</div>
                         
                         <div class="form-group">
@@ -896,10 +961,10 @@
     <script>
         // Dados iniciais para demonstração
         let veiculos = [
-            { id: 1, modelo: "Fiat Uno", placa: "ABC-1234", cor: "Prata", status: "Disponível" },
-            { id: 2, modelo: "Volkswagen Gol", placa: "DEF-5678", cor: "Preto", status: "Disponível" },
-            { id: 3, modelo: "Ford Ka", placa: "GHI-9012", cor: "Branco", status: "Em Manutenção" },
-            { id: 4, modelo: "Chevrolet Onix", placa: "JKL-3456", cor: "Vermelho", status: "Disponível" }
+            { id: 1, modelo: "Fiat Uno", placa: "ABC-1234", cor: "Prata", ultimaKm: 45230, status: "Disponível" },
+            { id: 2, modelo: "Volkswagen Gol", placa: "DEF-5678", cor: "Preto", ultimaKm: 78210, status: "Disponível" },
+            { id: 3, modelo: "Ford Ka", placa: "GHI-9012", cor: "Branco", ultimaKm: 35670, status: "Em Manutenção" },
+            { id: 4, modelo: "Chevrolet Onix", placa: "JKL-3456", cor: "Vermelho", ultimaKm: 29100, status: "Disponível" }
         ];
 
         let motoristas = [
@@ -955,6 +1020,10 @@
             document.getElementById('btnCancelarMotorista').addEventListener('click', cancelarEdicaoMotorista);
             document.getElementById('btnAlterarSenha').addEventListener('click', alterarSenhaPadrao);
             document.getElementById('btnLimparDados').addEventListener('click', limparDados);
+            document.getElementById('btnLimparHistorico').addEventListener('click', limparHistoricoAntigo);
+            
+            // Configurar eventos para mostrar última KM
+            document.getElementById('veiculoRetirada').addEventListener('change', mostrarUltimaKm);
             
             // Carregar dados iniciais
             carregarVeiculos();
@@ -1062,6 +1131,8 @@
                 document.getElementById('senhaAdmin').value = '';
             } else if (tabName === 'devolucao') {
                 carregarVeiculosDevolucao();
+            } else if (tabName === 'retirada') {
+                carregarVeiculosRetirada();
             }
         }
 
@@ -1079,7 +1150,10 @@
                 if (veiculo.status === 'Disponível') {
                     statusClass = 'disponivel';
                     statusText = 'Disponível';
-                    detalhes = '<p><strong>Motorista:</strong> -</p>';
+                    detalhes = `
+                        <p><strong>Motorista:</strong> -</p>
+                        <p><strong>Quilometragem:</strong> ${veiculo.ultimaKm} km</p>
+                    `;
                 } else if (veiculo.status === 'Em uso' && uso) {
                     statusClass = 'em-uso';
                     statusText = 'Em uso';
@@ -1105,7 +1179,10 @@
                 } else {
                     statusClass = 'indisponivel';
                     statusText = veiculo.status;
-                    detalhes = '<p><strong>Motorista:</strong> -</p>';
+                    detalhes = `
+                        <p><strong>Motorista:</strong> -</p>
+                        <p><strong>Quilometragem:</strong> ${veiculo.ultimaKm} km</p>
+                    `;
                 }
                 
                 const veiculoCard = document.createElement('div');
@@ -1122,25 +1199,18 @@
                 
                 listaVeiculos.appendChild(veiculoCard);
             });
+        }
+
+        function carregarVeiculosRetirada() {
+            const select = document.getElementById('veiculoRetirada');
+            select.innerHTML = '<option value="">Selecione um veículo</option>';
             
-            // Atualizar selects de veículos nos formulários
-            const selectsVeiculos = [
-                'veiculoRetirada', 
-                'veiculoReserva'
-            ];
-            
-            selectsVeiculos.forEach(selectId => {
-                const select = document.getElementById(selectId);
-                // Manter a primeira opção e limpar o resto
-                select.innerHTML = '<option value="">Selecione um veículo</option>';
-                
-                // Adicionar veículos disponíveis
-                veiculos.filter(v => v.status === 'Disponível').forEach(veiculo => {
-                    const option = document.createElement('option');
-                    option.value = veiculo.id;
-                    option.textContent = `${veiculo.modelo} - ${veiculo.placa}`;
-                    select.appendChild(option);
-                });
+            // Adicionar veículos disponíveis
+            veiculos.filter(v => v.status === 'Disponível').forEach(veiculo => {
+                const option = document.createElement('option');
+                option.value = veiculo.id;
+                option.textContent = `${veiculo.modelo} - ${veiculo.placa}`;
+                select.appendChild(option);
             });
         }
 
@@ -1155,6 +1225,31 @@
                 option.textContent = `${veiculo.modelo} - ${veiculo.placa}`;
                 select.appendChild(option);
             });
+        }
+
+        function mostrarUltimaKm() {
+            const veiculoId = document.getElementById('veiculoRetirada').value;
+            const infoUltimaKm = document.getElementById('infoUltimaKm');
+            
+            if (veiculoId) {
+                const veiculo = veiculos.find(v => v.id == veiculoId);
+                document.getElementById('valorUltimaKm').textContent = veiculo.ultimaKm;
+                
+                // Encontrar a data do último registro
+                const ultimoRegistro = historico
+                    .filter(r => r.veiculo === veiculo.modelo && r.dataDevolucao)
+                    .sort((a, b) => new Date(b.dataDevolucao) - new Date(a.dataDevolucao))[0];
+                
+                if (ultimoRegistro && ultimoRegistro.dataDevolucao) {
+                    document.getElementById('dataUltimaKm').textContent = ultimoRegistro.dataDevolucao;
+                } else {
+                    document.getElementById('dataUltimaKm').textContent = 'Nenhum registro anterior';
+                }
+                
+                infoUltimaKm.style.display = 'block';
+            } else {
+                infoUltimaKm.style.display = 'none';
+            }
         }
 
         function carregarMotoristas() {
@@ -1259,6 +1354,7 @@
             
             // Atualizar status do veículo
             veiculo.status = 'Em uso';
+            veiculo.ultimaKm = km;
             
             // Registrar uso atual
             usoAtual.push({
@@ -1287,6 +1383,7 @@
             // Atualizar interface
             carregarVeiculos();
             document.getElementById('formRetirada').reset();
+            document.getElementById('infoUltimaKm').style.display = 'none';
             
             mostrarNotificacao(`Retirada do veículo ${veiculo.modelo} registrada com sucesso!`, 'success');
         }
@@ -1352,6 +1449,7 @@
             
             // Atualizar status do veículo
             veiculo.status = 'Disponível';
+            veiculo.ultimaKm = km;
             
             // Remover do uso atual
             usoAtual = usoAtual.filter(u => u.veiculoId != veiculoId);
@@ -1380,7 +1478,7 @@
             const tbody = document.querySelector('#tabelaHistorico tbody');
             tbody.innerHTML = '';
             
-            historico.forEach(registro => {
+            historico.forEach((registro, index) => {
                 const tr = document.createElement('tr');
                 
                 tr.innerHTML = `
@@ -1393,10 +1491,36 @@
                     <td>${registro.combustivelDevolucao || '-'}</td>
                     <td>${registro.destino || '-'}</td>
                     <td>${registro.observacoes || '-'}</td>
+                    <td class="actions">
+                        <button class="btn-delete" onclick="excluirItemHistorico(${index})"><i class="fas fa-trash"></i> Excluir</button>
+                    </td>
                 `;
                 
                 tbody.appendChild(tr);
             });
+        }
+
+        function excluirItemHistorico(index) {
+            if (confirm('Tem certeza que deseja excluir este item do histórico?')) {
+                historico.splice(index, 1);
+                carregarHistorico();
+                mostrarNotificacao('Item do histórico excluído com sucesso!', 'success');
+            }
+        }
+
+        function limparHistoricoAntigo() {
+            if (confirm('Tem certeza que deseja limpar o histórico antigo? Itens com mais de 30 dias serão removidos.')) {
+                const trintaDiasAtras = new Date();
+                trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
+                
+                historico = historico.filter(registro => {
+                    const dataRegistro = new Date(registro.data.split(',')[0]);
+                    return dataRegistro >= trintaDiasAtras;
+                });
+                
+                carregarHistorico();
+                mostrarNotificacao('Histórico antigo limpo com sucesso!', 'success');
+            }
         }
 
         function acessarAreaAdmin() {
@@ -1406,6 +1530,7 @@
                 document.getElementById('conteudoAdmin').style.display = 'block';
                 carregarTabelaVeiculosAdmin();
                 carregarTabelaMotoristasAdmin();
+                carregarTabelaReservasAdmin();
             } else {
                 mostrarNotificacao('Senha administrativa incorreta!', 'error');
             }
@@ -1422,6 +1547,7 @@
                     <td>${veiculo.modelo}</td>
                     <td>${veiculo.placa}</td>
                     <td>${veiculo.cor}</td>
+                    <td>${veiculo.ultimaKm}</td>
                     <td>${veiculo.status}</td>
                     <td class="actions">
                         <button class="btn-edit" onclick="editarVeiculo(${veiculo.id})"><i class="fas fa-edit"></i> Editar</button>
@@ -1461,6 +1587,61 @@
             });
         }
 
+        function carregarTabelaReservasAdmin() {
+            const tbody = document.querySelector('#tabelaReservas tbody');
+            tbody.innerHTML = '';
+            
+            usoAtual.filter(u => u.tipo === 'reserva').forEach((reserva, index) => {
+                const veiculo = veiculos.find(v => v.id === reserva.veiculoId);
+                const motorista = motoristas.find(m => m.id === reserva.motoristaId);
+                
+                const tr = document.createElement('tr');
+                
+                tr.innerHTML = `
+                    <td>${veiculo.modelo}</td>
+                    <td>${motorista.nome}</td>
+                    <td>${reserva.dataInicio} ${reserva.horaInicio}</td>
+                    <td>${reserva.dataFim} ${reserva.horaFim}</td>
+                    <td>${reserva.destino}</td>
+                    <td class="actions">
+                        <button class="btn-cancel" onclick="cancelarReserva(${index})"><i class="fas fa-times"></i> Cancelar</button>
+                    </td>
+                `;
+                
+                tbody.appendChild(tr);
+            });
+        }
+
+        function cancelarReserva(index) {
+            if (confirm('Tem certeza que deseja cancelar esta reserva?')) {
+                const reserva = usoAtual[index];
+                const veiculo = veiculos.find(v => v.id === reserva.veiculoId);
+                
+                // Atualizar status do veículo
+                veiculo.status = 'Disponível';
+                
+                // Remover da lista de uso atual
+                usoAtual.splice(index, 1);
+                
+                // Registrar cancelamento no histórico
+                const motorista = motoristas.find(m => m.id === reserva.motoristaId);
+                historico.push({
+                    data: new Date().toLocaleString(),
+                    veiculo: veiculo.modelo,
+                    motorista: motorista.nome,
+                    periodo: `De ${reserva.dataInicio} ${reserva.horaInicio} até ${reserva.dataFim} ${reserva.horaFim}`,
+                    destino: reserva.destino,
+                    tipo: 'Reserva Cancelada'
+                });
+                
+                // Atualizar interface
+                carregarTabelaReservasAdmin();
+                carregarVeiculos();
+                
+                mostrarNotificacao('Reserva cancelada com sucesso!', 'success');
+            }
+        }
+
         function editarVeiculo(id) {
             const veiculo = veiculos.find(v => v.id === id);
             
@@ -1468,6 +1649,7 @@
             document.getElementById('modeloVeiculo').value = veiculo.modelo;
             document.getElementById('placaVeiculo').value = veiculo.placa;
             document.getElementById('corVeiculo').value = veiculo.cor;
+            document.getElementById('ultimaKmVeiculo').value = veiculo.ultimaKm;
             document.getElementById('statusVeiculo').value = veiculo.status;
             
             modoEdicaoVeiculo = true;
@@ -1495,17 +1677,32 @@
             const modelo = document.getElementById('modeloVeiculo').value;
             const placa = document.getElementById('placaVeiculo').value;
             const cor = document.getElementById('corVeiculo').value;
+            const ultimaKm = document.getElementById('ultimaKmVeiculo').value;
             const status = document.getElementById('statusVeiculo').value;
             
             if (modoEdicaoVeiculo) {
                 // Editar veículo existente
                 const index = veiculos.findIndex(v => v.id == id);
-                veiculos[index] = { id: parseInt(id), modelo, placa, cor, status };
+                veiculos[index] = { 
+                    id: parseInt(id), 
+                    modelo, 
+                    placa, 
+                    cor, 
+                    ultimaKm: parseInt(ultimaKm) || 0, 
+                    status 
+                };
                 mostrarNotificacao('Veículo atualizado com sucesso!', 'success');
             } else {
                 // Adicionar novo veículo
                 const novoId = veiculos.length > 0 ? Math.max(...veiculos.map(v => v.id)) + 1 : 1;
-                veiculos.push({ id: novoId, modelo, placa, cor, status });
+                veiculos.push({ 
+                    id: novoId, 
+                    modelo, 
+                    placa, 
+                    cor, 
+                    ultimaKm: parseInt(ultimaKm) || 0, 
+                    status 
+                });
                 mostrarNotificacao('Veículo adicionado com sucesso!', 'success');
             }
             
@@ -1639,6 +1836,8 @@
         window.excluirVeiculo = excluirVeiculo;
         window.editarMotorista = editarMotorista;
         window.excluirMotorista = excluirMotorista;
+        window.excluirItemHistorico = excluirItemHistorico;
+        window.cancelarReserva = cancelarReserva;
     </script>
 </body>
 </html>
