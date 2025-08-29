@@ -139,6 +139,12 @@
             border-left: 4px solid #C5221F;
         }
         
+        .info {
+            background: #E8F0FE;
+            color: #1A73E8;
+            border-left: 4px solid #1A73E8;
+        }
+        
         .support {
             margin-top: 20px;
             font-size: 14px;
@@ -465,6 +471,28 @@
             font-size: 14px;
         }
         
+        .login-info {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            text-align: left;
+            font-size: 14px;
+        }
+        
+        .login-info h3 {
+            margin-bottom: 10px;
+            color: #1a73e8;
+        }
+        
+        .login-info ul {
+            padding-left: 20px;
+        }
+        
+        .login-info li {
+            margin-bottom: 8px;
+        }
+        
         @media (max-width: 768px) {
             .tabs {
                 flex-direction: column;
@@ -522,6 +550,16 @@
             
             <div class="support">
                 <p>Para solicitar acesso enviar email para <a href="mailto:wesley.polette@gm.com">wesley.polette@gm.com</a></p>
+            </div>
+            
+            <div class="login-info">
+                <h3>Informações para Login (Teste):</h3>
+                <ul>
+                    <li>Para acesso como <strong>Administrador</strong>, use a senha: <span class="password-display">admin123</span></li>
+                    <li>Para acesso como <strong>João Silva</strong>, use a senha: <span class="password-display">joao123</span></li>
+                    <li>Para acesso como <strong>Maria Santos</strong>, use a senha: <span class="password-display">maria123</span></li>
+                    <li>Para acesso como <strong>Pedro Almeida</strong>, use a senha: <span class="password-display">pedro123</span></li>
+                </ul>
             </div>
         </div>
     </div>
@@ -764,7 +802,7 @@
                 <div class="admin-access">
                     <i class="fas fa-lock" style="font-size: 48px; color: #F44336; margin-bottom: 15px;"></i>
                     <h3>Acesso Administrativo</h3>
-                    <p>Para acessar das funções administrativas, digite a senha de administração:</p>
+                    <p>Para acessar as funções administrativas, digite a senha de administração:</p>
                     
                     <div class="form-group">
                         <div class="password-toggle">
@@ -811,7 +849,7 @@
                                 </select>
                             </div>
                             
-                            <button type="submit"><i class="fas fa-save"></i> Salvar Veículo</button>
+                            <button type="submit"><i class="fas fa-save"></i> Salrar Veículo</button>
                             <button type="button" id="btnCancelarVeiculo" style="background: #777;"><i class="fas fa-times"></i> Cancelar</button>
                         </form>
                         
@@ -945,7 +983,7 @@
                         
                         <div style="margin-top: 20px;">
                             <h3>Limpar Dados</h3>
-                            <p>Esta ação irá remover todos os históricos e registros do sistema. Use com cautela!</p>
+                            <p>Esta ação irá remover todos os históricos and registros do sistema. Use com cautela!</p>
                             <button id="btnLimparDados" style="background: #EA4335;"><i class="fas fa-trash"></i> Limpar Todos os Dados</button>
                         </div>
                     </div>
@@ -981,22 +1019,114 @@
 
         // Inicialização quando o DOM estiver carregado
         document.addEventListener('DOMContentLoaded', function() {
-            inicializarSistema();
-        });
-
-        function inicializarSistema() {
             // Verificar se há um usuário logado
             const usuarioSalvo = localStorage.getItem('usuarioLogado');
             if (usuarioSalvo) {
                 usuarioLogado = JSON.parse(usuarioSalvo);
                 mostrarSistemaPrincipal();
+            } else {
+                // Se não estiver logado, mostrar a tela de login
+                document.getElementById('loginScreen').style.display = 'flex';
+                inicializarLogin();
             }
+        });
 
+        function inicializarLogin() {
             // Configurar eventos
             document.getElementById('loginForm').addEventListener('submit', fazerLogin);
-            document.getElementById('btnLogoutUser').addEventListener('click', fazerLogout);
             document.getElementById('togglePassword').addEventListener('click', togglePasswordVisibility);
-            document.getElementById('contactAdmin').addEventListener('click', contactAdmin);
+            
+            // Mostrar informações de login para teste
+            mostrarNotificacao('Use as senhas listadas abaixo para testar o sistema', 'info');
+        }
+
+        function fazerLogin(e) {
+            e.preventDefault();
+            const password = document.getElementById('password').value;
+            
+            // Verificar senha
+            let usuarioEncontrado = null;
+            
+            // Verificar se é um motorista
+            for (const motorista of motoristas) {
+                if (motorista.senha === password) {
+                    usuarioEncontrado = { 
+                        nome: motorista.nome, 
+                        admin: false,
+                        motoristaId: motorista.id
+                    };
+                    break;
+                }
+            }
+            
+            // Verificar se é admin
+            if (password === 'admin123') {
+                usuarioEncontrado = { nome: 'Administrador', admin: true };
+            }
+            
+            if (usuarioEncontrado) {
+                usuarioLogado = usuarioEncontrado;
+                localStorage.setItem('usuarioLogado', JSON.stringify(usuarioLogado));
+                mostrarNotificacao('Login realizado com sucesso!', 'success');
+                
+                // Esconder a tela de login e mostrar o sistema principal
+                document.getElementById('loginScreen').style.display = 'none';
+                mostrarSistemaPrincipal();
+            } else {
+                mostrarNotificacao('Senha incorreta. Tente novamente.', 'error');
+            }
+        }
+
+        function fazerLogout() {
+            if (confirm('Tem certeza que deseja sair do sistema?')) {
+                usuarioLogado = null;
+                localStorage.removeItem('usuarioLogado');
+                document.getElementById('mainSystem').style.display = 'none';
+                document.getElementById('loginScreen').style.display = 'flex';
+                document.getElementById('password').value = '';
+                
+                // Reinicializar a tela de login
+                inicializarLogin();
+            }
+        }
+
+        function mostrarSistemaPrincipal() {
+            document.getElementById('mainSystem').style.display = 'block';
+            document.getElementById('userName').textContent = usuarioLogado.nome;
+            
+            // Se for admin, mostrar área administrativa
+            if (usuarioLogado.admin) {
+                document.getElementById('administracao').classList.add('admin-only');
+                document.body.classList.add('authenticated');
+            }
+            
+            // Inicializar o sistema principal
+            inicializarSistema();
+        }
+
+        function togglePasswordVisibility() {
+            const passwordInput = document.getElementById('password');
+            const icon = document.getElementById('togglePassword');
+            
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
+            } else {
+                passwordInput.type = 'password';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
+            }
+        }
+
+        function contactAdmin(e) {
+            e.preventDefault();
+            window.location.href = "mailto:wesley.polette@gm.com";
+        }
+
+        function inicializarSistema() {
+            // Configurar eventos
+            document.getElementById('btnLogoutUser').addEventListener('click', fazerLogout);
             
             // Configurar abas
             const tabs = document.querySelectorAll('.tab');
@@ -1029,80 +1159,6 @@
             carregarVeiculos();
             carregarMotoristas();
             carregarHistorico();
-        }
-
-        function fazerLogin(e) {
-            e.preventDefault();
-            const password = document.getElementById('password').value;
-            
-            // Verificar senha
-            let usuarioEncontrado = null;
-            
-            // Verificar se é um motorista
-            for (const motorista of motoristas) {
-                if (motorista.senha === password) {
-                    usuarioEncontrado = { 
-                        nome: motorista.nome, 
-                        admin: false,
-                        motoristaId: motorista.id
-                    };
-                    break;
-                }
-            }
-            
-            // Verificar se é admin
-            if (password === 'admin123') {
-                usuarioEncontrado = { nome: 'Administrador', admin: true };
-            }
-            
-            if (usuarioEncontrado) {
-                usuarioLogado = usuarioEncontrado;
-                localStorage.setItem('usuarioLogado', JSON.stringify(usuarioLogado));
-                mostrarSistemaPrincipal();
-                mostrarNotificacao('Login realizado com sucesso!', 'success');
-            } else {
-                mostrarNotificacao('Senha incorreta. Tente novamente.', 'error');
-            }
-        }
-
-        function fazerLogout() {
-            usuarioLogado = null;
-            localStorage.removeItem('usuarioLogado');
-            document.getElementById('mainSystem').style.display = 'none';
-            document.getElementById('loginScreen').style.display = 'flex';
-            document.getElementById('password').value = '';
-        }
-
-        function mostrarSistemaPrincipal() {
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('mainSystem').style.display = 'block';
-            document.getElementById('userName').textContent = usuarioLogado.nome;
-            
-            // Se for admin, mostrar área administrativa
-            if (usuarioLogado.admin) {
-                document.getElementById('administracao').classList.add('admin-only');
-                document.body.classList.add('authenticated');
-            }
-        }
-
-        function togglePasswordVisibility() {
-            const passwordInput = document.getElementById('password');
-            const icon = document.getElementById('togglePassword');
-            
-            if (passwordInput.type === 'password') {
-                passwordInput.type = 'text';
-                icon.classList.remove('fa-eye');
-                icon.classList.add('fa-eye-slash');
-            } else {
-                passwordInput.type = 'password';
-                icon.classList.remove('fa-eye-slash');
-                icon.classList.add('fa-eye');
-            }
-        }
-
-        function contactAdmin(e) {
-            e.preventDefault();
-            window.location.href = "mailto:wesley.polette@gm.com";
         }
 
         function switchTab(tabName) {
@@ -1493,7 +1549,7 @@
             const tbody = document.querySelector('#tabelaHistorico tbody');
             tbody.innerHTML = '';
             
-            historico.forEach((registro, index) => {
+            historico.forEach((registro, index) {
                 const tr = document.createElement('tr');
                 
                 tr.innerHTML = `
@@ -1606,7 +1662,7 @@
             const tbody = document.querySelector('#tabelaReservas tbody');
             tbody.innerHTML = '';
             
-            usoAtual.filter(u => u.tipo === 'reserva').forEach((reserva, index) => {
+            usoAtual.filter(u => u.tipo === 'reserva').forEach((reserva, index) {
                 const veiculo = veiculos.find(v => v.id === reserva.veiculoId);
                 const motorista = motoristas.find(m => m.id === reserva.motoristaId);
                 
