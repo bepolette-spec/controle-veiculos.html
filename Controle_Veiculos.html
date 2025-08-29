@@ -521,7 +521,7 @@
             </form>
             
             <div class="support">
-                <p>Problemas de acesso? <a href="#" id="contactAdmin">Contate o administrador</a></p>
+                <p>Para solicitar acesso enviar email para <a href="mailto:wesley.polette@gm.com">wesley.polette@gm.com</a></p>
             </div>
         </div>
     </div>
@@ -764,7 +764,7 @@
                 <div class="admin-access">
                     <i class="fas fa-lock" style="font-size: 48px; color: #F44336; margin-bottom: 15px;"></i>
                     <h3>Acesso Administrativo</h3>
-                    <p>Para acessar as funções administrativas, digite a senha de administração:</p>
+                    <p>Para acessar das funções administrativas, digite a senha de administração:</p>
                     
                     <div class="form-group">
                         <div class="password-toggle">
@@ -963,7 +963,7 @@
         let veiculos = [
             { id: 1, modelo: "Fiat Uno", placa: "ABC-1234", cor: "Prata", ultimaKm: 45230, status: "Disponível" },
             { id: 2, modelo: "Volkswagen Gol", placa: "DEF-5678", cor: "Preto", ultimaKm: 78210, status: "Disponível" },
-            { id: 3, modelo: "Ford Ka", placa: "GHI-9012", cor: "Branco", ultimaKm: 35670, status: "Em Manutenção" },
+            { id: 3, modelo: "Ford Ka", placa: "GHI-9012", cor: "Branco", ultimaKm: 35670, status: "Disponível" },
             { id: 4, modelo: "Chevrolet Onix", placa: "JKL-3456", cor: "Vermelho", ultimaKm: 29100, status: "Disponível" }
         ];
 
@@ -1102,7 +1102,7 @@
 
         function contactAdmin(e) {
             e.preventDefault();
-            mostrarNotificacao('Um e-mail foi enviado para o administrador do sistema.', 'success');
+            window.location.href = "mailto:wesley.polette@gm.com";
         }
 
         function switchTab(tabName) {
@@ -1133,6 +1133,10 @@
                 carregarVeiculosDevolucao();
             } else if (tabName === 'retirada') {
                 carregarVeiculosRetirada();
+                carregarMotoristas();
+            } else if (tabName === 'reserva') {
+                carregarVeiculosReserva();
+                carregarMotoristas();
             }
         }
 
@@ -1151,7 +1155,6 @@
                     statusClass = 'disponivel';
                     statusText = 'Disponível';
                     detalhes = `
-                        <p><strong>Motorista:</strong> -</p>
                         <p><strong>Quilometragem:</strong> ${veiculo.ultimaKm} km</p>
                     `;
                 } else if (veiculo.status === 'Em uso' && uso) {
@@ -1180,7 +1183,6 @@
                     statusClass = 'indisponivel';
                     statusText = veiculo.status;
                     detalhes = `
-                        <p><strong>Motorista:</strong> -</p>
                         <p><strong>Quilometragem:</strong> ${veiculo.ultimaKm} km</p>
                     `;
                 }
@@ -1203,6 +1205,19 @@
 
         function carregarVeiculosRetirada() {
             const select = document.getElementById('veiculoRetirada');
+            select.innerHTML = '<option value="">Selecione um veículo</option>';
+            
+            // Adicionar veículos disponíveis
+            veiculos.filter(v => v.status === 'Disponível').forEach(veiculo => {
+                const option = document.createElement('option');
+                option.value = veiculo.id;
+                option.textContent = `${veiculo.modelo} - ${veiculo.placa}`;
+                select.appendChild(option);
+            });
+        }
+
+        function carregarVeiculosReserva() {
+            const select = document.getElementById('veiculoReserva');
             select.innerHTML = '<option value="">Selecione um veículo</option>';
             
             // Adicionar veículos disponíveis
@@ -1702,7 +1717,7 @@
                     cor, 
                     ultimaKm: parseInt(ultimaKm) || 0, 
                     status 
-                });
+                };
                 mostrarNotificacao('Veículo adicionado com sucesso!', 'success');
             }
             
@@ -1752,7 +1767,7 @@
                     validade, 
                     categoria, 
                     permiteReserva 
-                });
+                };
                 mostrarNotificacao('Motorista adicionado com sucesso!', 'success');
             }
             
@@ -1841,4 +1856,3 @@
     </script>
 </body>
 </html>
-
