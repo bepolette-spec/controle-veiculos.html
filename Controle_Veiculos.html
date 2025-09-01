@@ -1787,7 +1787,7 @@ carregarVeiculosReserva();
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-  import { getDatabase, ref, onValue, set, push } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+  import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyA7pTa-7rQsiA0C5Ud6QbvTRJdwB8IuRGI",
@@ -1803,41 +1803,23 @@ carregarVeiculosReserva();
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // Atualizar lista de veículos em tempo real
-  onValue(ref(db, 'veiculos'), (snapshot) => {
-    const veiculos = snapshot.val();
-    atualizarListaVeiculos(veiculos);
-    atualizarListaReservas(veiculos);
+  // Escuta em tempo real para reservas
+  const reservasRef = ref(db, 'reservas');
+  onValue(reservasRef, (snapshot) => {
+    const reservas = snapshot.val();
+    atualizarListaReservas(reservas);
   });
 
-  // Função para atualizar a lista de veículos na interface
-  function atualizarListaVeiculos(veiculos) {
-    // Exemplo: atualizar tabela de veículos
-    const tabela = document.getElementById("tabelaVeiculos");
-    if (!tabela) return;
-    tabela.innerHTML = "";
-    for (const id in veiculos) {
-      const v = veiculos[id];
-      const row = document.createElement("tr");
-      row.innerHTML = `<td>${v.modelo}</td><td>${v.placa}</td><td>${v.status}</td>`;
-      tabela.appendChild(row);
-    }
-  }
-
-  // Função para atualizar a lista de veículos disponíveis para reserva
-  function atualizarListaReservas(veiculos) {
+  // Função que atualiza a interface com as reservas
+  function atualizarListaReservas(reservas) {
     const lista = document.getElementById("listaReservas");
     if (!lista) return;
     lista.innerHTML = "";
-    for (const id in veiculos) {
-      const v = veiculos[id];
-      // Mostrar todos os veículos exceto os em manutenção
-      if (v.status !== "Em manutenção") {
-        const option = document.createElement("option");
-        option.value = id;
-        option.textContent = `${v.modelo} - ${v.placa} (${v.status})`;
-        lista.appendChild(option);
-      }
+    for (const id in reservas) {
+      const r = reservas[id];
+      const item = document.createElement("li");
+      item.textContent = `${r.veiculo} reservado por ${r.motorista} em ${r.data} às ${r.hora}`;
+      lista.appendChild(item);
     }
   }
 </script>
