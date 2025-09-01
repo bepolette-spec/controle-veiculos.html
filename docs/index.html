@@ -1,66 +1,91 @@
-
 <!DOCTYPE html>
-<html>
+<html lang="pt-br">
 <head>
+  <meta charset="UTF-8">
   <title>Controle de Veículos</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <style>
     body {
-      background-color: #333;
+      background-color: #000;
       color: white;
       font-family: Arial, sans-serif;
       text-align: center;
+      padding-top: 50px;
     }
     .car-icon {
       font-size: 100px;
       color: white;
     }
-    h1 {
-      color: white;
+    .login-section {
+      margin-top: 30px;
+    }
+    input[type="password"] {
+      padding: 10px;
+      font-size: 16px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 16px;
+      margin-left: 10px;
+    }
+    #status {
+      margin-top: 20px;
+      font-weight: bold;
     }
   </style>
-  <!-- Firebase SDK -->
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 <body>
-  <div>
-    <div class="car-icon">🚗</div>
-    <h1>Controle de Veículos</h1>
+  <div class="car-icon">🚗</div>
+  <h1>Controle de Veículos</h1>
+  <div class="login-section">
+    <label for="senha">Senha de administração:</label>
+    <input type="password" id="senha" placeholder="Digite a senha">
+    <button onclick="verificarSenha()">Entrar</button>
   </div>
+  <div id="status"></div>
 
   <script>
-    // Configuração do Firebase
     var firebaseConfig = {
-      apiKey: "SUA_API_KEY",
-      authDomain: "SEU_AUTH_DOMAIN",
-      databaseURL: "SUA_DATABASE_URL",
-      projectId: "SEU_PROJECT_ID",
-      storageBucket: "SEU_STORAGE_BUCKET",
-      messagingSenderId: "SEU_MESSAGING_SENDER_ID",
-      appId: "SEU_APP_ID"
+      apiKey: "AIzaSyA7pTa-7rGsiABC5Ud6ybTRJdw8BtURgT",
+      authDomain: "controle-veiculos-27ba1.firebaseapp.com",
+      databaseURL: "https://controle-veiculos-27ba1-default-rtdb.firebaseio.com",
+      projectId: "controle-veiculos-27ba1",
+      storageBucket: "controle-veiculos-27ba1.appspot.com",
+      messagingSenderId: "1084808734247",
+      appId: "1:1084808734247:web:54c8fe5de2d847c1d5002"
     };
     firebase.initializeApp(firebaseConfig);
+    var db = firebase.database();
 
-    // Referência ao nó 'veiculos'
-    const db = firebase.database();
-    const caminhoDoNo = 'veiculos';
+    window.onload = function() {
+      var veiculosRef = db.ref("veiculos");
+      veiculosRef.once("value").then(function(snapshot) {
+        if (!snapshot.exists()) {
+          veiculosRef.set({
+            carro1: {
+              modelo: "Chevrolet Onix",
+              placa: "ABC-1234",
+              status: "disponível"
+            }
+          });
+          document.getElementById("status").innerText = "Nó 'veiculos' criado com dados iniciais.";
+        } else {
+          document.getElementById("status").innerText = "Nó 'veiculos' já existe. Nenhuma alteração feita.";
+        }
+      }).catch(function(error) {
+        document.getElementById("status").innerText = "Erro ao verificar/criar nó: " + error.message;
+      });
+    };
 
-    // Verifica se o nó já existe antes de criar
-    db.ref(caminhoDoNo).once('value').then((snapshot) => {
-      if (!snapshot.exists()) {
-        db.ref(caminhoDoNo).set({
-          carro1: {
-            modelo: 'Chevrolet Onix',
-            placa: 'ABC-1234',
-            status: 'disponível'
-          }
-        });
-        console.log('Nó criado com dados iniciais.');
+    function verificarSenha() {
+      var senha = document.getElementById("senha").value;
+      if (senha === "admin123") {
+        alert("Acesso concedido!");
       } else {
-        console.log('Nó já existe. Nenhuma alteração feita.');
+        alert("Senha incorreta.");
       }
-    });
+    }
   </script>
 </body>
 </html>
-
