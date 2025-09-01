@@ -885,7 +885,7 @@
 </div>
 </div>
 <footer>
-<p>Sistema de Controle de Veículos Polimeros 1.4 © 2025 - Desenvolvido para facilitar o gerenciamento de frotas</p>
+<p>Sistema de Controle de Veículos Polimeros 1.5 © 2025 - Desenvolvido para facilitar o gerenciamento de frotas</p>
 </footer>
 </div>
 <script>
@@ -1803,5 +1803,67 @@ carregarVeiculosReserva();
       status: "Conectado com sucesso",
       timestamp: new Date().toISOString()
     });
-  </script><div id="formularioFirebase"><h2>Formulários de Registro</h2><div class="formulario" id="form_veiculo"><h3>Registrar Veiculo</h3><label for="veiculo_placa">Placa</label><input id="veiculo_placa" type="text"/><br/><label for="veiculo_modelo">Modelo</label><input id="veiculo_modelo" type="text"/><br/><label for="veiculo_ano">Ano</label><input id="veiculo_ano" type="text"/><br/><label for="veiculo_cor">Cor</label><input id="veiculo_cor" type="text"/><br/><button onclick="salvarVeiculo()" type="button">Salvar Veículo</button></div><div class="formulario" id="form_reserva"><h3>Registrar Reserva</h3><label for="reserva_motorista">Motorista</label><input id="reserva_motorista" type="text"/><br/><label for="reserva_veiculo">Veículo</label><input id="reserva_veiculo" type="text"/><br/><label for="reserva_data">Data da Reserva</label><input id="reserva_data" type="text"/><br/><button onclick="salvarReserva()" type="button">Salvar Reserva</button></div><div class="formulario" id="form_retirada"><h3>Registrar Retirada</h3><label for="retirada_motorista">Motorista</label><input id="retirada_motorista" type="text"/><br/><label for="retirada_veiculo">Veículo</label><input id="retirada_veiculo" type="text"/><br/><label for="retirada_data">Data da Retirada</label><input id="retirada_data" type="text"/><br/><label for="retirada_km">Quilometragem</label><input id="retirada_km" type="text"/><br/><button onclick="salvarRetirada()" type="button">Salvar Retirada</button></div><div class="formulario" id="form_devolucao"><h3>Registrar Devolucao</h3><label for="devolucao_motorista">Motorista</label><input id="devolucao_motorista" type="text"/><br/><label for="devolucao_veiculo">Veículo</label><input id="devolucao_veiculo" type="text"/><br/><label for="devolucao_data">Data da Devolução</label><input id="devolucao_data" type="text"/><br/><label for="devolucao_km">Quilometragem</label><input id="devolucao_km" type="text"/><br/><button onclick="salvarDevolucao()" type="button">Salvar Devolução</button></div></div></body>
+  </script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Firebase listeners em tempo real
+    const db = firebase.database();
+
+    // Listener para reservas
+    db.ref("reservas").on("value", function(snapshot) {
+        const lista = document.getElementById("listaReservas");
+        if (lista) {
+            lista.innerHTML = "";
+            snapshot.forEach(function(child) {
+                const dados = child.val();
+                const item = document.createElement("li");
+                item.textContent = `Reserva: ${dados.veiculo} por ${dados.motorista} em ${dados.data}`;
+                lista.appendChild(item);
+            });
+        }
+    });
+
+    // Listener para devolucoes
+    db.ref("devolucoes").on("value", function(snapshot) {
+        const lista = document.getElementById("listaDevolucoes");
+        if (lista) {
+            lista.innerHTML = "";
+            snapshot.forEach(function(child) {
+                const dados = child.val();
+                const item = document.createElement("li");
+                item.textContent = `Devolução: ${dados.veiculo} por ${dados.motorista} em ${dados.data}`;
+                lista.appendChild(item);
+            });
+        }
+    });
+
+    // Listener para veiculos
+    db.ref("veiculos").on("value", function(snapshot) {
+        const lista = document.getElementById("listaVeiculos");
+        if (lista) {
+            lista.innerHTML = "";
+            snapshot.forEach(function(child) {
+                const dados = child.val();
+                const item = document.createElement("li");
+                item.textContent = `Veículo: ${dados.modelo} - Placa: ${dados.placa}`;
+                lista.appendChild(item);
+            });
+        }
+    });
+
+    // Funções para salvar dados
+    window.salvarReserva = function(dados) {
+        db.ref("reservas").push(dados);
+    };
+
+    window.salvarDevolucao = function(dados) {
+        db.ref("devolucoes").push(dados);
+    };
+
+    window.salvarVeiculo = function(dados) {
+        db.ref("veiculos").push(dados);
+    };
+});
+</script>
+</body>
 </html>
