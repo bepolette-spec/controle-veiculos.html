@@ -1,11 +1,12 @@
 <!DOCTYPE html>
+
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Veículos</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Controle de Veículos</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<style>
         * {
             margin: 0;
             padding: 0;
@@ -494,509 +495,400 @@
             }
         }
     </style>
-
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
-<script>
-  var firebaseConfig = {
-    apiKey: "AIzaSyA7pTa-7rGsiABC5Ud6ybTRJdw8BtURgT",
-    authDomain: "controle-veiculos-27ba1.firebaseapp.com",
-    databaseURL: "https://controle-veiculos-27ba1-default-rtdb.firebaseio.com",
-    projectId: "controle-veiculos-27ba1",
-    storageBucket: "controle-veiculos-27ba1.appspot.com",
-    messagingSenderId: "1084808734247",
-    appId: "1:1084808734247:web:54c8fe5de2d847c1d5002"
-  };
-  firebase.initializeApp(firebaseConfig);
-  var db = firebase.database();
-
-  window.onload = function() {
-    var veiculosRef = db.ref("veiculos");
-    veiculosRef.once("value").then(function(snapshot) {
-      if (!snapshot.exists()) {
-        veiculosRef.set({
-          carro1: {
-            modelo: "Chevrolet Onix",
-            placa: "ABC-1234",
-            status: "disponível"
-          }
-        });
-        console.log("Nó 'veiculos' criado com dados iniciais.");
-      } else {
-        console.log("Nó 'veiculos' já existe. Nenhuma alteração feita.");
-      }
-    }).catch(function(error) {
-      console.error("Erro ao verificar/criar nó:", error.message);
-    });
-  };
-</script>
-
 </head>
 <body>
-    <!-- Tela de Login -->
-    <div class="login-screen" id="loginScreen">
-        <div class="login-container">
-            <div class="logo">
-                <i class="fas fa-car"></i>
+<!-- Tela de Login -->
+<div class="login-screen" id="loginScreen">
+<div class="login-container">
+<div class="logo">
+<i class="fas fa-car"></i>
                 Controle de Veículos
             </div>
-            
-            <h2>Acesso Restrito</h2>
-            
-            <div id="notificationArea"></div>
-            
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="password">Senha de Acesso</label>
-                    <div class="password-toggle">
-                        <input type="password" id="password" placeholder="Digite sua senha" required>
-                        <i class="fas fa-eye" id="togglePassword"></i>
-                    </div>
-                </div>
-                
-                <button type="submit"><i class="fas fa-sign-in-alt"></i> Acessar Sistema</button>
-            </form>
-            
-            <div class="support">
-                <p>Problemas de acesso? <a href="#" id="contactAdmin">Contate o administrador</a></p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Sistema Principal (inicialmente oculto) -->
-    <div class="container" id="mainSystem">
-        <header>
-            <div class="logo">
-                <i class="fas fa-car"></i>
+<h2>Acesso Restrito</h2>
+<div id="notificationArea"></div>
+<form id="loginForm">
+<div class="form-group">
+<label for="password">Senha de Acesso</label>
+<div class="password-toggle">
+<input id="password" placeholder="Digite sua senha" required="" type="password"/>
+<i class="fas fa-eye" id="togglePassword"></i>
+</div>
+</div>
+<button type="submit"><i class="fas fa-sign-in-alt"></i> Acessar Sistema</button>
+</form>
+<div class="support">
+<p>Problemas de acesso? <a href="#" id="contactAdmin">Contate o administrador</a></p>
+</div>
+</div>
+</div>
+<!-- Sistema Principal (inicialmente oculto) -->
+<div class="container" id="mainSystem">
+<header>
+<div class="logo">
+<i class="fas fa-car"></i>
                 Controle de Veículos
             </div>
-            <div class="user-info">
-                <span id="userName">Usuário</span>
-                <button id="btnLogoutUser"><i class="fas fa-sign-out-alt"></i> Sair</button>
-            </div>
-        </header>
-        
-        <div class="tabs">
-            <div class="tab active" data-tab="status">Status dos Veículos</div>
-            <div class="tab" data-tab="retirada">Registrar Retirada</div>
-            <div class="tab" data-tab="reserva">Reservar Veículo</div>
-            <div class="tab" data-tab="devolucao">Registrar Devolução</div>
-            <div class="tab" data-tab="historico">Histórico</div>
-            <div class="tab" data-tab="administracao">Administração</div>
-        </div>
-        
-        <div class="tab-content active" id="status">
-            <h2><i class="fas fa-car"></i> Status dos Veículos</h2>
-            <p>Veja abaixo a situação atual dos veículos da empresa:</p>
-            
-            <div class="veiculo-status" id="lista-veiculos">
-                <!-- Os veículos serão carregados dinamicamente -->
-            </div>
-        </div>
-        
-        <div class="tab-content" id="retirada">
-            <h2><i class="fas fa-key"></i> Registrar Retirada</h2>
-            
-            <div class="card">
-                <div class="card-title">Registrar Nova Retirada</div>
-                
-                <div class="ultima-km" id="infoUltimaKm" style="display: none;">
-                    <p><strong>Última Quilometragem Registrada:</strong> <span id="valorUltimaKm">0</span> km</p>
-                    <p><strong>Data do Úximo Registro:</strong> <span id="dataUltimaKm">-</span></p>
-                </div>
-                
-                <form id="formRetirada">
-                    <div class="form-group">
-                        <label for="veiculoRetirada">Veículo</label>
-                        <select id="veiculoRetirada" required>
-                            <option value="">Selecione um veículo</option>
-                        </select>
+<div class="user-info">
+<span id="userName">Usuário</span>
+<button id="btnLogoutUser"><i class="fas fa-sign-out-alt"></i> Sair</button>
+</div>
+</header>
+<div class="tabs">
+<div class="tab active" data-tab="status">Status dos Veículos</div>
+<div class="tab" data-tab="retirada">Registrar Retirada</div>
+<div class="tab" data-tab="reserva">Reservar Veículo</div>
+<div class="tab" data-tab="devolucao">Registrar Devolução</div>
+<div class="tab" data-tab="historico">Histórico</div>
+<div class="tab" data-tab="administracao">Administração</div>
+</div>
+<div class="tab-content active" id="status">
+<h2><i class="fas fa-car"></i> Status dos Veículos</h2>
+<p>Veja abaixo a situação atual dos veículos da empresa:</p>
+<div class="veiculo-status" id="lista-veiculos">
+<!-- Os veículos serão carregados dinamicamente -->
+</div>
+</div>
+<div class="tab-content" id="retirada">
+<h2><i class="fas fa-key"></i> Registrar Retirada</h2>
+<div class="card">
+<div class="card-title">Registrar Nova Retirada</div>
+<div class="ultima-km" id="infoUltimaKm" style="display: none;">
+<p><strong>Última Quilometragem Registrada:</strong> <span id="valorUltimaKm">0</span> km</p>
+<p><strong>Data do Úximo Registro:</strong> <span id="dataUltimaKm">-</span></p>
+</div>
+<form id="formRetirada">
+<div class="form-group">
+<label for="veiculoRetirada">Veículo</label>
+<select id="veiculoRetirada" required="">
+<option value="">Selecione um veículo</option>
+</select>
+</div>
+<div class="form-group">
+<label for="motoristaRetirada">Motorista</label>
+<select id="motoristaRetirada" required="">
+<option value="">Selecione um motorista</option>
+</select>
+</div>
+<div class="form-group">
+<label for="kmRetirada">Quilometragem Atual</label>
+<input id="kmRetirada" placeholder="Km atual" required="" type="number"/>
+</div>
+<div class="form-group">
+<label for="combustivelRetirada">Nível de Combustível na Retirada</label>
+<select id="combustivelRetirada" required="">
+<option value="">Selecione o nível</option>
+<option value="Reserva">Reserva</option>
+<option value="1/4">1/4</option>
+<option value="1/2">1/2</option>
+<option value="3/4">3/4</option>
+<option value="Cheio">Cheio</option>
+</select>
+</div>
+<div class="form-group">
+<label for="destino">Destino</label>
+<input id="destino" placeholder="Destino da viagem" required="" type="text"/>
+</div>
+<div class="reserva-alerta" id="alertaReservaRetirada" style="display: none;">
+<i class="fas fa-exclamation-triangle"></i> Veículo na reserva, favor abastecer!
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="motoristaRetirada">Motorista</label>
-                        <select id="motoristaRetirada" required>
-                            <option value="">Selecione um motorista</option>
-                        </select>
+<div class="cnh-alerta" id="alertaCnhRetirada" style="display: none;">
+<i class="fas fa-exclamation-circle"></i> ATENÇÃO: CNH vencida! Não é possível retirar veículo.
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="kmRetirada">Quilometragem Atual</label>
-                        <input type="number" id="kmRetirada" placeholder="Km atual" required>
+<button id="btnRegistrarRetirada" type="submit"><i class="fas fa-check-circle"></i> Registrar Retirada</button>
+</form>
+</div>
+</div>
+<div class="tab-content" id="reserva">
+<h2><i class="fas fa-calendar-check"></i> Reservar Veículo</h2>
+<div class="card">
+<div class="card-title">Fazer Reserva de Veículo</div>
+<form id="formReserva">
+<div class="form-group">
+<label for="veiculoReserva">Veículo</label>
+<select id="veiculoReserva" required="">
+<option value="">Selecione um veículo</option>
+</select>
+</div>
+<div class="form-group">
+<label for="motoristaReserva">Motorista</label>
+<select id="motoristaReserva" required="">
+<option value="">Selecione um motorista</option>
+</select>
+</div>
+<div class="datetime-group">
+<div class="form-group">
+<label for="dataInicioReserva">Data de Início</label>
+<input id="dataInicioReserva" required="" type="date"/>
+</div>
+<div class="form-group">
+<label for="horaInicioReserva">Hora de Início</label>
+<input id="horaInicioReserva" required="" type="time"/>
+</div>
+</div>
+<div class="datetime-group">
+<div class="form-group">
+<label for="dataFimReserva">Data de Término</label>
+<input id="dataFimReserva" required="" type="date"/>
+</div>
+<div class="form-group">
+<label for="horaFimReserva">Hora de Término</label>
+<input id="horaFimReserva" required="" type="time"/>
+</div>
+</div>
+<div class="form-group">
+<label for="destinoReserva">Destino</label>
+<input id="destinoReserva" placeholder="Destino da viagem" required="" type="text"/>
+</div>
+<div class="cnh-alerta" id="alertaCnhReserva" style="display: none;">
+<i class="fas fa-exclamation-circle"></i> ATENÇÃO: CNH vencida! Não é possível reservar veículo.
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="combustivelRetirada">Nível de Combustível na Retirada</label>
-                        <select id="combustivelRetirada" required>
-                            <option value="">Selecione o nível</option>
-                            <option value="Reserva">Reserva</option>
-                            <option value="1/4">1/4</option>
-                            <option value="1/2">1/2</option>
-                            <option value="3/4">3/4</option>
-                            <option value="Cheio">Cheio</option>
-                        </select>
+<div class="reserva-alerta" id="alertaPermissaoReserva" style="display: none;">
+<i class="fas fa-exclamation-triangle"></i> Esta pessoa não tem permissão para reservar veículos.
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="destino">Destino</label>
-                        <input type="text" id="destino" placeholder="Destino da viagem" required>
-                    </div>
-                    
-                    <div id="alertaReservaRetirada" class="reserva-alerta" style="display: none;">
-                        <i class="fas fa-exclamation-triangle"></i> Veículo na reserva, favor abastecer!
-                    </div>
-                    
-                    <div id="alertaCnhRetirada" class="cnh-alerta" style="display: none;">
-                        <i class="fas fa-exclamation-circle"></i> ATENÇÃO: CNH vencida! Não é possível retirar veículo.
-                    </div>
-                    
-                    <button type="submit" id="btnRegistrarRetirada"><i class="fas fa-check-circle"></i> Registrar Retirada</button>
-                </form>
-            </div>
-        </div>
-        
-        <div class="tab-content" id="reserva">
-            <h2><i class="fas fa-calendar-check"></i> Reservar Veículo</h2>
-            
-            <div class="card">
-                <div class="card-title">Fazer Reserva de Veículo</div>
-                <form id="formReserva">
-                    <div class="form-group">
-                        <label for="veiculoReserva">Veículo</label>
-                        <select id="veiculoReserva" required>
-                            <option value="">Selecione um veículo</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="motoristaReserva">Motorista</label>
-                        <select id="motoristaReserva" required>
-                            <option value="">Selecione um motorista</option>
-                        </select>
-                    </div>
-                    
-                    <div class="datetime-group">
-                        <div class="form-group">
-                            <label for="dataInicioReserva">Data de Início</label>
-                            <input type="date" id="dataInicioReserva" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="horaInicioReserva">Hora de Início</label>
-                            <input type="time" id="horaInicioReserva" required>
-                        </div>
-                    </div>
-                    
-                    <div class="datetime-group">
-                        <div class="form-group">
-                            <label for="dataFimReserva">Data de Término</label>
-                            <input type="date" id="dataFimReserva" required>
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="horaFimReserva">Hora de Término</label>
-                            <input type="time" id="horaFimReserva" required>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="destinoReserva">Destino</label>
-                        <input type="text" id="destinoReserva" placeholder="Destino da viagem" required>
-                    </div>
-                    
-                    <div id="alertaCnhReserva" class="cnh-alerta" style="display: none;">
-                        <i class="fas fa-exclamation-circle"></i> ATENÇÃO: CNH vencida! Não é possível reservar veículo.
-                    </div>
-                    
-                    <div id="alertaPermissaoReserva" class="reserva-alerta" style="display: none;">
-                        <i class="fas fa-exclamation-triangle"></i> Esta pessoa não tem permissão para reservar veículos.
-                    </div>
-                    
-                    <button type="submit" id="btnRegistrarReserva"><i class="fas fa-calendar-check"></i> Reservar Veículo</button>
-                </form>
-            </div>
-        </div>
-        
-        <div class="tab-content" id="devolucao">
-            <h2><i class="fas fa-undo"></i> Registrar Devolução</h2>
-            
-            <div class="card">
-                <div class="card-title">Registrar Devolução</div>
-                <form id="formDevolucao">
-                    <div class="form-group">
-                        <label for="veiculoDevolucao">Veículo</label>
-                        <select id="veiculoDevolucao" required>
-                            <option value="">Selecione um veículo</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="kmDevolucao">Quilometragem Atual</label>
-                        <input type="number" id="kmDevolucao" placeholder="Km atual" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="combustivelDevolucao">Nível de Combustível na Devolução</label>
-                        <select id="combustivelDevolucao" required>
-                            <option value="">Selecione o nível</option>
-                            <option value="Reserva">Reserva</option>
-                            <option value="1/4">1/4</option>
-                            <option value="1/2">1/2</option>
-                            <option value="3/4">3/4</option>
-                            <option value="Cheio">Cheio</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="observacoes">Observações</label>
-                        <textarea id="observacoes" placeholder="Observações sobre o veículo" rows="3"></textarea>
-                    </div>
-                    
-                    <button type="submit"><i class="fas fa-check-circle"></i> Registrar Devolução</button>
-                </form>
-            </div>
-        </div>
-        
-        <div class="tab-content" id="historico">
-            <h2><i class="fas fa-history"></i> Histórico</h2>
-            
-            <div class="card">
-                <div class="card-title">Histórico de Movimentações</div>
-                
-                <div class="historico-actions">
-                    <button id="btnLimparHistorico" style="width: auto; background: #EA4335;">
-                        <i class="fas fa-trash"></i> Limpar Histórico Antigo
+<button id="btnRegistrarReserva" type="submit"><i class="fas fa-calendar-check"></i> Reservar Veículo</button>
+</form>
+</div>
+</div>
+<div class="tab-content" id="devolucao">
+<h2><i class="fas fa-undo"></i> Registrar Devolução</h2>
+<div class="card">
+<div class="card-title">Registrar Devolução</div>
+<form id="formDevolucao">
+<div class="form-group">
+<label for="veiculoDevolucao">Veículo</label>
+<select id="veiculoDevolucao" required="">
+<option value="">Selecione um veículo</option>
+</select>
+</div>
+<div class="form-group">
+<label for="kmDevolucao">Quilometragem Atual</label>
+<input id="kmDevolucao" placeholder="Km atual" required="" type="number"/>
+</div>
+<div class="form-group">
+<label for="combustivelDevolucao">Nível de Combustível na Devolução</label>
+<select id="combustivelDevolucao" required="">
+<option value="">Selecione o nível</option>
+<option value="Reserva">Reserva</option>
+<option value="1/4">1/4</option>
+<option value="1/2">1/2</option>
+<option value="3/4">3/4</option>
+<option value="Cheio">Cheio</option>
+</select>
+</div>
+<div class="form-group">
+<label for="observacoes">Observações</label>
+<textarea id="observacoes" placeholder="Observações sobre o veículo" rows="3"></textarea>
+</div>
+<button type="submit"><i class="fas fa-check-circle"></i> Registrar Devolução</button>
+</form>
+</div>
+</div>
+<div class="tab-content" id="historico">
+<h2><i class="fas fa-history"></i> Histórico</h2>
+<div class="card">
+<div class="card-title">Histórico de Movimentações</div>
+<div class="historico-actions">
+<button id="btnLimparHistorico" style="width: auto; background: #EA4335;">
+<i class="fas fa-trash"></i> Limpar Histórico Antigo
                     </button>
-                </div>
-                
-                <table id="tabelaHistorico">
-                    <thead>
-                        <tr>
-                            <th>Data/Hora</th>
-                            <th>Veículo</th>
-                            <th>Motorista</th>
-                            <th>Km Retirada</th>
-                            <th>Combustível Retirada</th>
-                            <th>Km Devolução</th>
-                            <th>Combustível Devolução</th>
-                            <th>Destino</th>
-                            <th>Observações</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <!-- O histórico será carregado dinamicamente -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <div class="tab-content" id="administracao">
-            <h2><i class="fas fa-lock"></i> Área de Administração</h2>
-            
-            <div class="card">
-                <div class="card-title">Acesso Restrito</div>
-                <p>Esta área é restrita aos administradores do sistema.</p>
-                
-                <div class="admin-access">
-                    <i class="fas fa-lock" style="font-size: 48px; color: #F44336; margin-bottom: 15px;"></i>
-                    <h3>Acesso Administrativo</h3>
-                    <p>Para acessar as funções administrativas, digite a senha de administração:</p>
-                    
-                    <div class="form-group">
-                        <div class="password-toggle">
-                            <input type="password" id="senhaAdmin" placeholder="Digite a senha de administração">
-                            <i class="fas fa-eye" id="toggleAdminPassword"></i>
-                        </div>
-                    </div>
-                    
-                    <button id="btnAcessarAdmin"><i class="fas fa-unlock"></i> Acessar Área Admin</button>
-                </div>
-                
-                <div id="conteudoAdmin" style="display: none; margin-top: 30px;">
-                    <div class="card">
-                        <div class="card-title">Gerenciar Veículos</div>
-                        <form id="formVeiculo">
-                            <input type="hidden" id="veiculoId">
-                            <div class="form-group">
-                                <label for="modeloVeiculo">Modelo do Veículo</label>
-                                <input type="text" id="modeloVeiculo" placeholder="Ex: Fiat Uno" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="placaVeiculo">Placa</label>
-                                <input type="text" id="placaVeiculo" placeholder="Ex: ABC-1234" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="corVeiculo">Cor</label>
-                                <input type="text" id="corVeiculo" placeholder="Ex: Prata" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="ultimaKmVeiculo">Última Quilometragem</label>
-                                <input type="number" id="ultimaKmVeiculo" placeholder="Última km registrada">
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="statusVeiculo">Status</label>
-                                <select id="statusVeiculo" required>
-                                    <option value="Disponível">Disponível</option>
-                                    <option value="Em uso">Em uso</option>
-                                    <option value="Reservado">Reservado</option>
-                                    <option value="Em Manutenção">Em Manutenção</option>
-                                </select>
-                            </div>
-                            
-                            <button type="submit"><i class="fas fa-save"></i> Salvar Veículo</button>
-                            <button type="button" id="btnCancelarVeiculo" style="background: #777;"><i class="fas fa-times"></i> Cancelar</button>
-                        </form>
-                        
-                        <div style="margin-top: 20px;">
-                            <h3>Veículos Cadastrados</h3>
-                            <table id="tabelaVeiculos">
-                                <thead>
-                                    <tr>
-                                        <th>Modelo</th>
-                                        <th>Placa</th>
-                                        <th>Cor</th>
-                                        <th>Última KM</th>
-                                        <th>Status</th>
-                                        <th>Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Os veículos serão carregados dinamicamente -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-title">Gerenciar Motoristas</div>
-                        <form id="formMotorista">
-                            <input type="hidden" id="motoristaId">
-                            <div class="form-group">
-                                <label for="nomeMotorista">Nome do Motorista</label>
-                                <input type="text" id="nomeMotorista" placeholder="Nome completo" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="telefoneMotorista">Telefone</label>
-                                <input type="text" id="telefoneMotorista" placeholder="(11) 99999-9999" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="senhaMotorista">Senha</label>
-                                <input type="password" id="senhaMotorista" placeholder="Senha para login" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="cnhMotorista">Número da CNH</label>
-                                <input type="text" id="cnhMotorista" placeholder="Número da CNH" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="validadeCnh">Validade da CNH</label>
-                                <input type="date" id="validadeCnh" required>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="categoriaCnh">Categoria da CNH</label>
-                                <select id="categoriaCnh" required>
-                                    <option value="A">A</option>
-                                    <option value="B">B</option>
-                                    <option value="C">C</option>
-                                    <option value="D">D</option>
-                                    <option value="E">E</option>
-                                </select>
-                            </div>
-                            
-                            <div class="checkbox-group">
-                                <input type="checkbox" id="permiteReserva">
-                                <label for="permiteReserva">Permitir reservar veículos</label>
-                            </div>
-                            
-                            <button type="submit"><i class="fas fa-save"></i> Salvar Motorista</button>
-                            <button type="button" id="btnCancelarMotorista" style="background: #777;"><i class="fas fa-times"></i> Cancelar</button>
-                        </form>
-                        
-                        <div style="margin-top: 20px;">
-                            <h3>Motoristas Cadastrados</h3>
-                            <table id="tabelaMotoristas">
-                                <thead>
-                                    <tr>
-                                        <th>Nome</th>
-                                        <th>Telefone</th>
-                                        <th>CNH</th>
-                                        <th>Validade</th>
-                                        <th>Categoria</th>
-                                        <th>Pode Reservar</th>
-                                        <th>Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- Os motoristas serão carregados dinamicamente -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-title">Reservas Ativas</div>
-                        
-                        <div style="margin-top: 20px;">
-                            <h3>Reservas em Andamento</h3>
-                            <table id="tabelaReservas">
-                                <thead>
-                                    <tr>
-                                        <th>Veículo</th>
-                                        <th>Motorista</th>
-                                        <th>Data Início</th>
-                                        <th>Data Fim</th>
-                                        <th>Destino</th>
-                                        <th>Ações</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <!-- As reservas serão carregadas dinamicamente -->
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                    
-                    <div class="card">
-                        <div class="card-title">Configurações do Sistema</div>
-                        
-                        <div class="form-group">
-                            <label for="senhaPadrao">Nova Senha Padrão</label>
-                            <input type="password" id="senhaPadrao" placeholder="Deixe em branco para não alterar">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="confirmarSenha">Confirmar Nova Senha</label>
-                            <input type="password" id="confirmarSenha" placeholder="Confirme a nova senha">
-                        </div>
-                        
-                        <button id="btnAlterarSenha"><i class="fas fa-key"></i> Alterar Senha Padrão</button>
-                        
-                        <div style="margin-top: 20px;">
-                            <h3>Limpar Dados</h3>
-                            <p>Esta ação irá remover todos os históricos e registros do sistema. Use com cautela!</p>
-                            <button id="btnLimparDados" style="background: #EA4335;"><i class="fas fa-trash"></i> Limpar Todos os Dados</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        
-        <footer>
-            <p>Sistema de Controle de Veículos Polimeros &copy; 2025 - Desenvolvido para facilitar o gerenciamento de frotas</p>
-        </footer>
-    </div>
-
-    <script>
+</div>
+<table id="tabelaHistorico">
+<thead>
+<tr>
+<th>Data/Hora</th>
+<th>Veículo</th>
+<th>Motorista</th>
+<th>Km Retirada</th>
+<th>Combustível Retirada</th>
+<th>Km Devolução</th>
+<th>Combustível Devolução</th>
+<th>Destino</th>
+<th>Observações</th>
+<th>Ações</th>
+</tr>
+</thead>
+<tbody>
+<!-- O histórico será carregado dinamicamente -->
+</tbody>
+</table>
+</div>
+</div>
+<div class="tab-content" id="administracao">
+<h2><i class="fas fa-lock"></i> Área de Administração</h2>
+<div class="card">
+<div class="card-title">Acesso Restrito</div>
+<p>Esta área é restrita aos administradores do sistema.</p>
+<div class="admin-access">
+<i class="fas fa-lock" style="font-size: 48px; color: #F44336; margin-bottom: 15px;"></i>
+<h3>Acesso Administrativo</h3>
+<p>Para acessar as funções administrativas, digite a senha de administração:</p>
+<div class="form-group">
+<div class="password-toggle">
+<input id="senhaAdmin" placeholder="Digite a senha de administração" type="password"/>
+<i class="fas fa-eye" id="toggleAdminPassword"></i>
+</div>
+</div>
+<button id="btnAcessarAdmin"><i class="fas fa-unlock"></i> Acessar Área Admin</button>
+</div>
+<div id="conteudoAdmin" style="display: none; margin-top: 30px;">
+<div class="card">
+<div class="card-title">Gerenciar Veículos</div>
+<form id="formVeiculo">
+<input id="veiculoId" type="hidden"/>
+<div class="form-group">
+<label for="modeloVeiculo">Modelo do Veículo</label>
+<input id="modeloVeiculo" placeholder="Ex: Fiat Uno" required="" type="text"/>
+</div>
+<div class="form-group">
+<label for="placaVeiculo">Placa</label>
+<input id="placaVeiculo" placeholder="Ex: ABC-1234" required="" type="text"/>
+</div>
+<div class="form-group">
+<label for="corVeiculo">Cor</label>
+<input id="corVeiculo" placeholder="Ex: Prata" required="" type="text"/>
+</div>
+<div class="form-group">
+<label for="ultimaKmVeiculo">Última Quilometragem</label>
+<input id="ultimaKmVeiculo" placeholder="Última km registrada" type="number"/>
+</div>
+<div class="form-group">
+<label for="statusVeiculo">Status</label>
+<select id="statusVeiculo" required="">
+<option value="Disponível">Disponível</option>
+<option value="Em uso">Em uso</option>
+<option value="Reservado">Reservado</option>
+<option value="Em Manutenção">Em Manutenção</option>
+</select>
+</div>
+<button type="submit"><i class="fas fa-save"></i> Salvar Veículo</button>
+<button id="btnCancelarVeiculo" style="background: #777;" type="button"><i class="fas fa-times"></i> Cancelar</button>
+</form>
+<div style="margin-top: 20px;">
+<h3>Veículos Cadastrados</h3>
+<table id="tabelaVeiculos">
+<thead>
+<tr>
+<th>Modelo</th>
+<th>Placa</th>
+<th>Cor</th>
+<th>Última KM</th>
+<th>Status</th>
+<th>Ações</th>
+</tr>
+</thead>
+<tbody>
+<!-- Os veículos serão carregados dinamicamente -->
+</tbody>
+</table>
+</div>
+</div>
+<div class="card">
+<div class="card-title">Gerenciar Motoristas</div>
+<form id="formMotorista">
+<input id="motoristaId" type="hidden"/>
+<div class="form-group">
+<label for="nomeMotorista">Nome do Motorista</label>
+<input id="nomeMotorista" placeholder="Nome completo" required="" type="text"/>
+</div>
+<div class="form-group">
+<label for="telefoneMotorista">Telefone</label>
+<input id="telefoneMotorista" placeholder="(11) 99999-9999" required="" type="text"/>
+</div>
+<div class="form-group">
+<label for="senhaMotorista">Senha</label>
+<input id="senhaMotorista" placeholder="Senha para login" required="" type="password"/>
+</div>
+<div class="form-group">
+<label for="cnhMotorista">Número da CNH</label>
+<input id="cnhMotorista" placeholder="Número da CNH" required="" type="text"/>
+</div>
+<div class="form-group">
+<label for="validadeCnh">Validade da CNH</label>
+<input id="validadeCnh" required="" type="date"/>
+</div>
+<div class="form-group">
+<label for="categoriaCnh">Categoria da CNH</label>
+<select id="categoriaCnh" required="">
+<option value="A">A</option>
+<option value="B">B</option>
+<option value="C">C</option>
+<option value="D">D</option>
+<option value="E">E</option>
+</select>
+</div>
+<div class="checkbox-group">
+<input id="permiteReserva" type="checkbox"/>
+<label for="permiteReserva">Permitir reservar veículos</label>
+</div>
+<button type="submit"><i class="fas fa-save"></i> Salvar Motorista</button>
+<button id="btnCancelarMotorista" style="background: #777;" type="button"><i class="fas fa-times"></i> Cancelar</button>
+</form>
+<div style="margin-top: 20px;">
+<h3>Motoristas Cadastrados</h3>
+<table id="tabelaMotoristas">
+<thead>
+<tr>
+<th>Nome</th>
+<th>Telefone</th>
+<th>CNH</th>
+<th>Validade</th>
+<th>Categoria</th>
+<th>Pode Reservar</th>
+<th>Ações</th>
+</tr>
+</thead>
+<tbody>
+<!-- Os motoristas serão carregados dinamicamente -->
+</tbody>
+</table>
+</div>
+</div>
+<div class="card">
+<div class="card-title">Reservas Ativas</div>
+<div style="margin-top: 20px;">
+<h3>Reservas em Andamento</h3>
+<table id="tabelaReservas">
+<thead>
+<tr>
+<th>Veículo</th>
+<th>Motorista</th>
+<th>Data Início</th>
+<th>Data Fim</th>
+<th>Destino</th>
+<th>Ações</th>
+</tr>
+</thead>
+<tbody>
+<!-- As reservas serão carregadas dinamicamente -->
+</tbody>
+</table>
+</div>
+</div>
+<div class="card">
+<div class="card-title">Configurações do Sistema</div>
+<div class="form-group">
+<label for="senhaPadrao">Nova Senha Padrão</label>
+<input id="senhaPadrao" placeholder="Deixe em branco para não alterar" type="password"/>
+</div>
+<div class="form-group">
+<label for="confirmarSenha">Confirmar Nova Senha</label>
+<input id="confirmarSenha" placeholder="Confirme a nova senha" type="password"/>
+</div>
+<button id="btnAlterarSenha"><i class="fas fa-key"></i> Alterar Senha Padrão</button>
+<div style="margin-top: 20px;">
+<h3>Limpar Dados</h3>
+<p>Esta ação irá remover todos os históricos e registros do sistema. Use com cautela!</p>
+<button id="btnLimparDados" style="background: #EA4335;"><i class="fas fa-trash"></i> Limpar Todos os Dados</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<footer>
+<p>Sistema de Controle de Veículos Polimeros © 2025 - Desenvolvido para facilitar o gerenciamento de frotas</p>
+</footer>
+</div>
+<script>
         // Dados iniciais para demonstração
         let veiculos = [
             { id: 1, modelo: "Fiat Uno", placa: "ABC-1234", cor: "Prata", ultimaKm: 45230, status: "Disponível" },
@@ -1892,5 +1784,74 @@ carregarVeiculosReserva();
         window.excluirItemHistorico = excluirItemHistorico;
         window.cancelarReserva = cancelarReserva;
     </script>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script>
+  var firebaseConfig = {
+    apiKey: "AIzaSyA7pTa-7rGsiABC5Ud6ybTRJdw8BtURgT",
+    authDomain: "controle-veiculos-27ba1.firebaseapp.com",
+    databaseURL: "https://controle-veiculos-27ba1-default-rtdb.firebaseio.com",
+    projectId: "controle-veiculos-27ba1",
+    storageBucket: "controle-veiculos-27ba1.appspot.com",
+    messagingSenderId: "1084808734247",
+    appId: "1:1084808734247:web:54c8fe5de2d847c1d5002"
+  };
+  firebase.initializeApp(firebaseConfig);
+  var db = firebase.database();
+
+  window.onload = function() {
+    const nodes = {
+      veiculos: {
+        carro1: {
+          modelo: "Chevrolet Onix",
+          placa: "ABC-1234",
+          status: "disponível"
+        }
+      },
+      motoristas: {
+        motorista1: {
+          nome: "João Silva",
+          cnh: "123456789",
+          validade: "2025-12-31"
+        }
+      },
+      reservas: {
+        reserva1: {
+          veiculo: "carro1",
+          motorista: "motorista1",
+          data: "2024-01-01",
+          status: "ativa"
+        }
+      },
+      historico: {
+        entrada1: {
+          acao: "reserva",
+          veiculo: "carro1",
+          motorista: "motorista1",
+          data: "2024-01-01"
+        }
+      },
+      configuracoes: {
+        alertaCNHVencida: true,
+        senhaAdmin: "admin123"
+      }
+    };
+
+    for (const [node, data] of Object.entries(nodes)) {
+      const ref = db.ref(node);
+      ref.once("value").then(snapshot => {
+        if (!snapshot.exists()) {
+          ref.set(data);
+          console.log(`Nó '${node}' criado.`);
+        } else {
+          console.log(`Nó '${node}' já existe.`);
+        }
+      }).catch(error => {
+        console.error(`Erro ao verificar/criar nó '${node}':`, error);
+      });
+    }
+  };
+</script>
 </body>
 </html>
