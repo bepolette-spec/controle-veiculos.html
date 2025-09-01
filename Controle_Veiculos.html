@@ -885,7 +885,7 @@
 </div>
 </div>
 <footer>
-<p>Sistema de Controle de Veículos Polimeros 1.0 © 2025 - Desenvolvido para facilitar o gerenciamento de frotas</p>
+<p>Sistema de Controle de Veículos Polimeros © 2025 - Desenvolvido para facilitar o gerenciamento de frotas</p>
 </footer>
 </div>
 <script>
@@ -1803,24 +1803,15 @@ carregarVeiculosReserva();
       status: "Conectado com sucesso",
       timestamp: new Date().toISOString()
     });
-  </script>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-    // Verifica e cria os nós principais no Firebase
-    const db = firebase.database();
-    const nodes = ['pessoas', 'veiculos', 'reservas', 'retiradas', 'devolucoes'];
+  
 
-    nodes.forEach(function(node) {
-        db.ref(node).once('value', function(snapshot) {
-            if (!snapshot.exists()) {
-                db.ref(node).set({});
-                console.log("Nó criado:", node);
-            } else {
-                console.log("Nó já existe:", node);
-            }
-        });
-    });
+firebase.database().ref('pessoas').once('value').then(function(snapshot) {
+    if (!snapshot.exists()) {
+        firebase.database().ref('pessoas').set({});
+        console.log('Nó "pessoas" criado automaticamente.');
+    } else {
+        console.log('Nó "pessoas" já existe.');
+    }
 });
-</script>
-</body>
+</script></body>
 </html>
