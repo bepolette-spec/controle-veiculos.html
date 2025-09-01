@@ -1785,73 +1785,38 @@ carregarVeiculosReserva();
         window.cancelarReserva = cancelarReserva;
     </script>
 
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
-  var firebaseConfig = {
-    apiKey: "AIzaSyA7pTa-7rGsiABC5Ud6ybTRJdw8BtURgT",
-    authDomain: "controle-veiculos-27ba1.firebaseapp.com",
-    databaseURL: "https://controle-veiculos-27ba1-default-rtdb.firebaseio.com",
-    projectId: "controle-veiculos-27ba1",
-    storageBucket: "controle-veiculos-27ba1.appspot.com",
-    messagingSenderId: "1084808734247",
-    appId: "1:1084808734247:web:54c8fe5de2d847c1d5002"
-  };
-  firebase.initializeApp(firebaseConfig);
   var db = firebase.database();
 
-  window.onload = function() {
-    const nodes = {
-      veiculos: {
-        carro1: {
-          modelo: "Chevrolet Onix",
-          placa: "ABC-1234",
-          status: "disponível"
-        }
-      },
-      motoristas: {
-        motorista1: {
-          nome: "João Silva",
-          cnh: "123456789",
-          validade: "2025-12-31"
-        }
-      },
-      reservas: {
-        reserva1: {
-          veiculo: "carro1",
-          motorista: "motorista1",
-          data: "2024-01-01",
-          status: "ativa"
-        }
-      },
-      historico: {
-        entrada1: {
-          acao: "reserva",
-          veiculo: "carro1",
-          motorista: "motorista1",
-          data: "2024-01-01"
-        }
-      },
-      configuracoes: {
-        alertaCNHVencida: true,
-        senhaAdmin: "admin123"
-      }
-    };
+  // Listener para veiculos
+  db.ref("veiculos").on("value", function(snapshot) {
+    console.log("Veículos atualizados:", snapshot.val());
+    // Atualize a interface aqui conforme necessário
+  });
 
-    for (const [node, data] of Object.entries(nodes)) {
-      const ref = db.ref(node);
-      ref.once("value").then(snapshot => {
-        if (!snapshot.exists()) {
-          ref.set(data);
-          console.log(`Nó '${node}' criado.`);
-        } else {
-          console.log(`Nó '${node}' já existe.`);
-        }
-      }).catch(error => {
-        console.error(`Erro ao verificar/criar nó '${node}':`, error);
-      });
-    }
-  };
+  // Listener para motoristas
+  db.ref("motoristas").on("value", function(snapshot) {
+    console.log("Motoristas atualizados:", snapshot.val());
+    // Atualize a interface aqui conforme necessário
+  });
+
+  // Listener para reservas
+  db.ref("reservas").on("value", function(snapshot) {
+    console.log("Reservas atualizadas:", snapshot.val());
+    // Atualize a interface aqui conforme necessário
+  });
+
+  // Listener para histórico
+  db.ref("historico").on("value", function(snapshot) {
+    console.log("Histórico atualizado:", snapshot.val());
+    // Atualize a interface aqui conforme necessário
+  });
+
+  // Listener para pessoas
+  db.ref("pessoas").on("value", function(snapshot) {
+    console.log("Pessoas atualizadas:", snapshot.val());
+    // Atualize a interface aqui conforme necessário
+  });
 </script>
 </body>
 </html>
