@@ -885,7 +885,7 @@
 </div>
 </div>
 <footer>
-<p>Sistema de Controle de Veículos Polimeros 1.2 © 2025 - Desenvolvido para facilitar o gerenciamento de frotas</p>
+<p>Sistema de Controle de Veículos Polimeros 1.3 © 2025 - Desenvolvido para facilitar o gerenciamento de frotas</p>
 </footer>
 </div>
 <script>
@@ -1806,36 +1806,63 @@ carregarVeiculosReserva();
   </script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    // Aguarda o Firebase estar disponível
-    if (typeof firebase !== "undefined") {
-        const db = firebase.database();
-        const pessoasRef = db.ref("pessoas");
+    // Firebase listeners em tempo real
+    const db = firebase.database();
 
-        // Verifica se o nó 'pessoas' existe
-        pessoasRef.once("value").then(function(snapshot) {
-            if (!snapshot.exists()) {
-                // Cria o nó com dados fictícios
-                pessoasRef.set({
-                    teste: {
-                        nome: "Teste",
-                        telefone: "000000000",
-                        cnh: "123456",
-                        validade: "2030-01-01",
-                        categoria: "B",
-                        podeReservar: true
-                    }
-                }).then(function() {
-                    console.log("Nó 'pessoas' criado com dados de teste.");
-                }).catch(function(error) {
-                    console.error("Erro ao criar nó 'pessoas':", error);
-                });
-            } else {
-                console.log("Nó 'pessoas' já existe.");
-            }
-        });
-    } else {
-        console.error("Firebase não está disponível.");
-    }
+    // Listener para reservas
+    db.ref("reservas").on("value", function(snapshot) {
+        const lista = document.getElementById("listaReservas");
+        if (lista) {
+            lista.innerHTML = "";
+            snapshot.forEach(function(child) {
+                const dados = child.val();
+                const item = document.createElement("li");
+                item.textContent = `Reserva: ${dados.veiculo} por ${dados.motorista} em ${dados.data}`;
+                lista.appendChild(item);
+            });
+        }
+    });
+
+    // Listener para devolucoes
+    db.ref("devolucoes").on("value", function(snapshot) {
+        const lista = document.getElementById("listaDevolucoes");
+        if (lista) {
+            lista.innerHTML = "";
+            snapshot.forEach(function(child) {
+                const dados = child.val();
+                const item = document.createElement("li");
+                item.textContent = `Devolução: ${dados.veiculo} por ${dados.motorista} em ${dados.data}`;
+                lista.appendChild(item);
+            });
+        }
+    });
+
+    // Listener para veiculos
+    db.ref("veiculos").on("value", function(snapshot) {
+        const lista = document.getElementById("listaVeiculos");
+        if (lista) {
+            lista.innerHTML = "";
+            snapshot.forEach(function(child) {
+                const dados = child.val();
+                const item = document.createElement("li");
+                item.textContent = `Veículo: ${dados.modelo} - Placa: ${dados.placa}`;
+                lista.appendChild(item);
+            });
+        }
+    });
+
+    // Funções para salvar dados
+    window.salvarReserva = function(dados) {
+        db.ref("reservas").push(dados);
+    };
+
+    window.salvarDevolucao = function(dados) {
+        db.ref("devolucoes").push(dados);
+    };
+
+    window.salvarVeiculo = function(dados) {
+        db.ref("veiculos").push(dados);
+    };
 });
 </script>
 </body>
