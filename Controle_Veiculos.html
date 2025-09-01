@@ -885,7 +885,7 @@
 </div>
 </div>
 <footer>
-<p>Sistema de Controle de Veículos Polimeros © 2025 - Desenvolvido para facilitar o gerenciamento de frotas</p>
+<p>Sistema de Controle de Veículos Polimeros 1.0 © 2025 - Desenvolvido para facilitar o gerenciamento de frotas</p>
 </footer>
 </div>
 <script>
@@ -1785,26 +1785,42 @@ carregarVeiculosReserva();
         window.cancelarReserva = cancelarReserva;
     </script>
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script><script>
-const firebaseConfig = {
-  apiKey: "AIzaSyA7pTa-7rQsiA0C5Ud6QbvTRJdwB8IuRGI",
-  authDomain: "controle-veiculos-27ba1.firebaseapp.com",
-  databaseURL: "https://controle-veiculos-27ba1-default-rtdb.firebaseio.com",
-  projectId: "controle-veiculos-27ba1",
-  storageBucket: "controle-veiculos-27ba1.firebasestorage.app",
-  messagingSenderId: "1084808734247",
-  appId: "1:1084808734247:web:b252ca4e59e14394cd5002",
-  measurementId: "G-RJRND1VDHR"
-};
+    var firebaseConfig = {
+      apiKey: "AIzaSyA7pTa-7rQsiA0C5Ud6QbvTRJdwB8IuRGI",
+      authDomain: "controle-veiculos-27ba1.firebaseapp.com",
+      databaseURL: "https://controle-veiculos-27ba1-default-rtdb.firebaseio.com",
+      projectId: "controle-veiculos-27ba1",
+      storageBucket: "controle-veiculos-27ba1.appspot.com",
+      messagingSenderId: "1084808734247",
+      appId: "1:1084808734247:web:b252ca4e59e14394cd5002"
+    };
 
     // Inicializa o Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyA7pTa-7rQsiA0C5Ud6QbvTRJdwB8IuRGI",
-  authDomain: "controle-veiculos-27ba1.firebaseapp.com",
-  databaseURL: "https://controle-veiculos-27ba1-default-rtdb.firebaseio.com",
-  projectId: "controle-veiculos-27ba1",
-  storageBucket: "controle-veiculos-27ba1.firebasestorage.app",
-  messagingSenderId: "1084808734247",
-  appId: "1:1084808734247:web:b252ca4e59e14394cd5002",
-  measurementId: "G-RJRND1VDHR"
-};</script></body>
+    firebase.initializeApp(firebaseConfig);
+
+    // Teste de conexão: cria nó de exemplo
+    firebase.database().ref("teste_conexao").set({
+      status: "Conectado com sucesso",
+      timestamp: new Date().toISOString()
+    });
+  </script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    // Verifica e cria os nós principais no Firebase
+    const db = firebase.database();
+    const nodes = ['pessoas', 'veiculos', 'reservas', 'retiradas', 'devolucoes'];
+
+    nodes.forEach(function(node) {
+        db.ref(node).once('value', function(snapshot) {
+            if (!snapshot.exists()) {
+                db.ref(node).set({});
+                console.log("Nó criado:", node);
+            } else {
+                console.log("Nó já existe:", node);
+            }
+        });
+    });
+});
+</script>
+</body>
 </html>
