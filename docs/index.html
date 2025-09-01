@@ -1787,7 +1787,7 @@ carregarVeiculosReserva();
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-  import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
+  import { getDatabase, ref, onValue, set, push } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-database.js";
 
   const firebaseConfig = {
     apiKey: "AIzaSyA7pTa-7rQsiA0C5Ud6QbvTRJdwB8IuRGI",
@@ -1803,16 +1803,43 @@ carregarVeiculosReserva();
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  function criarNosIniciais() {
-    set(ref(db, 'historico'), {});
-    set(ref(db, 'pessoas'), {});
-    set(ref(db, 'veiculos'), {});
-    set(ref(db, 'retiradas'), {});
-    set(ref(db, 'devolucoes'), {});
-    set(ref(db, 'reservas'), {});
+  // Atualizar lista de veículos em tempo real
+  onValue(ref(db, 'veiculos'), (snapshot) => {
+    const veiculos = snapshot.val();
+    atualizarListaVeiculos(veiculos);
+    atualizarListaReservas(veiculos);
+  });
+
+  // Função para atualizar a lista de veículos na interface
+  function atualizarListaVeiculos(veiculos) {
+    // Exemplo: atualizar tabela de veículos
+    const tabela = document.getElementById("tabelaVeiculos");
+    if (!tabela) return;
+    tabela.innerHTML = "";
+    for (const id in veiculos) {
+      const v = veiculos[id];
+      const row = document.createElement("tr");
+      row.innerHTML = `<td>${v.modelo}</td><td>${v.placa}</td><td>${v.status}</td>`;
+      tabela.appendChild(row);
+    }
   }
 
-  criarNosIniciais();
+  // Função para atualizar a lista de veículos disponíveis para reserva
+  function atualizarListaReservas(veiculos) {
+    const lista = document.getElementById("listaReservas");
+    if (!lista) return;
+    lista.innerHTML = "";
+    for (const id in veiculos) {
+      const v = veiculos[id];
+      // Mostrar todos os veículos exceto os em manutenção
+      if (v.status !== "Em manutenção") {
+        const option = document.createElement("option");
+        option.value = id;
+        option.textContent = `${v.modelo} - ${v.placa} (${v.status})`;
+        lista.appendChild(option);
+      }
+    }
+  }
 </script>
 </body>
 </html>
