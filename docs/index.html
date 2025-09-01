@@ -885,7 +885,7 @@
 </div>
 </div>
 <footer>
-<p>Sistema de Controle de Veículos Polimeros 1.1 © 2025 - Desenvolvido para facilitar o gerenciamento de frotas</p>
+<p>Sistema de Controle de Veículos Polimeros 1.2 © 2025 - Desenvolvido para facilitar o gerenciamento de frotas</p>
 </footer>
 </div>
 <script>
@@ -1803,15 +1803,40 @@ carregarVeiculosReserva();
       status: "Conectado com sucesso",
       timestamp: new Date().toISOString()
     });
-  
+  </script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Aguarda o Firebase estar disponível
+    if (typeof firebase !== "undefined") {
+        const db = firebase.database();
+        const pessoasRef = db.ref("pessoas");
 
-firebase.database().ref('pessoas').once('value').then(function(snapshot) {
-    if (!snapshot.exists()) {
-        firebase.database().ref('pessoas').set({});
-        console.log('Nó "pessoas" criado automaticamente.');
+        // Verifica se o nó 'pessoas' existe
+        pessoasRef.once("value").then(function(snapshot) {
+            if (!snapshot.exists()) {
+                // Cria o nó com dados fictícios
+                pessoasRef.set({
+                    teste: {
+                        nome: "Teste",
+                        telefone: "000000000",
+                        cnh: "123456",
+                        validade: "2030-01-01",
+                        categoria: "B",
+                        podeReservar: true
+                    }
+                }).then(function() {
+                    console.log("Nó 'pessoas' criado com dados de teste.");
+                }).catch(function(error) {
+                    console.error("Erro ao criar nó 'pessoas':", error);
+                });
+            } else {
+                console.log("Nó 'pessoas' já existe.");
+            }
+        });
     } else {
-        console.log('Nó "pessoas" já existe.');
+        console.error("Firebase não está disponível.");
     }
 });
-</script></body>
+</script>
+</body>
 </html>
