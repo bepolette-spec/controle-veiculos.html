@@ -824,7 +824,7 @@
 <button id="btnCancelarMotorista" style="background: #777;" type="button"><i class="fas fa-times"></i> Cancelar</button>
 </form>
 <div style="margin-top: 20px;">
-<h3>Motoristas Cadastrados</h3>
+<h3>Motoristas Cadastrados<ul id="lista-motoristas"></ul></h3>
 <table id="tabelaMotoristas">
 <thead>
 <tr>
@@ -1785,38 +1785,50 @@ carregarVeiculosReserva();
         window.cancelarReserva = cancelarReserva;
     </script>
 
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
+  var firebaseConfig = {
+    apiKey: "AIzaSyA7pTa-7rGsiABC5Ud6ybTRJdw8BtURgT",
+    authDomain: "controle-veiculos-27ba1.firebaseapp.com",
+    databaseURL: "https://controle-veiculos-27ba1-default-rtdb.firebaseio.com",
+    projectId: "controle-veiculos-27ba1",
+    storageBucket: "controle-veiculos-27ba1.appspot.com",
+    messagingSenderId: "1084808734247",
+    appId: "1:1084808734247:web:54c8fe5de2d847c1d5002"
+  };
+  firebase.initializeApp(firebaseConfig);
   var db = firebase.database();
 
-  // Listener para veiculos
-  db.ref("veiculos").on("value", function(snapshot) {
-    console.log("Veículos atualizados:", snapshot.val());
-    // Atualize a interface aqui conforme necessário
-  });
+  // Criação automática dos nós se não existirem
+  window.onload = function() {
+    const nos = ["veiculos", "motoristas", "reservas", "historico", "configuracoes", "pessoas"];
+    nos.forEach(function(no) {
+      db.ref(no).once("value").then(function(snapshot) {
+        if (!snapshot.exists()) {
+          db.ref(no).set({});
+          console.log("Nó '" + no + "' criado.");
+        } else {
+          console.log("Nó '" + no + "' já existe.");
+        }
+      });
+    });
 
-  // Listener para motoristas
-  db.ref("motoristas").on("value", function(snapshot) {
-    console.log("Motoristas atualizados:", snapshot.val());
-    // Atualize a interface aqui conforme necessário
-  });
-
-  // Listener para reservas
-  db.ref("reservas").on("value", function(snapshot) {
-    console.log("Reservas atualizadas:", snapshot.val());
-    // Atualize a interface aqui conforme necessário
-  });
-
-  // Listener para histórico
-  db.ref("historico").on("value", function(snapshot) {
-    console.log("Histórico atualizado:", snapshot.val());
-    // Atualize a interface aqui conforme necessário
-  });
-
-  // Listener para pessoas
-  db.ref("pessoas").on("value", function(snapshot) {
-    console.log("Pessoas atualizadas:", snapshot.val());
-    // Atualize a interface aqui conforme necessário
-  });
+    // Sincronização em tempo real para motoristas
+    db.ref("motoristas").on("value", function(snapshot) {
+      const lista = document.getElementById("lista-motoristas");
+      if (lista) {
+        lista.innerHTML = "";
+        const dados = snapshot.val();
+        for (const id in dados) {
+          const motorista = dados[id];
+          const item = document.createElement("li");
+          item.textContent = `Nome: ${motorista.nome}, CNH: ${motorista.cnh}, Senha: ${motorista.senha}`;
+          lista.appendChild(item);
+        }
+      }
+    });
+  };
 </script>
 </body>
 </html>
