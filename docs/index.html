@@ -1803,25 +1803,23 @@ carregarVeiculosReserva();
   const app = initializeApp(firebaseConfig);
   const db = getDatabase(app);
 
-  // Escuta em tempo real para reservas
-  const reservasRef = ref(db, 'reservas');
-  onValue(reservasRef, (snapshot) => {
-    const reservas = snapshot.val();
-    atualizarListaReservas(reservas);
-  });
-
-  // Função que atualiza a interface com as reservas
   function atualizarListaReservas(reservas) {
     const lista = document.getElementById("listaReservas");
     if (!lista) return;
     lista.innerHTML = "";
-    for (const id in reservas) {
-      const r = reservas[id];
+    Object.entries(reservas).forEach(([id, reserva]) => {
       const item = document.createElement("li");
-      item.textContent = `${r.veiculo} reservado por ${r.motorista} em ${r.data} às ${r.hora}`;
+      item.textContent = `Veículo: ${reserva.veiculo} | Motorista: ${reserva.motorista} | Data: ${reserva.data}`;
       lista.appendChild(item);
-    }
+    });
   }
+
+  onValue(ref(db, "reservas"), (snapshot) => {
+    const data = snapshot.val();
+    if (data) {
+      atualizarListaReservas(data);
+    }
+  });
 </script>
 </body>
 </html>
