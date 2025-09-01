@@ -1784,7 +1784,6 @@ carregarVeiculosReserva();
         window.excluirItemHistorico = excluirItemHistorico;
         window.cancelarReserva = cancelarReserva;
     </script>
-
 <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script><script>
     var firebaseConfig = {
       apiKey: "AIzaSyA7pTa-7rQsiA0C5Ud6QbvTRJdwB8IuRGI",
@@ -1804,5 +1803,119 @@ carregarVeiculosReserva();
       status: "Conectado com sucesso",
       timestamp: new Date().toISOString()
     });
-  </script></body>
+  </script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyA7pTa-7rQsiA0C5Ud6QbvTRJdwB8IuRGI",
+    authDomain: "controle-veiculos-27ba1.firebaseapp.com",
+    databaseURL: "https://controle-veiculos-27ba1-default-rtdb.firebaseio.com",
+    projectId: "controle-veiculos-27ba1",
+    storageBucket: "controle-veiculos-27ba1.firebasestorage.app",
+    messagingSenderId: "1084808734247",
+    appId: "1:1084808734247:web:b252ca4e59e14394cd5002",
+    measurementId: "G-RJRND1VDHR"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+</script>
+<script>
+  // Função para salvar motorista
+  function salvarMotorista(motorista) {
+    const id = motorista.id || Date.now();
+    db.ref('pessoas/' + id).set(motorista);
+  }
+
+  // Função para salvar veículo
+  function salvarVeiculo(veiculo) {
+    const id = veiculo.id || Date.now();
+    db.ref('veiculos/' + id).set(veiculo);
+  }
+
+  // Função para salvar reserva
+  function salvarReserva(reserva) {
+    const id = reserva.id || Date.now();
+    db.ref('reservas/' + id).set(reserva);
+  }
+
+  // Função para salvar retirada
+  function salvarRetirada(retirada) {
+    const id = retirada.id || Date.now();
+    db.ref('retiradas/' + id).set(retirada);
+  }
+
+  // Função para salvar devolução
+  function salvarDevolucao(devolucao) {
+    const id = devolucao.id || Date.now();
+    db.ref('devolucoes/' + id).set(devolucao);
+  }
+
+  // Listeners em tempo real
+  db.ref('pessoas').on('value', snapshot => {
+    const lista = document.getElementById('listaMotoristas');
+    if (lista) {
+      lista.innerHTML = '';
+      snapshot.forEach(child => {
+        const dados = child.val();
+        const item = document.createElement('li');
+        item.textContent = dados.nome + ' - ' + dados.telefone;
+        lista.appendChild(item);
+      });
+    }
+  });
+
+  db.ref('veiculos').on('value', snapshot => {
+    const lista = document.getElementById('listaVeiculos');
+    if (lista) {
+      lista.innerHTML = '';
+      snapshot.forEach(child => {
+        const dados = child.val();
+        const item = document.createElement('li');
+        item.textContent = dados.modelo + ' - ' + dados.placa;
+        lista.appendChild(item);
+      });
+    }
+  });
+
+  db.ref('reservas').on('value', snapshot => {
+    const lista = document.getElementById('listaReservas');
+    if (lista) {
+      lista.innerHTML = '';
+      snapshot.forEach(child => {
+        const dados = child.val();
+        const item = document.createElement('li');
+        item.textContent = dados.motorista + ' reservou ' + dados.veiculo;
+        lista.appendChild(item);
+      });
+    }
+  });
+
+  db.ref('retiradas').on('value', snapshot => {
+    const lista = document.getElementById('listaRetiradas');
+    if (lista) {
+      lista.innerHTML = '';
+      snapshot.forEach(child => {
+        const dados = child.val();
+        const item = document.createElement('li');
+        item.textContent = dados.motorista + ' retirou ' + dados.veiculo;
+        lista.appendChild(item);
+      });
+    }
+  });
+
+  db.ref('devolucoes').on('value', snapshot => {
+    const lista = document.getElementById('listaDevolucoes');
+    if (lista) {
+      lista.innerHTML = '';
+      snapshot.forEach(child => {
+        const dados = child.val();
+        const item = document.createElement('li');
+        item.textContent = dados.motorista + ' devolveu ' + dados.veiculo;
+        lista.appendChild(item);
+      });
+    }
+  });
+</script>
+</body>
 </html>
