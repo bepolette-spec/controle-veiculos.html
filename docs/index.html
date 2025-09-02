@@ -594,7 +594,7 @@
 <div class="cnh-alerta" id="alertaCnhRetirada" style="display: none;">
 <i class="fas fa-exclamation-circle"></i> ATENÇÃO: CNH vencida! Não é possível retirar veículo.
                     </div>
-<button id="btnRegistrarRetirada" onclick="registrarRetirada()" type="submit"><i class="fas fa-check-circle"></i> Registrar Retirada</button>
+<button id="btnRegistrarRetirada" type="submit"><i class="fas fa-check-circle"></i> Registrar Retirada</button>
 </form>
 </div>
 </div>
@@ -885,7 +885,7 @@
 </div>
 </div>
 <footer>
-<p>Sistema de Controle de Veículos Polimeros © 2025 - Desenvolvido para facilitar o gerenciamento de frotas</p>
+<p>Sistema de Controle de Veículos Polimeros © 2025 1.0 - Desenvolvido para facilitar o gerenciamento de frotas</p>
 </footer>
 </div>
 <script>
@@ -1928,6 +1928,79 @@ carregarVeiculosReserva();
   }
 
   window.addEventListener("load", escutarAtualizacoes);
+</script>
+
+<script>
+function inicializarSistema() {
+  const db = firebase.database();
+
+  const nosIniciais = {
+    veiculos: {
+      exemplo1: {
+        modelo: "",
+        placa: "",
+        cor: "",
+        ultimaKm: "",
+        status: "Disponível"
+      }
+    },
+    motoristas: {
+      exemplo1: {
+        nome: "",
+        telefone: "",
+        senha: "",
+        cnh: "",
+        validadeCNH: "",
+        categoriaCNH: "",
+        podeReservar: false
+      }
+    },
+    reservas: {
+      exemplo1: {
+        veiculo: "",
+        motorista: "",
+        dataInicio: "",
+        dataFim: "",
+        destino: ""
+      }
+    },
+    movimentacoes: {
+      exemplo1: {
+        dataHora: "",
+        veiculo: "",
+        motorista: "",
+        kmRetirada: "",
+        combustivelRetirada: "",
+        kmDevolucao: "",
+        combustivelDevolucao: "",
+        destino: "",
+        observacoes: ""
+      }
+    },
+    configuracoes: {
+      senhaPadrao: "1234"
+    }
+  };
+
+  Object.keys(nosIniciais).forEach(no => {
+    db.ref(no).once('value', snapshot => {
+      if (!snapshot.exists()) {
+        db.ref(no).set(nosIniciais[no]);
+        console.log(`Nó '${no}' criado com sucesso.`);
+      } else {
+        console.log(`Nó '${no}' já existe. Nenhuma ação necessária.`);
+      }
+    });
+  });
+}
+
+window.onload = function() {
+  if (typeof firebase !== "undefined") {
+    inicializarSistema();
+  } else {
+    console.error("Firebase não está disponível.");
+  }
+};
 </script>
 </body>
 </html>
