@@ -885,23 +885,12 @@
 </div>
 </div>
 <footer>
-<p>Sistema de Controle de Veículos Polimeros 1.7 © 2025 - Desenvolvido para facilitar o gerenciamento de frotas</p>
+<p>Sistema de Controle de Veículos Polimeros 1.8 © 2025 - Desenvolvido para facilitar o gerenciamento de frotas</p>
 </footer>
 </div>
 <script>
         // Dados iniciais para demonstração
-        let veiculos = [
-            { id: 1, modelo: "Fiat Uno", placa: "ABC-1234", cor: "Prata", ultimaKm: 45230, status: "Disponível" },
-            { id: 2, modelo: "Volkswagen Gol", placa: "DEF-5678", cor: "Preto", ultimaKm: 78210, status: "Disponível" },
-            { id: 3, modelo: "Ford Ka", placa: "GHI-9012", cor: "Branco", ultimaKm: 35670, status: "Em Manutenção" },
-            { id: 4, modelo: "Chevrolet Onix", placa: "JKL-3456", cor: "Vermelho", ultimaKm: 29100, status: "Disponível" }
-        ];
 
-        let motoristas = [
-            { id: 1, nome: "João Silva", telefone: "(11) 99999-1111", senha: "joao123", cnh: "123456789", validade: "2025-12-31", categoria: "B", permiteReserva: true },
-            { id: 2, nome: "Maria Santos", telefone: "(11) 99999-2222", senha: "maria123", cnh: "987654321", validade: "2024-06-30", categoria: "C", permiteReserva: true },
-            { id: 3, nome: "Pedro Almeida", telefone: "(11) 99999-3333", senha: "pedro123", cnh: "456789123", validade: "2023-09-15", categoria: "B", permiteReserva: false }
-        ];
 
         let historico = [];
         let usuarioLogado = null;
@@ -1784,55 +1773,150 @@ carregarVeiculosReserva();
         window.excluirItemHistorico = excluirItemHistorico;
         window.cancelarReserva = cancelarReserva;
     </script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script><script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script><script>
+    var firebaseConfig = {
+      apiKey: "AIzaSyA7pTa-7rQsiA0C5Ud6QbvTRJdwB8IuRGI",
+      authDomain: "controle-veiculos-27ba1.firebaseapp.com",
+      databaseURL: "https://controle-veiculos-27ba1-default-rtdb.firebaseio.com",
+      projectId: "controle-veiculos-27ba1",
+      storageBucket: "controle-veiculos-27ba1.appspot.com",
+      messagingSenderId: "1084808734247",
+      appId: "1:1084808734247:web:b252ca4e59e14394cd5002"
+    };
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+    // Inicializa o Firebase
+    firebase.initializeApp(firebaseConfig);
 
-const firebaseConfig = {
-  apiKey: "AIzaSyANtVoKUjocbqVOyrdQptlTs62RGOoNUN0",
-  authDomain: "carrosfrota-a58e5.firebaseapp.com",
-  databaseURL: "https://carrosfrota-a58e5-default-rtdb.firebaseio.com",
-  projectId: "carrosfrota-a58e5",
-  storageBucket: "carrosfrota-a58e5.firebasestorage.app",
-  messagingSenderId: "107456511174",
-  appId: "1:107456511174:web:220b3bc227cb450d6eebc7"
-};
+    // Teste de conexão: cria nó de exemplo
+    firebase.database().ref("teste_conexao").set({
+      status: "Conectado com sucesso",
+      timestamp: new Date().toISOString()
+    });
+  </script>
+<script>
+  // Inicialização do Firebase
+  const firebaseConfig = {
+    apiKey: "AIzaSyA7pTa-7rQsiA0C5Ud6QbvTRJdwB8IuRGI",
+    authDomain: "controle-veiculos-27ba1.firebaseapp.com",
+    databaseURL: "https://controle-veiculos-27ba1-default-rtdb.firebaseio.com",
+    projectId: "controle-veiculos-27ba1",
+    storageBucket: "controle-veiculos-27ba1.firebasestorage.app",
+    messagingSenderId: "1084808734247",
+    appId: "1:1084808734247:web:b252ca4e59e14394cd5002",
+    measurementId: "G-RJRND1VDHR"
+  };
+  firebase.initializeApp(firebaseConfig);
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+  const db = firebase.database();
 
-// Corrigir login
-document.getElementById("loginForm").addEventListener("submit", async function(e) {
-  e.preventDefault();
-  const senhaDigitada = document.getElementById("password").value.trim();
+  // Funções de salvamento
+  function salvarMotorista() {
+    const nome = document.getElementById("nomeMotorista")?.value || "";
+    const telefone = document.getElementById("telefoneMotorista")?.value || "";
+    const cnh = document.getElementById("cnhMotorista")?.value || "";
+    const validade = document.getElementById("validadeMotorista")?.value || "";
+    const categoria = document.getElementById("categoriaMotorista")?.value || "";
+    const podeReservar = document.getElementById("podeReservarMotorista")?.checked || false;
 
-  // Verifica senha padrão
-  const configRef = ref(db, "configuracoes/senhaPadrao");
-  onValue(configRef, (snapshot) => {
-    const senhaPadrao = snapshot.val();
-    if (senhaDigitada === senhaPadrao) {
-      localStorage.setItem("usuarioLogado", JSON.stringify({ nome: "Administrador", admin: true }));
-      location.reload();
-      return;
-    }
-  });
+    const motorista = { nome, telefone, cnh, validade, categoria, podeReservar };
+    db.ref("pessoas").push(motorista);
+  }
 
-  // Verifica motoristas
-  const motoristasRef = ref(db, "motoristas");
-  onValue(motoristasRef, (snapshot) => {
-    const motoristas = snapshot.val();
-    for (const id in motoristas) {
-      const motorista = motoristas[id];
-      if (motorista.senha === senhaDigitada) {
-        localStorage.setItem("usuarioLogado", JSON.stringify({ nome: motorista.nome, admin: false, motoristaId: id }));
-        location.reload();
-        return;
+  function salvarVeiculo() {
+    const modelo = document.getElementById("modeloVeiculo")?.value || "";
+    const placa = document.getElementById("placaVeiculo")?.value || "";
+    const status = document.getElementById("statusVeiculo")?.value || "disponível";
+
+    const veiculo = { modelo, placa, status };
+    db.ref("veiculos").push(veiculo);
+  }
+
+  function salvarReserva() {
+    const motorista = document.getElementById("motoristaReserva")?.value || "";
+    const veiculo = document.getElementById("veiculoReserva")?.value || "";
+    const data = document.getElementById("dataReserva")?.value || "";
+    const status = document.getElementById("statusReserva")?.value || "ativa";
+
+    const reserva = { motorista, veiculo, data, status };
+    db.ref("reservas").push(reserva);
+  }
+
+  function salvarRetirada() {
+    const motorista = document.getElementById("motoristaRetirada")?.value || "";
+    const veiculo = document.getElementById("veiculoRetirada")?.value || "";
+    const km = document.getElementById("kmRetirada")?.value || "";
+    const data = document.getElementById("dataRetirada")?.value || "";
+
+    const retirada = { motorista, veiculo, km, data };
+    db.ref("retiradas").push(retirada);
+  }
+
+  function salvarDevolucao() {
+    const motorista = document.getElementById("motoristaDevolucao")?.value || "";
+    const veiculo = document.getElementById("veiculoDevolucao")?.value || "";
+    const km = document.getElementById("kmDevolucao")?.value || "";
+    const data = document.getElementById("dataDevolucao")?.value || "";
+
+    const devolucao = { motorista, veiculo, km, data };
+    db.ref("devolucoes").push(devolucao);
+  }
+
+  // Listeners em tempo real
+  function escutarAtualizacoes() {
+    db.ref("retiradas").on("value", snapshot => {
+      const lista = document.getElementById("listaRetiradas");
+      if (lista) {
+        lista.innerHTML = "";
+        snapshot.forEach(child => {
+          const dados = child.val();
+          const item = document.createElement("li");
+          item.textContent = `${dados.motorista} retirou ${dados.veiculo} em ${dados.data} (${dados.km} km)`;
+          lista.appendChild(item);
+        });
       }
-    }
-    alert("Senha incorreta. Tente novamente.");
-  });
-});
-</script></body>
+    });
+
+    db.ref("reservas").on("value", snapshot => {
+      const lista = document.getElementById("listaReservas");
+      if (lista) {
+        lista.innerHTML = "";
+        snapshot.forEach(child => {
+          const dados = child.val();
+          const item = document.createElement("li");
+          item.textContent = `${dados.motorista} reservou ${dados.veiculo} para ${dados.data} (${dados.status})`;
+          lista.appendChild(item);
+        });
+      }
+    });
+
+    db.ref("veiculos").on("value", snapshot => {
+      const lista = document.getElementById("listaVeiculos");
+      if (lista) {
+        lista.innerHTML = "";
+        snapshot.forEach(child => {
+          const dados = child.val();
+          const item = document.createElement("li");
+          item.textContent = `${dados.modelo} - ${dados.placa} (${dados.status})`;
+          lista.appendChild(item);
+        });
+      }
+    });
+
+    db.ref("devolucoes").on("value", snapshot => {
+      const lista = document.getElementById("listaDevolucoes");
+      if (lista) {
+        lista.innerHTML = "";
+        snapshot.forEach(child => {
+          const dados = child.val();
+          const item = document.createElement("li");
+          item.textContent = `${dados.motorista} devolveu ${dados.veiculo} em ${dados.data} (${dados.km} km)`;
+          lista.appendChild(item);
+        });
+      }
+    });
+  }
+
+  window.addEventListener("load", escutarAtualizacoes);
+</script>
+</body>
 </html>
