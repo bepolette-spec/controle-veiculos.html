@@ -496,7 +496,7 @@
         }
     </style>
 </head>
-<body>
+<body><div id="login-section"><input id="inputNomeLogin" placeholder="Nome do motorista" type="text"/><input id="inputSenhaLogin" placeholder="Senha" type="password"/><button id="btnLogin" onclick="realizarLogin()">Entrar</button></div>
 <!-- Tela de Login -->
 <div class="login-screen" id="loginScreen">
 <div class="login-container">
@@ -885,7 +885,7 @@
 </div>
 </div>
 <footer>
-<p>Sistema de Controle de Veículos Polimeros 1.2 © 2025 - Desenvolvido para facilitar o gerenciamento de frotas</p>
+<p>Sistema de Controle de Veículos Polimeros 1.5 © 2025 - Desenvolvido para facilitar o gerenciamento de frotas</p>
 </footer>
 </div>
 <script>
@@ -1928,112 +1928,6 @@ carregarVeiculosReserva();
   }
 
   window.addEventListener("load", escutarAtualizacoes);
-</script>
-
-<script>
-function inicializarSistema() {
-  const db = firebase.database();
-  const nosIniciais = {
-    veiculos: {
-      exemplo1: {
-        modelo: "",
-        placa: "",
-        cor: "",
-        ultimaKm: "",
-        status: "Disponível"
-      }
-    },
-    motoristas: {
-      exemplo1: {
-        nome: "",
-        telefone: "",
-        senha: "",
-        cnh: "",
-        validadeCNH: "",
-        categoriaCNH: "",
-        podeReservar: false
-      },
-      exemploLogin: {
-        nome: "Teste",
-        telefone: "11999999999",
-        senha: "1234",
-        cnh: "ABC123456",
-        validadeCNH: "2025-12-31",
-        categoriaCNH: "B",
-        podeReservar: true
-      }
-    },
-    reservas: {
-      exemplo1: {
-        veiculo: "",
-        motorista: "",
-        dataInicio: "",
-        dataFim: "",
-        destino: ""
-      }
-    },
-    movimentacoes: {
-      exemplo1: {
-        dataHora: "",
-        veiculo: "",
-        motorista: "",
-        kmRetirada: "",
-        combustivelRetirada: "",
-        kmDevolucao: "",
-        combustivelDevolucao: "",
-        destino: "",
-        observacoes: ""
-      }
-    },
-    configuracoes: {
-      senhaPadrao: "1234"
-    }
-  };
-
-  Object.keys(nosIniciais).forEach(no => {
-    db.ref(no).once('value', snapshot => {
-      if (!snapshot.exists()) {
-        db.ref(no).set(nosIniciais[no]);
-        console.log(`Nó '${no}' criado com sucesso.`);
-      } else {
-        console.log(`Nó '${no}' já existe.`);
-      }
-    });
-  });
-}
-
-function fazerLogin() {
-  const nome = document.getElementById("inputNomeLogin").value;
-  const senha = document.getElementById("inputSenhaLogin").value;
-
-  if (!nome || !senha) {
-    alert("Preencha todos os campos.");
-    return;
-  }
-
-  firebase.database().ref("motoristas").once("value")
-    .then(snapshot => {
-      let loginValido = false;
-      snapshot.forEach(child => {
-        const motorista = child.val();
-        if (motorista.nome === nome && motorista.senha === senha) {
-          loginValido = true;
-        }
-      });
-
-      if (loginValido) {
-        alert("Login realizado com sucesso!");
-        // Redirecionar ou mostrar área restrita
-      } else {
-        alert("Nome ou senha inválidos.");
-      }
-    })
-    .catch(error => {
-      console.error("Erro ao verificar login:", error);
-    });
-}
-
-window.onload = inicializarSistema;
 </script>
 </body>
 </html>
