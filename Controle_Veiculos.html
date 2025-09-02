@@ -1,82 +1,211 @@
-
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistema de Controle de Veículos</title>
   <style>
-    body { font-family: Arial, sans-serif; margin: 20px; }
-    section { margin-bottom: 40px; }
-    h2 { color: #333; }
-    label, select, input, textarea, button { display: block; margin: 5px 0; }
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
-    th { background-color: #f2f2f2; }
+    :root {
+      --primary-color: #007bff;
+      --secondary-color: #6c757d;
+      --bg-color: #f8f9fa;
+      --card-bg-color: #ffffff;
+      --font-color: #333;
+      --border-color: #dee2e6;
+      --success-color: #28a745;
+      --error-color: #dc3545;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background-color: var(--bg-color);
+      color: var(--font-color);
+    }
+
+    h1, h2 {
+      color: var(--secondary-color);
+      border-bottom: 2px solid var(--primary-color);
+      padding-bottom: 10px;
+    }
+    
+    .container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    section {
+      background-color: var(--card-bg-color);
+      border-radius: 8px;
+      padding: 20px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      margin-bottom: 20px;
+    }
+    
+    .form-section {
+        flex: 1;
+        min-width: 300px;
+    }
+
+    #historico {
+        width: 100%;
+    }
+
+    label {
+      display: block;
+      margin: 10px 0 5px;
+      font-weight: 600;
+      color: #555;
+    }
+
+    select, input, textarea, button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 4px;
+      box-sizing: border-box; /* Adicionado para consistência de tamanho */
+      font-size: 1rem;
+    }
+
+    button {
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #0056b3;
+    }
+    
+    #btnDevolucao {
+        background-color: var(--success-color);
+    }
+    #btnDevolucao:hover {
+        background-color: #218838;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      border: 1px solid var(--border-color);
+      padding: 12px;
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    th {
+      background-color: #f2f2f2;
+      font-weight: 700;
+    }
+    
+    tr:nth-child(even) {
+        background-color: #f9f9f9;
+    }
+    
+    /* Barra de Notificação */
+    .notification {
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 15px 25px;
+        border-radius: 8px;
+        color: white;
+        font-weight: bold;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        z-index: 1000;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.5s, visibility 0.5s;
+    }
+    .notification.show {
+        opacity: 1;
+        visibility: visible;
+    }
+    .notification.success { background-color: var(--success-color); }
+    .notification.error { background-color: var(--error-color); }
+
   </style>
 </head>
 <body>
 
+  <div id="notification-bar" class="notification"></div>
+
   <h1>Sistema de Controle de Veículos Chevrolet</h1>
 
-  <section id="retirada">
-    <h2>Registrar Retirada</h2>
-    <label>Motorista:</label>
-    <select name="motorista"></select>
-    <label>Veículo:</label>
-    <select name="veiculo"></select>
-    <label>KM Atual:</label>
-    <input type="number" id="kmAtual">
-    <label>Combustível:</label>
-    <input type="text" id="combustivelRetirada">
-    <label>Destino:</label>
-    <input type="text" id="destino">
-    <button id="btnRetirada">Registrar Retirada</button>
-  </section>
+  <div class="container">
+    <section id="retirada" class="form-section">
+      <h2>Registrar Retirada</h2>
+      <label for="motoristaRetirada">Motorista:</label>
+      <select id="motoristaRetirada" name="motorista"></select>
+      <label for="veiculoRetirada">Veículo (Disponíveis):</label>
+      <select id="veiculoRetirada" name="veiculo"></select>
+      <label for="kmAtual">KM Atual:</label>
+      <input type="number" id="kmAtual" placeholder="Ex: 50000">
+      <label for="combustivelRetirada">Nível Combustível (Retirada):</label>
+      <input type="text" id="combustivelRetirada" placeholder="Ex: 1/2, Cheio, 75%">
+      <label for="destino">Destino:</label>
+      <input type="text" id="destino" placeholder="Ex: Reunião Cliente X">
+      <button id="btnRetirada">Registrar Retirada</button>
+    </section>
 
-  <section id="reserva">
-    <h2>Reservar Veículo</h2>
-    <label>Motorista:</label>
-    <select name="motorista"></select>
-    <label>Veículo:</label>
-    <select name="veiculo"></select>
-    <label>Data Início:</label>
-    <input type="date" id="dataInicio">
-    <label>Hora Início:</label>
-    <input type="time" id="horaInicio">
-    <label>Data Fim:</label>
-    <input type="date" id="dataFim">
-    <label>Hora Fim:</label>
-    <input type="time" id="horaFim">
-    <label>Destino:</label>
-    <input type="text" id="destinoReserva">
-    <button id="btnReserva">Reservar</button>
-  </section>
-
-  <section id="devolucao">
-    <h2>Registrar Devolução</h2>
-    <label>Veículo:</label>
-    <select name="veiculo"></select>
-    <label>KM Devolução:</label>
-    <input type="number" id="kmDevolucao">
-    <label>Combustível:</label>
-    <input type="text" id="combustivelDevolucao">
-    <label>Observações:</label>
-    <textarea id="observacoes"></textarea>
-    <button id="btnDevolucao">Registrar Devolução</button>
-  </section>
+    <section id="devolucao" class="form-section">
+      <h2>Registrar Devolução</h2>
+      <label for="veiculoDevolucao">Veículo (Em Uso):</label>
+      <select id="veiculoDevolucao"></select>
+      <label for="kmDevolucao">KM Devolução:</label>
+      <input type="number" id="kmDevolucao" placeholder="Ex: 50250">
+      <label for="combustivelDevolucao">Nível Combustível (Devolução):</label>
+      <input type="text" id="combustivelDevolucao" placeholder="Ex: 1/4, Meio Tanque">
+      <label for="observacoes">Observações:</label>
+      <textarea id="observacoes" rows="3" placeholder="Ex: Veículo entregue limpo, pequena avaria no para-choque..."></textarea>
+      <button id="btnDevolucao">Registrar Devolução</button>
+    </section>
+      
+    <section id="reserva" class="form-section">
+        <h2>Reservar Veículo</h2>
+        <label for="motoristaReserva">Motorista:</label>
+        <select id="motoristaReserva" name="motorista"></select>
+        <label for="veiculoReserva">Veículo:</label>
+        <select id="veiculoReserva" name="veiculo"></select>
+        <label for="dataInicio">Data Início:</label>
+        <input type="date" id="dataInicio">
+        <label for="horaInicio">Hora Início:</label>
+        <input type="time" id="horaInicio">
+        <label for="dataFim">Data Fim:</label>
+        <input type="date" id="dataFim">
+        <label for="horaFim">Hora Fim:</label>
+        <input type="time" id="horaFim">
+        <label for="destinoReserva">Destino:</label>
+        <input type="text" id="destinoReserva" placeholder="Ex: Viagem para filial de Santos">
+        <button id="btnReserva">Reservar</button>
+    </section>
+  </div>
 
   <section id="historico">
     <h2>Histórico de Movimentações</h2>
     <table>
       <thead>
         <tr>
-          <th>Data/Hora</th>
+          <th>Status</th>
+          <th>Data/Hora Retirada</th>
           <th>Veículo</th>
           <th>Motorista</th>
           <th>KM Retirada</th>
-          <th>Combustível Retirada</th>
+          <th>Comb. Retirada</th>
           <th>KM Devolução</th>
-          <th>Combustível Devolução</th>
+          <th>Comb. Devolução</th>
           <th>Destino</th>
           <th>Observações</th>
           <th>Ações</th>
@@ -88,8 +217,9 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
-    import { getDatabase, ref, onValue, push, set } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
+    import { getDatabase, ref, onValue, push, set, update } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
+    // MANTENHA SUAS CONFIGURAÇÕES DO FIREBASE AQUI
     const firebaseConfig = {
       apiKey: "AIzaSyANtVoKUjocbqVOyrdQptlTs62RGOoNUN0",
       authDomain: "carrosfrota-a58e5.firebaseapp.com",
@@ -103,109 +233,196 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Preencher selects
-    const selectMotoristas = document.querySelectorAll("select[name='motorista']");
-    const selectVeiculos = document.querySelectorAll("select[name='veiculo']");
+    // Cache local para os dados de motoristas e veículos
+    let motoristas = {};
+    let veiculos = {};
+    
+    // --- FUNÇÃO DE NOTIFICAÇÃO ---
+    function showNotification(message, type = 'success') {
+        const notificationBar = document.getElementById('notification-bar');
+        notificationBar.textContent = message;
+        notificationBar.className = `notification ${type} show`;
+        setTimeout(() => {
+            notificationBar.classList.remove('show');
+        }, 3000);
+    }
+
+    // --- PREENCHER SELECTS ---
+    const allMotoristaSelects = document.querySelectorAll("select[name='motorista']");
+    const allVeiculoSelects = document.querySelectorAll("select[name='veiculo']");
 
     onValue(ref(db, 'motoristas'), (snapshot) => {
-      const data = snapshot.val();
-      selectMotoristas.forEach(select => {
-        select.innerHTML = '';
-        for (const id in data) {
-          const m = data[id];
-          const option = document.createElement('option');
-          option.value = id;
-          option.textContent = m.nome;
+      motoristas = snapshot.val() || {};
+      allMotoristaSelects.forEach(select => {
+        select.innerHTML = '<option value="">Selecione um motorista</option>';
+        for (const id in motoristas) {
+          const option = new Option(motoristas[id].nome, id);
           select.appendChild(option);
         }
       });
     });
-
+    
     onValue(ref(db, 'veiculos'), (snapshot) => {
-      const data = snapshot.val();
-      selectVeiculos.forEach(select => {
-        select.innerHTML = '';
-        for (const id in data) {
-          const v = data[id];
-          const option = document.createElement('option');
-          option.value = id;
-          option.textContent = `${v.modelo} - ${v.placa}`;
+      veiculos = snapshot.val() || {};
+      allVeiculoSelects.forEach(select => {
+        select.innerHTML = '<option value="">Selecione um veículo</option>';
+        for (const id in veiculos) {
+          const v = veiculos[id];
+          const option = new Option(`${v.modelo} - ${v.placa}`, id);
           select.appendChild(option);
         }
       });
     });
 
-    // Retirada
+    // --- LÓGICA DE RETIRADA ---
     document.getElementById("btnRetirada").addEventListener("click", () => {
+      const motoristaId = document.getElementById("motoristaRetirada").value;
+      const veiculoId = document.getElementById("veiculoRetirada").value;
+      
+      if (!motoristaId || !veiculoId) {
+          showNotification("Por favor, selecione motorista e veículo.", "error");
+          return;
+      }
+      
       const retirada = {
-        dataHora: new Date().toISOString(),
-        veiculoId: document.querySelector("select[name='veiculo']").value,
-        motoristaId: document.querySelector("select[name='motorista']").value,
+        dataHoraRetirada: new Date().toISOString(),
+        motoristaId,
+        veiculoId,
         kmRetirada: document.getElementById("kmAtual").value,
         combustivelRetirada: document.getElementById("combustivelRetirada").value,
-        destino: document.getElementById("destino").value
+        destino: document.getElementById("destino").value,
+        status: 'em_uso' // NOVO STATUS
       };
-      const novaRef = push(ref(db, 'retiradas'));
-      set(novaRef, retirada);
-      alert("Retirada registrada com sucesso!");
-    });
 
-    // Reserva
+      const novaRef = push(ref(db, 'movimentacoes'));
+      set(novaRef, retirada)
+        .then(() => {
+            showNotification("Retirada registrada com sucesso!");
+            document.getElementById("retirada").querySelector('form').reset();
+        })
+        .catch(err => showNotification(`Erro: ${err.message}`, 'error'));
+    });
+    
+    // --- LÓGICA DE RESERVA (sem alterações na lógica, apenas feedback) ---
     document.getElementById("btnReserva").addEventListener("click", () => {
       const reserva = {
-        veiculoId: document.querySelector("select[name='veiculo']").value,
-        motoristaId: document.querySelector("select[name='motorista']").value,
+        veiculoId: document.getElementById("veiculoReserva").value,
+        motoristaId: document.getElementById("motoristaReserva").value,
         dataInicio: document.getElementById("dataInicio").value,
         horaInicio: document.getElementById("horaInicio").value,
         dataFim: document.getElementById("dataFim").value,
         horaFim: document.getElementById("horaFim").value,
         destino: document.getElementById("destinoReserva").value
       };
+      if (!reserva.veiculoId || !reserva.motoristaId || !reserva.dataInicio || !reserva.dataFim) {
+          showNotification("Preencha todos os campos da reserva.", "error");
+          return;
+      }
       const novaRef = push(ref(db, 'reservas'));
-      set(novaRef, reserva);
-      alert("Reserva registrada com sucesso!");
+      set(novaRef, reserva)
+        .then(() => showNotification("Reserva registrada com sucesso!"))
+        .catch(err => showNotification(`Erro: ${err.message}`, 'error'));
     });
 
-    // Devolução
+
+    // --- LÓGICA DE DEVOLUÇÃO (ATUALIZADA) ---
     document.getElementById("btnDevolucao").addEventListener("click", () => {
-      const devolucao = {
-        veiculoId: document.querySelector("select[name='veiculo']").value,
+      const movimentacaoId = document.getElementById("veiculoDevolucao").value;
+      
+      if (!movimentacaoId) {
+          showNotification("Selecione um veículo em uso para devolução.", "error");
+          return;
+      }
+
+      const dadosDevolucao = {
+        dataHoraDevolucao: new Date().toISOString(),
         kmDevolucao: document.getElementById("kmDevolucao").value,
         combustivelDevolucao: document.getElementById("combustivelDevolucao").value,
-        observacoes: document.getElementById("observacoes").value
+        observacoes: document.getElementById("observacoes").value,
+        status: 'concluido' // ATUALIZA STATUS
       };
-      const novaRef = push(ref(db, 'devolucoes'));
-      set(novaRef, devolucao);
-      alert("Devolução registrada com sucesso!");
+
+      const movimentacaoRef = ref(db, `movimentacoes/${movimentacaoId}`);
+      update(movimentacaoRef, dadosDevolucao)
+        .then(() => {
+            showNotification("Devolução registrada com sucesso!");
+            document.getElementById("devolucao").querySelector('form').reset();
+        })
+        .catch(err => showNotification(`Erro: ${err.message}`, 'error'));
     });
 
-    // Histórico
+
+    // --- HISTÓRICO E ATUALIZAÇÃO DOS SELECTS DINÂMICOS ---
     const tabela = document.getElementById("tabelaHistorico");
-    onValue(ref(db, 'historico'), (snapshot) => {
-      const data = snapshot.val();
+    const selectVeiculoRetirada = document.getElementById("veiculoRetirada");
+    const selectVeiculoDevolucao = document.getElementById("veiculoDevolucao");
+
+    onValue(ref(db, 'movimentacoes'), (snapshot) => {
+      const movimentacoes = snapshot.val() || {};
       tabela.innerHTML = '';
-      for (const id in data) {
-        const h = data[id];
+      
+      const veiculosEmUsoIds = new Set();
+      
+      // Mapear veículos em uso
+      for(const id in movimentacoes){
+          if(movimentacoes[id].status === 'em_uso'){
+              veiculosEmUsoIds.add(movimentacoes[id].veiculoId);
+          }
+      }
+
+      // Popular select de devolução (somente com veículos em uso)
+      selectVeiculoDevolucao.innerHTML = '<option value="">Selecione um veículo para devolver</option>';
+      for (const id in movimentacoes) {
+        if(movimentacoes[id].status === 'em_uso') {
+            const m = movimentacoes[id];
+            const v = veiculos[m.veiculoId] || { modelo: 'Veículo', placa: 'desconhecida' };
+            const option = new Option(`${v.modelo} - ${v.placa}`, id); // O valor é o ID da movimentação
+            selectVeiculoDevolucao.appendChild(option);
+        }
+      }
+      
+      // Popular select de retirada (somente com veículos disponíveis)
+      selectVeiculoRetirada.innerHTML = '<option value="">Selecione um veículo disponível</option>';
+      for (const id in veiculos) {
+          if (!veiculosEmUsoIds.has(id)) {
+              const v = veiculos[id];
+              const option = new Option(`${v.modelo} - ${v.placa}`, id);
+              selectVeiculoRetirada.appendChild(option);
+          }
+      }
+
+      // Popular tabela de histórico
+      for (const id in movimentacoes) {
+        const h = movimentacoes[id];
+        const veiculoInfo = veiculos[h.veiculoId] || { modelo: 'N/A', placa: 'N/A' };
+        const motoristaInfo = motoristas[h.motoristaId] || { nome: 'N/A' };
+        const dataFormatada = new Date(h.dataHoraRetirada).toLocaleString('pt-BR');
+
         const row = document.createElement("tr");
         row.innerHTML = `
-          <td>${h.dataHora}</td>
-          <td>${h.veiculo}</td>
-          <td>${h.motorista}</td>
-          <td>${h.kmRetirada}</td>
-          <td>${h.combustivelRetirada}</td>
-          <td>${h.kmDevolucao}</td>
-          <td>${h.combustivelDevolucao}</td>
-          <td>${h.destino}</td>
-          <td>${h.observacoes}</td>
-          <td><button onclick="removerHistorico('${id}')">Excluir</button></td>
+          <td><span style="font-weight:bold; color:${h.status === 'em_uso' ? 'orange' : 'green'};">${h.status === 'em_uso' ? 'Em Uso' : 'Concluído'}</span></td>
+          <td>${dataFormatada}</td>
+          <td>${veiculoInfo.modelo} - ${veiculoInfo.placa}</td>
+          <td>${motoristaInfo.nome}</td>
+          <td>${h.kmRetirada || 'N/A'}</td>
+          <td>${h.combustivelRetirada || 'N/A'}</td>
+          <td>${h.kmDevolucao || '—'}</td>
+          <td>${h.combustivelDevolucao || '—'}</td>
+          <td>${h.destino || 'N/A'}</td>
+          <td>${h.observacoes || '—'}</td>
+          <td><button onclick="removerMovimentacao('${id}')" style="background-color: #dc3545;">Excluir</button></td>
         `;
         tabela.appendChild(row);
       }
     });
 
-    window.removerHistorico = function(id) {
-      set(ref(db, `historico/${id}`), null);
-      alert("Histórico removido.");
+    // Disponibiliza a função de remover no escopo global para ser chamada pelo onclick
+    window.removerMovimentacao = function(id) {
+      if(confirm('Tem certeza que deseja excluir este registro permanentemente?')){
+        set(ref(db, `movimentacoes/${id}`), null)
+          .then(() => showNotification("Registro removido.", 'success'))
+          .catch(err => showNotification(`Erro: ${err.message}`, 'error'));
+      }
     };
   </script>
 
