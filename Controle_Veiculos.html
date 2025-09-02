@@ -495,35 +495,6 @@
             }
         }
     </style>
-
-<script>
-  const db = firebase.database();
-
-  function inicializarSistema() {
-    const nosIniciais = {
-      veiculos: {},
-      motoristas: {},
-      reservas: {},
-      movimentacoes: {},
-      configuracoes: {
-        senhaPadrao: "1234"
-      }
-    };
-
-    Object.keys(nosIniciais).forEach(no => {
-      db.ref(no).once('value', snapshot => {
-        if (!snapshot.exists()) {
-          db.ref(no).set(nosIniciais[no]);
-          console.log(`Nó '${no}' criado com sucesso.`);
-        } else {
-          console.log(`Nó '${no}' já existe. Nenhuma ação necessária.`);
-        }
-      });
-    });
-  }
-
-  window.addEventListener('load', inicializarSistema);
-</script>
 </head>
 <body>
 <!-- Tela de Login -->
@@ -623,7 +594,7 @@
 <div class="cnh-alerta" id="alertaCnhRetirada" style="display: none;">
 <i class="fas fa-exclamation-circle"></i> ATENÇÃO: CNH vencida! Não é possível retirar veículo.
                     </div>
-<button id="btnRegistrarRetirada" type="submit"><i class="fas fa-check-circle"></i> Registrar Retirada</button>
+<button id="btnRegistrarRetirada" onclick="registrarRetirada()" type="submit"><i class="fas fa-check-circle"></i> Registrar Retirada</button>
 </form>
 </div>
 </div>
