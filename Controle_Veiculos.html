@@ -885,7 +885,7 @@
 </div>
 </div>
 <footer>
-<p>Sistema de Controle de Veículos Polimeros © 2025 1.0 - Desenvolvido para facilitar o gerenciamento de frotas</p>
+<p>Sistema de Controle de Veículos Polimeros 1.1 © 2025 - Desenvolvido para facilitar o gerenciamento de frotas</p>
 </footer>
 </div>
 <script>
@@ -1931,77 +1931,37 @@ carregarVeiculosReserva();
 </script>
 
 <script>
-function inicializarSistema() {
-  const db = firebase.database();
+function verificarLogin() {
+  const nome = document.getElementById("inputLoginNome").value;
+  const senha = document.getElementById("inputLoginSenha").value;
 
-  const nosIniciais = {
-    veiculos: {
-      exemplo1: {
-        modelo: "",
-        placa: "",
-        cor: "",
-        ultimaKm: "",
-        status: "Disponível"
-      }
-    },
-    motoristas: {
-      exemplo1: {
-        nome: "",
-        telefone: "",
-        senha: "",
-        cnh: "",
-        validadeCNH: "",
-        categoriaCNH: "",
-        podeReservar: false
-      }
-    },
-    reservas: {
-      exemplo1: {
-        veiculo: "",
-        motorista: "",
-        dataInicio: "",
-        dataFim: "",
-        destino: ""
-      }
-    },
-    movimentacoes: {
-      exemplo1: {
-        dataHora: "",
-        veiculo: "",
-        motorista: "",
-        kmRetirada: "",
-        combustivelRetirada: "",
-        kmDevolucao: "",
-        combustivelDevolucao: "",
-        destino: "",
-        observacoes: ""
-      }
-    },
-    configuracoes: {
-      senhaPadrao: "1234"
-    }
-  };
-
-  Object.keys(nosIniciais).forEach(no => {
-    db.ref(no).once('value', snapshot => {
-      if (!snapshot.exists()) {
-        db.ref(no).set(nosIniciais[no]);
-        console.log(`Nó '${no}' criado com sucesso.`);
-      } else {
-        console.log(`Nó '${no}' já existe. Nenhuma ação necessária.`);
-      }
-    });
-  });
-}
-
-window.onload = function() {
-  if (typeof firebase !== "undefined") {
-    inicializarSistema();
-  } else {
-    console.error("Firebase não está disponível.");
+  if (!nome || !senha) {
+    alert("Preencha todos os campos.");
+    return;
   }
-};
+
+  firebase.database().ref("motoristas").once("value")
+    .then(snapshot => {
+      let acessoPermitido = false;
+      snapshot.forEach(child => {
+        const motorista = child.val();
+        if (motorista.nome === nome && motorista.senha === senha) {
+          acessoPermitido = true;
+        }
+      });
+
+      if (acessoPermitido) {
+        alert("Login realizado com sucesso!");
+        // Aqui você pode redirecionar ou mostrar a área restrita
+      } else {
+        alert("Nome ou senha incorretos.");
+      }
+    })
+    .catch(error => {
+      console.error("Erro ao verificar login:", error);
+      alert("Erro ao verificar login.");
+    });
+}
 </script>
 </body>
 </html>
-
