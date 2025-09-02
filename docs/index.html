@@ -885,7 +885,7 @@
 </div>
 </div>
 <footer>
-<p>Sistema de Controle de Veículos Polimeros 1.6 © 2025 - Desenvolvido para facilitar o gerenciamento de frotas</p>
+<p>Sistema de Controle de Veículos Polimeros © 2025 - Desenvolvido para facilitar o gerenciamento de frotas</p>
 </footer>
 </div>
 <script>
@@ -1804,10 +1804,9 @@ carregarVeiculosReserva();
       timestamp: new Date().toISOString()
     });
   </script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 <script>
-  var firebaseConfig = {
+  // Inicialização do Firebase
+  const firebaseConfig = {
     apiKey: "AIzaSyA7pTa-7rQsiA0C5Ud6QbvTRJdwB8IuRGI",
     authDomain: "controle-veiculos-27ba1.firebaseapp.com",
     databaseURL: "https://controle-veiculos-27ba1-default-rtdb.firebaseio.com",
@@ -1818,89 +1817,117 @@ carregarVeiculosReserva();
     measurementId: "G-RJRND1VDHR"
   };
   firebase.initializeApp(firebaseConfig);
+
   const db = firebase.database();
 
   // Funções de salvamento
-  function salvarMotorista(dados) {
-    db.ref("pessoas").push(dados);
+  function salvarMotorista() {
+    const nome = document.getElementById("nomeMotorista")?.value || "";
+    const telefone = document.getElementById("telefoneMotorista")?.value || "";
+    const cnh = document.getElementById("cnhMotorista")?.value || "";
+    const validade = document.getElementById("validadeMotorista")?.value || "";
+    const categoria = document.getElementById("categoriaMotorista")?.value || "";
+    const podeReservar = document.getElementById("podeReservarMotorista")?.checked || false;
+
+    const motorista = { nome, telefone, cnh, validade, categoria, podeReservar };
+    db.ref("pessoas").push(motorista);
   }
 
-  function salvarVeiculo(dados) {
-    db.ref("veiculos").push(dados);
+  function salvarVeiculo() {
+    const modelo = document.getElementById("modeloVeiculo")?.value || "";
+    const placa = document.getElementById("placaVeiculo")?.value || "";
+    const status = document.getElementById("statusVeiculo")?.value || "disponível";
+
+    const veiculo = { modelo, placa, status };
+    db.ref("veiculos").push(veiculo);
   }
 
-  function salvarReserva(dados) {
-    db.ref("reservas").push(dados);
+  function salvarReserva() {
+    const motorista = document.getElementById("motoristaReserva")?.value || "";
+    const veiculo = document.getElementById("veiculoReserva")?.value || "";
+    const data = document.getElementById("dataReserva")?.value || "";
+    const status = document.getElementById("statusReserva")?.value || "ativa";
+
+    const reserva = { motorista, veiculo, data, status };
+    db.ref("reservas").push(reserva);
   }
 
-  function salvarRetirada(dados) {
-    db.ref("retiradas").push(dados);
+  function salvarRetirada() {
+    const motorista = document.getElementById("motoristaRetirada")?.value || "";
+    const veiculo = document.getElementById("veiculoRetirada")?.value || "";
+    const km = document.getElementById("kmRetirada")?.value || "";
+    const data = document.getElementById("dataRetirada")?.value || "";
+
+    const retirada = { motorista, veiculo, km, data };
+    db.ref("retiradas").push(retirada);
   }
 
-  function salvarDevolucao(dados) {
-    db.ref("devolucoes").push(dados);
+  function salvarDevolucao() {
+    const motorista = document.getElementById("motoristaDevolucao")?.value || "";
+    const veiculo = document.getElementById("veiculoDevolucao")?.value || "";
+    const km = document.getElementById("kmDevolucao")?.value || "";
+    const data = document.getElementById("dataDevolucao")?.value || "";
+
+    const devolucao = { motorista, veiculo, km, data };
+    db.ref("devolucoes").push(devolucao);
   }
 
   // Listeners em tempo real
-  db.ref("pessoas").on("value", snapshot => {
-    const lista = document.getElementById("listaMotoristas");
-    if (lista) {
-      lista.innerHTML = "";
-      snapshot.forEach(child => {
-        const item = document.createElement("li");
-        item.textContent = child.val().nome + " - " + child.val().telefone;
-        lista.appendChild(item);
-      });
-    }
-  });
+  function escutarAtualizacoes() {
+    db.ref("retiradas").on("value", snapshot => {
+      const lista = document.getElementById("listaRetiradas");
+      if (lista) {
+        lista.innerHTML = "";
+        snapshot.forEach(child => {
+          const dados = child.val();
+          const item = document.createElement("li");
+          item.textContent = `${dados.motorista} retirou ${dados.veiculo} em ${dados.data} (${dados.km} km)`;
+          lista.appendChild(item);
+        });
+      }
+    });
 
-  db.ref("veiculos").on("value", snapshot => {
-    const lista = document.getElementById("listaVeiculos");
-    if (lista) {
-      lista.innerHTML = "";
-      snapshot.forEach(child => {
-        const item = document.createElement("li");
-        item.textContent = child.val().modelo + " - " + child.val().placa;
-        lista.appendChild(item);
-      });
-    }
-  });
+    db.ref("reservas").on("value", snapshot => {
+      const lista = document.getElementById("listaReservas");
+      if (lista) {
+        lista.innerHTML = "";
+        snapshot.forEach(child => {
+          const dados = child.val();
+          const item = document.createElement("li");
+          item.textContent = `${dados.motorista} reservou ${dados.veiculo} para ${dados.data} (${dados.status})`;
+          lista.appendChild(item);
+        });
+      }
+    });
 
-  db.ref("reservas").on("value", snapshot => {
-    const lista = document.getElementById("listaReservas");
-    if (lista) {
-      lista.innerHTML = "";
-      snapshot.forEach(child => {
-        const item = document.createElement("li");
-        item.textContent = child.val().motorista + " reservou " + child.val().veiculo;
-        lista.appendChild(item);
-      });
-    }
-  });
+    db.ref("veiculos").on("value", snapshot => {
+      const lista = document.getElementById("listaVeiculos");
+      if (lista) {
+        lista.innerHTML = "";
+        snapshot.forEach(child => {
+          const dados = child.val();
+          const item = document.createElement("li");
+          item.textContent = `${dados.modelo} - ${dados.placa} (${dados.status})`;
+          lista.appendChild(item);
+        });
+      }
+    });
 
-  db.ref("retiradas").on("value", snapshot => {
-    const lista = document.getElementById("listaRetiradas");
-    if (lista) {
-      lista.innerHTML = "";
-      snapshot.forEach(child => {
-        const item = document.createElement("li");
-        item.textContent = child.val().motorista + " retirou " + child.val().veiculo;
-        lista.appendChild(item);
-      });
-    }
-  });
+    db.ref("devolucoes").on("value", snapshot => {
+      const lista = document.getElementById("listaDevolucoes");
+      if (lista) {
+        lista.innerHTML = "";
+        snapshot.forEach(child => {
+          const dados = child.val();
+          const item = document.createElement("li");
+          item.textContent = `${dados.motorista} devolveu ${dados.veiculo} em ${dados.data} (${dados.km} km)`;
+          lista.appendChild(item);
+        });
+      }
+    });
+  }
 
-  db.ref("devolucoes").on("value", snapshot => {
-    const lista = document.getElementById("listaDevolucoes");
-    if (lista) {
-      lista.innerHTML = "";
-      snapshot.forEach(child => {
-        const item = document.createElement("li");
-        item.textContent = child.val().motorista + " devolveu " + child.val().veiculo;
-        lista.appendChild(item);
-      });
-    }
-  });
+  window.addEventListener("load", escutarAtualizacoes);
 </script>
 </body>
 </html>
