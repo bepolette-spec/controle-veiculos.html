@@ -70,6 +70,8 @@
         .form-row { display: flex; gap: 15px; }
         .form-row > div { flex: 1; }
         .form-row input, .form-row select { margin-bottom: 0; }
+        .data-load-status { text-align: center; margin-top: 20px; font-weight: bold; color: var(--info-color); }
+        .data-load-status.error { color: var(--danger-color); }
     </style>
 </head>
 <body>
@@ -113,6 +115,7 @@
                     
                     <section id="status-section" class="content-section active">
                         <div class="section-header"><h2>Status dos Veículos</h2></div>
+                        <p id="statusLoadingMessage" class="data-load-status">Carregando dados...</p>
                         <div class="card-grid" id="statusVeiculosGrid">
                             </div>
                     </section>
@@ -368,7 +371,6 @@
         let veiculosCache = {};
         let movimentacoesCache = {};
         let reservasCache = {};
-        let movimentacaoEmUsoCache = {};
         
         // Função de Notificação
         function showNotification(message, type = 'success') {
@@ -393,6 +395,8 @@
         });
 
         // Listeners do Firebase para carregar dados
+        const statusLoadingMessage = document.getElementById('statusLoadingMessage');
+
         onValue(ref(db, 'motoristas'), (snapshot) => {
             motoristasCache = snapshot.val() || {};
             const allMotoristaSelects = document.querySelectorAll("select[name='motorista']");
@@ -405,17 +409,26 @@
 
         onValue(ref(db, 'veiculos'), (snapshot) => {
             veiculosCache = snapshot.val() || {};
+            if (Object.keys(veiculosCache).length === 0) {
+                statusLoadingMessage.textContent = 'Nenhum veículo encontrado. Por favor, cadastre um veículo na tela de Administração.';
+                statusLoadingMessage.classList.add('error');
+            } else {
+                statusLoadingMessage.style.display = 'none';
+            }
+
             const allVeiculoSelects = document.querySelectorAll("select[name='veiculo']");
             allVeiculoSelects.forEach(select => {
                 select.innerHTML = '<option value="">Selecione um veículo</option>';
                 for(const placa in veiculosCache) { select.add(new Option(`${veiculosCache[placa].modelo} - ${veiculosCache[placa].placa}`, placa)); }
             });
             renderVeiculosTable();
+            renderStatusCards();
+            updateVeiculoRetiradaSelect();
+            updateVeiculoReservaSelect();
         });
 
         onValue(ref(db, 'movimentacoes'), (snapshot) => {
             movimentacoesCache = snapshot.val() || {};
-            movimentacaoEmUsoCache = Object.values(movimentacoesCache).find(m => m.status === 'em_uso');
             renderHistoricoTable();
             updateVeiculoRetiradaSelect();
             updateVeiculoDevolucaoSelect();
@@ -691,7 +704,7 @@
             update(ref(db, `veiculos/${veiculoId}`), {
                 status: 'disponivel',
                 ultimaKm: kmDevolucao,
-                combustivel: dadosDevolucao.combustivelDevolucao // SALVANDO NÍVEL DE COMBUSTÍVEL
+                combustivel: dadosDevolucao.combustivelDevolucao
             });
 
             update(ref(db, `movimentacoes/${movimentacaoId}`), dadosDevolucao).then(() => {
