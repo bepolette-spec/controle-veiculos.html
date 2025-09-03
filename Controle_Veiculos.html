@@ -494,6 +494,8 @@
         const statusGrid = document.getElementById("statusVeiculosGrid");
         statusGrid.innerHTML = '';
         const now = new Date();
+        console.log("--- Iniciando renderização dos cards de status ---");
+        console.log("Cache de Movimentações:", movimentacoesCache);
 
         // 1. Criar um mapa de veículos "em uso" a partir das movimentações
         const veiculosEmUsoMap = new Map();
@@ -502,6 +504,7 @@
                 veiculosEmUsoMap.set(movimentacoesCache[id].veiculoId, movimentacoesCache[id]);
             }
         }
+        console.log("Mapa de Veículos em Uso:", veiculosEmUsoMap);
         
         // 2. Criar um mapa de reservas ativas e futuras
         const reservasAtivasMap = new Map();
@@ -525,6 +528,8 @@
             let extraNoticeHtml = '';
             let kmDisplay = v.ultimaKm || 'N/A';
             let combustivelDisplay = '—';
+            
+            console.log(`Verificando veículo: ${v.modelo} (${v.placa})`);
 
             if (v.status === 'manutencao') {
                 status = 'manutencao';
@@ -576,7 +581,9 @@
                 ${extraNoticeHtml}
             `;
             statusGrid.appendChild(card);
+            console.log(`Status final para ${v.placa}: ${statusMap[status]}`);
         }
+        console.log("--- Renderização dos cards de status finalizada ---");
     }
     
     function renderHistoricoTable() {
@@ -836,6 +843,7 @@
             combustivelRetirada: document.getElementById("combustivelRetirada").value,
             destino: document.getElementById("destino").value,
         };
+        console.log("Tentando registrar retirada com os seguintes dados:", retirada);
         set(push(ref(db, 'movimentacoes')), retirada).then(() => {
             showNotification("Retirada registrada com sucesso!");
             e.target.reset();
@@ -1032,6 +1040,7 @@
 </script>
 </body>
 </html>
+
 
 
 
