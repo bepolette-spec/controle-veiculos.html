@@ -342,6 +342,15 @@
             const nome = document.getElementById('loginNome').value.trim();
             const senha = document.getElementById('loginSenha').value.trim();
 
+            // Lógica de login padrão para o primeiro acesso
+            if (nome === 'admin' && senha === 'admin123') {
+                const adminUser = { nome: 'Administrador', role: 'admin' };
+                sessionStorage.setItem('loggedInUser', JSON.stringify(adminUser));
+                showApp(adminUser);
+                showNotification(`Bem-vindo, Administrador!`, 'success');
+                return;
+            }
+
             onValue(query(ref(db, 'motoristas'), orderByChild('nome'), equalTo(nome)), (snapshot) => {
                 if (snapshot.exists()) {
                     let userFound = false;
