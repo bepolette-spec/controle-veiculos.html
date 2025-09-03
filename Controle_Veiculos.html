@@ -486,6 +486,17 @@
                     veiculosEmUso.set(movimentacoesCache[id].veiculoId, movimentacoesCache[id]);
                 }
             }
+            
+            // Mapeia a última movimentação concluída por veículo para obter o último nível de combustível
+            const ultimosCombustiveisDevolucao = {};
+            for (const id in movimentacoesCache) {
+                const mov = movimentacoesCache[id];
+                if (mov.status === 'concluido' && mov.combustivelDevolucao) {
+                    if (!ultimosCombustiveisDevolucao[mov.veiculoId] || new Date(mov.dataHoraDevolucao) > new Date(ultimosCombustiveisDevolucao[mov.veiculoId].dataHoraDevolucao)) {
+                        ultimosCombustiveisDevolucao[mov.veiculoId] = mov;
+                    }
+                }
+            }
 
             const reservasAtivas = new Map();
             const proximasReservas = new Map();
@@ -508,36 +519,48 @@
                 let status = v.status || 'disponivel';
                 let detailsHtml = '';
                 let extraNoticeHtml = '';
+                let combustivelDisplay = '—';
 
                 // Prioriza o status de uso real sobre o status de cadastro
                 if (veiculosEmUso.has(v.placa)) {
                     status = 'em_uso';
                     const mov = veiculosEmUso.get(v.placa);
                     const motorista = motoristasCache[mov.motoristaId] || {};
+                    combustivelDisplay = mov.combustivelRetirada || '—';
                     detailsHtml = `
                         <p><strong>Motorista:</strong> ${motorista.nome || 'N/A'}</p>
                         <p><strong>Telefone:</strong> ${motorista.telefone || 'N/A'}</p>
                         <p><strong>Quilometragem:</strong> ${mov.kmRetirada || 'N/A'}</p>
-                        <p><strong>Combustível:</strong> ${mov.combustivelRetirada || 'N/A'}</p>
+                        <p><strong>Combustível:</strong> ${combustivelDisplay}</p>
                         <p><strong>Destino:</strong> ${mov.destino || 'N/A'}</p>
                     `;
                 } else if (reservasAtivas.has(v.placa)) {
                     status = 'reservado';
                     const reserva = reservasAtivas.get(v.placa);
                     const motorista = motoristasCache[reserva.motoristaId] || {};
+                    combustivelDisplay = (ultimosCombustiveisDevolucao[v.placa] && ultimosCombustiveisDevolucao[v.placa].combustivelDevolucao) || '—';
                     detailsHtml = `
                         <p><strong>Motorista:</strong> ${motorista.nome || 'N/A'}</p>
                         <p><strong>Telefone:</strong> ${motorista.telefone || 'N/A'}</p>
                         <p><strong>Data/Hora Início:</strong> ${new Date(`${reserva.dataInicio}T${reserva.horaInicio}`).toLocaleString('pt-BR')}</p>
                         <p><strong>Data/Hora Fim:</strong> ${new Date(`${reserva.dataFim}T${reserva.horaFim}`).toLocaleString('pt-BR')}</p>
                         <p><strong>Destino:</strong> ${reserva.destino || 'N/A'}</p>
+                        <p><strong>Combustível:</strong> ${combustivelDisplay}</p>
                     `;
                 } else if (v.status === 'manutencao') {
                     status = 'manutencao';
-                    detailsHtml = `<p><strong>Última KM:</strong> ${v.ultimaKm || 'N/A'}</p>`;
+                    combustivelDisplay = (ultimosCombustiveisDevolucao[v.placa] && ultimosCombustiveisDevolucao[v.placa].combustivelDevolucao) || '—';
+                    detailsHtml = `
+                        <p><strong>Última KM:</strong> ${v.ultimaKm || 'N/A'}</p>
+                        <p><strong>Combustível:</strong> ${combustivelDisplay}</p>
+                    `;
                 } else {
                     status = 'disponivel';
-                    detailsHtml = `<p><strong>Última KM:</strong> ${v.ultimaKm || 'N/A'}</p>`;
+                    combustivelDisplay = (ultimosCombustiveisDevolucao[v.placa] && ultimosCombustiveisDevolucao[v.placa].combustivelDevolucao) || '—';
+                    detailsHtml = `
+                        <p><strong>Última KM:</strong> ${v.ultimaKm || 'N/A'}</p>
+                        <p><strong>Combustível:</strong> ${combustivelDisplay}</p>
+                    `;
                     if (proximasReservas.has(v.placa)) {
                         const reservaFutura = proximasReservas.get(v.placa);
                         const motorista = motoristasCache[reservaFutura.motoristaId] || {};
@@ -738,7 +761,7 @@
                     // Encontra a última movimentação concluída para este veículo
                     for (const movId in movimentacoesCache) {
                         const mov = movimentacoesCache[movId];
-                        if (mov.veiculoId === veiculoId && mov.status === 'concluido') {
+                        if (mov.veiculoId === veiculoId && mov.status === 'concluido' && mov.combustivelDevolucao) {
                             const movTimestamp = new Date(mov.dataHoraDevolucao).getTime();
                             if (movTimestamp > lastTimestamp) {
                                 lastTimestamp = movTimestamp;
@@ -748,10 +771,7 @@
                     }
 
                     if (ultimaMovimentacao) {
-                        ultimoCombustivel = ultimaMovimentacao.combustivelDevolucao || '';
-                    } else if (veiculo.combustivelInicial) {
-                        // Se não houver movimentação, usa o combustível inicial (se houver)
-                        ultimoCombustivel = veiculo.combustivelInicial;
+                        ultimoCombustivel = ultimaMovimentacao.combustivelDevolucao;
                     }
                     
                     combustivelRetiradaSelect.value = ultimoCombustivel;
