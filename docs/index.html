@@ -424,6 +424,21 @@
         });
     });
 
+    // Função para atualizar os selects de motoristas
+    function updateMotoristaSelects() {
+        const retiradaSelect = document.getElementById("motoristaRetirada");
+        const reservaSelect = document.getElementById("motoristaReserva");
+        retiradaSelect.innerHTML = '<option value="">Selecione um motorista</option>';
+        reservaSelect.innerHTML = '<option value="">Selecione um motorista</option>';
+        for (const id in motoristasCache) {
+            const m = motoristasCache[id];
+            retiradaSelect.add(new Option(m.nome, id));
+            if (m.podeReservar === 'sim') {
+                reservaSelect.add(new Option(m.nome, id));
+            }
+        }
+    }
+
     // Função para verificar se todos os dados foram carregados e então renderizar
     function checkAllDataLoadedAndRender() {
         if (dataLoaded.motoristas && dataLoaded.veiculos && dataLoaded.movimentacoes && dataLoaded.reservas) {
@@ -434,6 +449,7 @@
             renderHistoricoTable();
             renderProximasReservasTable();
             renderReservasTable();
+            updateMotoristaSelects(); // <-- Adicionada a chamada para popular os selects de motoristas
             updateVeiculoRetiradaSelect();
             updateVeiculoDevolucaoSelect();
             updateVeiculoReservaSelect();
