@@ -841,6 +841,8 @@
                 showNotification("Retirada registrada com sucesso!");
                 e.target.reset();
             });
+            // Adicionado: Atualiza o status do veículo para "em_uso"
+            update(ref(db, `veiculos/${veiculoPlaca}`), { status: 'em_uso' });
         });
 
         document.getElementById("formDevolucao").addEventListener("submit", (e) => {
