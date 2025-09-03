@@ -81,10 +81,10 @@
     <div id="login-container">
         <div id="login-card" class="card">
             <h2>Acessar Sistema</h2>
-            <p style="text-align: center; color: #6c757d;">Faça login com seu CPF e senha de motorista.</p>
+            <p style="text-align: center; color: #6c757d;">Faça login com seu nome e senha.</p>
             <form id="login-form">
-                <label for="loginCpf">CPF:</label>
-                <input type="text" id="loginCpf" required placeholder="Digite seu CPF">
+                <label for="loginNome">Nome:</label>
+                <input type="text" id="loginNome" required placeholder="Digite seu nome">
                 <label for="loginSenha">Senha:</label>
                 <input type="password" id="loginSenha" required placeholder="Digite sua senha">
                 <button type="submit" class="btn-primary" style="width: 100%;">Entrar</button>
@@ -346,10 +346,10 @@
         
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const cpf = document.getElementById('loginCpf').value.trim();
+            const nome = document.getElementById('loginNome').value.trim();
             const senha = document.getElementById('loginSenha').value.trim();
 
-            onValue(query(ref(db, 'motoristas'), orderByChild('cpf'), equalTo(cpf)), (snapshot) => {
+            onValue(query(ref(db, 'motoristas'), orderByChild('nome'), equalTo(nome)), (snapshot) => {
                 if (snapshot.exists()) {
                     let userFound = false;
                     snapshot.forEach(childSnapshot => {
@@ -366,7 +366,7 @@
                         showNotification('Senha incorreta.', 'error');
                     }
                 } else {
-                    showNotification('CPF não encontrado.', 'error');
+                    showNotification('Nome de usuário não encontrado.', 'error');
                 }
             }, { onlyOnce: true });
         });
@@ -506,19 +506,16 @@
                         <p><strong>Data/Hora Início:</strong> ${new Date(`${reserva.dataInicio}T${reserva.horaInicio}`).toLocaleString('pt-BR')}</p>
                         <p><strong>Data/Hora Fim:</strong> ${new Date(`${reserva.dataFim}T${reserva.horaFim}`).toLocaleString('pt-BR')}</p>
                         <p><strong>Destino:</strong> ${reserva.destino || 'N/A'}</p>
-                        <p style="margin-top: 15px; color: var(--danger-color); font-weight: bold;"><span class="material-icons" style="font-size: 1.2rem; vertical-align: middle; margin-right: 5px;">warning</span>Combustível na reserva, favor abastecer!</p>
                     `;
                 } else if (v.status === 'manutencao') {
                     status = 'manutencao';
                     detailsHtml = `
                         <p><strong>Última KM:</strong> ${v.ultimaKm || 'N/A'}</p>
-                        <p><strong>Combustível:</strong> ${v.combustivel || 'N/A'}</p>
                     `;
                 } else {
                     status = 'disponivel';
                     detailsHtml = `
                         <p><strong>Última KM:</strong> ${v.ultimaKm || 'N/A'}</p>
-                        <p><strong>Combustível:</strong> ${v.combustivel || 'N/A'}</p>
                     `;
                 }
                 
@@ -674,7 +671,7 @@
         // Funções de validação de CNH
         function isCnhExpired(cnhValidade) {
             const today = new Date();
-            const validade = new Date(cnhValidade);
+            const validade = new Date(cnhValidade + 'T00:00:00');
             return validade < today;
         }
 
@@ -730,7 +727,6 @@
             update(ref(db, `veiculos/${veiculoId}`), {
                 status: 'disponivel',
                 ultimaKm: kmDevolucao,
-                combustivel: dadosDevolucao.combustivelDevolucao
             });
 
             update(ref(db, `movimentacoes/${movimentacaoId}`), dadosDevolucao).then(() => {
