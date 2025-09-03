@@ -529,7 +529,6 @@
             
             console.log(`Verificando veículo: ${v.modelo} (${v.placa})`);
 
-            // Nova lógica: Verifica PRIMEIRO se o veículo está em uso com base nas movimentações.
             if (veiculosEmUsoMap.has(v.placa)) {
                 status = 'em_uso';
                 const mov = veiculosEmUsoMap.get(v.placa);
@@ -540,7 +539,6 @@
                     <p><strong>Combustível:</strong> ${mov.combustivelRetirada || '—'}</p>
                     <p><strong>Destino:</strong> ${mov.destino || 'N/A'}</p>
                 `;
-            // Em seguida, verifica as reservas ativas.
             } else if (reservasAtivasMap.has(v.placa)) {
                 status = 'reservado';
                 const reserva = reservasAtivasMap.get(v.placa);
@@ -551,11 +549,9 @@
                     <p><strong>Data/Hora Fim:</strong> ${new Date(`${reserva.dataFim}T${reserva.horaFim}`).toLocaleString('pt-BR')}</p>
                     <p><strong>Destino:</strong> ${reserva.destino || 'N/A'}</p>
                 `;
-            // Por último, verifica se o status está em manutenção.
             } else if (v.status === 'manutencao') {
                 status = 'manutencao';
                 detailsHtml = `<p><strong>Última KM:</strong> ${kmDisplay}</p>`;
-            // E a condição padrão é 'disponivel'.
             } else {
                 status = 'disponivel';
                 detailsHtml = `<p><strong>Última KM:</strong> ${kmDisplay}</p>`;
@@ -845,10 +841,15 @@
             combustivelRetirada: document.getElementById("combustivelRetirada").value,
             destino: document.getElementById("destino").value,
         };
-        console.log("Tentando registrar retirada com os seguintes dados:", retirada);
-        set(push(ref(db, 'movimentacoes')), retirada).then(() => {
-            showNotification("Retirada registrada com sucesso!");
-            e.target.reset();
+
+        // Adicionando a atualização do status do veículo na tabela de veículos
+        update(ref(db, `veiculos/${veiculoPlaca}`), {
+            status: 'em_uso',
+        }).then(() => {
+            set(push(ref(db, 'movimentacoes')), retirada).then(() => {
+                showNotification("Retirada registrada com sucesso!");
+                e.target.reset();
+            });
         });
     });
 
@@ -1042,6 +1043,7 @@
 </script>
 </body>
 </html>
+
 
 
 
