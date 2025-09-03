@@ -243,21 +243,16 @@
                                 <label for="motoristaNome">Nome:</label><input type="text" id="motoristaNome" placeholder="Ex: João da Silva" required>
                                 <div class="form-row">
                                     <div>
-                                        <label for="motoristaCpf">CPF:</label><input type="text" id="motoristaCpf" placeholder="Ex: 123.456.789-00" required>
-                                    </div>
-                                    <div>
                                         <label for="motoristaTelefone">Telefone:</label><input type="tel" id="motoristaTelefone" placeholder="Ex: (11) 99999-9999" required>
                                     </div>
-                                </div>
-                                <div class="form-row">
                                     <div>
                                         <label for="motoristaCnh">CNH:</label><input type="text" id="motoristaCnh" placeholder="Número da CNH" required>
                                     </div>
+                                </div>
+                                <div class="form-row">
                                     <div>
                                         <label for="motoristaCnhValidade">Validade CNH:</label><input type="date" id="motoristaCnhValidade" required>
                                     </div>
-                                </div>
-                                <div class="form-row">
                                     <div>
                                         <label for="motoristaCnhCategoria">Categoria CNH:</label>
                                         <select id="motoristaCnhCategoria" required>
@@ -272,21 +267,19 @@
                                             <option value="AE">AE</option>
                                         </select>
                                     </div>
-                                    <div>
-                                        <label for="motoristaPodeReservar">Pode Reservar Veículos:</label>
-                                        <select id="motoristaPodeReservar" required>
-                                            <option value="sim">Sim</option>
-                                            <option value="nao">Não</option>
-                                        </select>
-                                    </div>
                                 </div>
+                                <label for="motoristaPodeReservar">Pode Reservar Veículos:</label>
+                                <select id="motoristaPodeReservar" required>
+                                    <option value="sim">Sim</option>
+                                    <option value="nao">Não</option>
+                                </select>
                                 <label for="motoristaSenha">Senha:</label><input type="password" id="motoristaSenha" required placeholder="Digite uma senha">
                                 <button type="submit" class="btn-primary"><span class="material-icons">person_add</span> Salvar Motorista</button>
                                 <button type="button" class="btn-secondary" id="cancelarEdicaoMotorista" style="display:none;"><span class="material-icons">cancel</span> Cancelar</button>
                             </form>
                             <h4>Motoristas Cadastrados</h4>
                             <table>
-                                <thead><tr><th>Nome</th><th>CPF</th><th>Telefone</th><th>CNH</th><th>Validade</th><th>Categoria</th><th>Pode Reservar</th><th>Ações</th></tr></thead>
+                                <thead><tr><th>Nome</th><th>Telefone</th><th>CNH</th><th>Validade</th><th>Categoria</th><th>Pode Reservar</th><th>Ações</th></tr></thead>
                                 <tbody id="tabelaMotoristas"></tbody>
                             </table>
                             
@@ -595,7 +588,6 @@
                 const row = document.createElement("tr");
                 row.innerHTML = `
                     <td>${m.nome}</td>
-                    <td>${m.cpf}</td>
                     <td>${m.telefone || 'N/A'}</td>
                     <td>${m.cnh || 'N/A'}</td>
                     <td>${m.validade || 'N/A'}</td>
@@ -797,7 +789,6 @@
             e.preventDefault();
             const motoristaData = {
                 nome: document.getElementById("motoristaNome").value,
-                cpf: document.getElementById("motoristaCpf").value,
                 telefone: document.getElementById("motoristaTelefone").value,
                 cnh: document.getElementById("motoristaCnh").value,
                 validade: document.getElementById("motoristaCnhValidade").value,
@@ -850,7 +841,6 @@
             const m = motoristasCache[id];
             document.getElementById("motoristaIdEdit").value = id;
             document.getElementById("motoristaNome").value = m.nome;
-            document.getElementById("motoristaCpf").value = m.cpf;
             document.getElementById("motoristaTelefone").value = m.telefone || '';
             document.getElementById("motoristaCnh").value = m.cnh || '';
             document.getElementById("motoristaCnhValidade").value = m.validade || '';
