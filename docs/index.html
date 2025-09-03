@@ -72,6 +72,7 @@
         .form-row input, .form-row select { margin-bottom: 0; }
         .data-load-status { text-align: center; margin-top: 20px; font-weight: bold; color: var(--info-color); }
         .data-load-status.error { color: var(--danger-color); }
+        .reservation-notice { background-color: var(--warning-color); color: var(--text-color); padding: 10px; border-radius: 5px; margin-top: 15px; font-weight: bold; font-size: 0.9rem; }
     </style>
 </head>
 <body>
@@ -102,6 +103,7 @@
                         <li><a href="#" data-section="retirada"><span class="material-icons">directions_car</span> Retirada</a></li>
                         <li><a href="#" data-section="devolucao"><span class="material-icons">history</span> Devolução</a></li>
                         <li><a href="#" data-section="reserva"><span class="material-icons">calendar_today</span> Reserva</a></li>
+                        <li><a href="#" data-section="proximas-reservas"><span class="material-icons">event</span> Próximas Reservas</a></li>
                         <li><a href="#" data-section="historico"><span class="material-icons">list_alt</span> Histórico</a></li>
                         <li id="admin-menu-item" style="display: none;"><a href="#" data-section="administracao"><span class="material-icons">settings</span> Administração</a></li>
                     </ul>
@@ -190,6 +192,17 @@
                                 <label for="destinoReserva">Destino:</label><input type="text" id="destinoReserva" placeholder="Ex: Viagem para filial" required>
                                 <button type="submit" class="btn-primary"><span class="material-icons">event_note</span> Reservar</button>
                             </form>
+                        </div>
+                    </section>
+
+                    <section id="proximas-reservas-section" class="content-section">
+                        <div class="section-header"><h2>Próximas Reservas</h2></div>
+                        <div class="card">
+                             <p class="data-load-status" id="proximasReservasLoadingMessage">Carregando reservas futuras...</p>
+                            <table>
+                                <thead><tr><th>Veículo</th><th>Motorista</th><th>Data/Hora Início</th><th>Data/Hora Fim</th><th>Destino</th><th>Ações</th></tr></thead>
+                                <tbody id="tabelaProximasReservas"></tbody>
+                            </table>
                         </div>
                     </section>
 
@@ -452,16 +465,18 @@
         onValue(ref(db, 'reservas'), (snapshot) => {
             reservasCache = snapshot.val() || {};
             renderReservasTable();
+            renderProximasReservasTable(); // Nova função para a nova tela
             updateVeiculoRetiradaSelect();
             updateVeiculoReservaSelect();
             renderStatusCards();
         });
-
+        
         // Funções para Renderizar (desenhar) conteúdo nas telas
         function renderStatusCards() {
             const statusGrid = document.getElementById("statusVeiculosGrid");
             statusGrid.innerHTML = '';
-            
+            const now = new Date();
+
             const veiculosEmUso = new Map();
             for(const id in movimentacoesCache) {
                 if(movimentacoesCache[id].status === 'em_uso') {
@@ -469,16 +484,19 @@
                 }
             }
 
-            const veiculosReservados = new Map();
+            const reservasAtivas = new Map();
+            const proximasReservas = new Map();
+
             for(const id in reservasCache) {
                 const reserva = reservasCache[id];
-                const now = new Date();
-                const dataInicio = new Date(`${reserva.dataInicio}T${reserva.horaInicio}`);
-                const dataFim = new Date(`${reserva.dataFim}T${reserva.horaFim}`);
+                const dataHoraInicio = new Date(`${reserva.dataInicio}T${reserva.horaInicio}`);
+                const dataHoraFim = new Date(`${reserva.dataFim}T${reserva.horaFim}`);
 
-                // Considera a reserva ativa se a data atual estiver entre o início e o fim
-                if (now >= dataInicio && now <= dataFim) {
-                    veiculosReservados.set(reserva.veiculoId, reserva);
+                // 1 hora antes da reserva ou reserva ativa
+                if ((dataHoraInicio - now) <= 3600000 && now < dataHoraFim) {
+                    reservasAtivas.set(reserva.veiculoId, reserva);
+                } else if (dataHoraInicio > now) {
+                    proximasReservas.set(reserva.veiculoId, reserva);
                 }
             }
 
@@ -486,12 +504,13 @@
                 const v = veiculosCache[placa];
                 let status = v.status || 'disponivel';
                 let detailsHtml = '';
+                let extraNoticeHtml = '';
 
                 // Prioriza o status de uso real sobre o status de cadastro
                 if (veiculosEmUso.has(v.placa)) {
                     status = 'em_uso';
-                    const mov = Object.values(movimentacoesCache).find(m => m.veiculoId === v.placa && m.status === 'em_uso');
-                    const motorista = mov ? (motoristasCache[mov.motoristaId] || {}) : {};
+                    const mov = veiculosEmUso.get(v.placa);
+                    const motorista = motoristasCache[mov.motoristaId] || {};
                     detailsHtml = `
                         <p><strong>Motorista:</strong> ${motorista.nome || 'N/A'}</p>
                         <p><strong>Telefone:</strong> ${motorista.telefone || 'N/A'}</p>
@@ -499,10 +518,10 @@
                         <p><strong>Combustível:</strong> ${mov.combustivelRetirada || 'N/A'}</p>
                         <p><strong>Destino:</strong> ${mov.destino || 'N/A'}</p>
                     `;
-                } else if (veiculosReservados.has(v.placa)) {
+                } else if (reservasAtivas.has(v.placa)) {
                     status = 'reservado';
-                    const reserva = Object.values(reservasCache).find(r => r.veiculoId === v.placa);
-                    const motorista = reserva ? (motoristasCache[reserva.motoristaId] || {}) : {};
+                    const reserva = reservasAtivas.get(v.placa);
+                    const motorista = motoristasCache[reserva.motoristaId] || {};
                     detailsHtml = `
                         <p><strong>Motorista:</strong> ${motorista.nome || 'N/A'}</p>
                         <p><strong>Telefone:</strong> ${motorista.telefone || 'N/A'}</p>
@@ -512,20 +531,18 @@
                     `;
                 } else if (v.status === 'manutencao') {
                     status = 'manutencao';
-                    detailsHtml = `
-                        <p><strong>Última KM:</strong> ${v.ultimaKm || 'N/A'}</p>
-                    `;
+                    detailsHtml = `<p><strong>Última KM:</strong> ${v.ultimaKm || 'N/A'}</p>`;
                 } else {
                     status = 'disponivel';
-                    detailsHtml = `
-                        <p><strong>Última KM:</strong> ${v.ultimaKm || 'N/A'}</p>
-                    `;
+                    detailsHtml = `<p><strong>Última KM:</strong> ${v.ultimaKm || 'N/A'}</p>`;
+                    if (proximasReservas.has(v.placa)) {
+                        const reservaFutura = proximasReservas.get(v.placa);
+                        const motorista = motoristasCache[reservaFutura.motoristaId] || {};
+                        extraNoticeHtml = `<p class="reservation-notice">Reservado para **${motorista.nome}** em ${new Date(`${reservaFutura.dataInicio}T${reservaFutura.horaInicio}`).toLocaleString('pt-BR')} </p>`;
+                    }
                 }
                 
-                const statusMap = {
-                    'disponivel': 'Disponível', 'em_uso': 'Em Uso',
-                    'reservado': 'Reservado', 'manutencao': 'Em Manutenção'
-                };
+                const statusMap = { 'disponivel': 'Disponível', 'em_uso': 'Em Uso', 'reservado': 'Reservado', 'manutencao': 'Em Manutenção' };
                 
                 const card = document.createElement("div");
                 card.className = `card status-card status-${status}`;
@@ -539,6 +556,7 @@
                         <p><strong>Cor:</strong> ${v.cor || 'N/A'}</p>
                         ${detailsHtml}
                     </div>
+                    ${extraNoticeHtml}
                 `;
                 statusGrid.appendChild(card);
             }
@@ -632,15 +650,61 @@
                 tabela.appendChild(row);
             }
         }
+        
+        // Nova função para a tabela de próximas reservas
+        function renderProximasReservasTable() {
+            const tabela = document.getElementById("tabelaProximasReservas");
+            const message = document.getElementById("proximasReservasLoadingMessage");
+            tabela.innerHTML = '';
+            let hasFutureReservations = false;
+            const now = new Date();
+            
+            for(const id in reservasCache) {
+                const r = reservasCache[id];
+                const dataHoraInicio = new Date(`${r.dataInicio}T${r.horaInicio}`);
+                
+                if (dataHoraInicio > now) {
+                    hasFutureReservations = true;
+                    const veiculoInfo = veiculosCache[r.veiculoId] || { modelo: 'N/A', placa: 'N/A' };
+                    const motoristaInfo = motoristasCache[r.motoristaId] || { nome: 'N/A' };
+                    const row = document.createElement("tr");
+                    row.innerHTML = `
+                        <td>${veiculoInfo.modelo} - ${veiculoInfo.placa}</td>
+                        <td>${motoristaInfo.nome}</td>
+                        <td>${r.dataInicio} ${r.horaInicio}</td>
+                        <td>${r.dataFim} ${r.horaFim}</td>
+                        <td>${r.destino || 'N/A'}</td>
+                        <td>
+                            <button onclick="removerReserva('${id}')" class="btn-danger"><span class="material-icons">delete</span></button>
+                        </td>
+                    `;
+                    tabela.appendChild(row);
+                }
+            }
+            if (!hasFutureReservations) {
+                 message.textContent = "Não há reservas futuras no momento.";
+                 message.style.display = 'block';
+            } else {
+                 message.style.display = 'none';
+            }
+        }
 
         // Funções para atualizar Selects dinamicamente
         function updateVeiculoRetiradaSelect() {
             const select = document.getElementById("veiculoRetirada");
             select.innerHTML = '<option value="">Selecione um veículo disponível</option>';
+            const now = new Date();
+            
             const veiculosEmUsoIds = new Set(Object.values(movimentacoesCache).filter(m => m.status === 'em_uso').map(m => m.veiculoId));
-            const veiculosReservadosIds = new Set(Object.values(reservasCache).map(r => r.veiculoId));
+            
+            const veiculosReservadosAtivosIds = new Set(Object.values(reservasCache).filter(r => {
+                const dataHoraInicio = new Date(`${r.dataInicio}T${r.horaInicio}`);
+                const dataHoraFim = new Date(`${r.dataFim}T${r.horaFim}`);
+                return now >= dataHoraInicio && now < dataHoraFim; // Reserva ativa agora
+            }).map(r => r.veiculoId));
+
             for (const placa in veiculosCache) {
-                if (veiculosCache[placa].status === 'disponivel' && !veiculosEmUsoIds.has(placa) && !veiculosReservadosIds.has(placa)) {
+                if (veiculosCache[placa].status === 'disponivel' && !veiculosEmUsoIds.has(placa) && !veiculosReservadosAtivosIds.has(placa)) {
                     select.add(new Option(`${veiculosCache[placa].modelo} - ${veiculosCache[placa].placa}`, placa));
                 }
             }
