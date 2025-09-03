@@ -789,9 +789,10 @@
             const select = document.getElementById("veiculoReserva");
             select.innerHTML = '<option value="">Selecione um veículo disponível</option>';
             const veiculosEmUsoIds = new Set(Object.values(movimentacoesCache).filter(m => m.status === 'em_uso').map(m => m.veiculoId));
-            const veiculosReservadosIds = new Set(Object.values(reservasCache).map(r => r.veiculoId));
+            
             for (const placa in veiculosCache) {
-                if (veiculosCache[placa].status === 'disponivel' && !veiculosEmUsoIds.has(placa) && !veiculosReservadosIds.has(placa)) {
+                // Remove the check for any existing reservation
+                if (veiculosCache[placa].status === 'disponivel' && !veiculosEmUsoIds.has(placa)) {
                     select.add(new Option(`${veiculosCache[placa].modelo} - ${veiculosCache[placa].placa}`, placa));
                 }
             }
@@ -893,12 +894,27 @@
             const dataFimStr = document.getElementById("dataFim").value;
             const horaFimStr = document.getElementById("horaFim").value;
 
-            const dataHoraInicio = new Date(`${dataInicioStr}T${horaInicioStr}`);
-            const dataHoraFim = new Date(`${dataFimStr}T${horaFimStr}`);
+            const newStart = new Date(`${dataInicioStr}T${horaInicioStr}`);
+            const newEnd = new Date(`${dataFimStr}T${horaFimStr}`);
 
-            if (dataHoraFim <= dataHoraInicio) {
+            if (newEnd <= newStart) {
                 showNotification("A data e hora de fim da reserva deve ser posterior à de início.", "error");
                 return;
+            }
+            
+            // Nova validação de conflito de datas
+            for (const id in reservasCache) {
+                const existingReserva = reservasCache[id];
+                if (existingReserva.veiculoId === veiculoPlaca) {
+                    const existingStart = new Date(`${existingReserva.dataInicio}T${existingReserva.horaInicio}`);
+                    const existingEnd = new Date(`${existingReserva.dataFim}T${existingReserva.horaFim}`);
+
+                    // Verifica se há sobreposição entre os períodos
+                    if ((newStart < existingEnd && newEnd > existingStart)) {
+                        showNotification(`Este veículo já está reservado no período de ${existingStart.toLocaleString('pt-BR')} a ${existingEnd.toLocaleString('pt-BR')}.`, "error");
+                        return; // Impede a reserva
+                    }
+                }
             }
 
             const reserva = {
