@@ -495,7 +495,6 @@
         statusGrid.innerHTML = '';
         const now = new Date();
         console.log("--- Iniciando renderização dos cards de status ---");
-        console.log("Cache de Movimentações:", movimentacoesCache);
 
         // 1. Criar um mapa de veículos "em uso" a partir das movimentações
         const veiculosEmUsoMap = new Map();
@@ -527,14 +526,11 @@
             let detailsHtml = '';
             let extraNoticeHtml = '';
             let kmDisplay = v.ultimaKm || 'N/A';
-            let combustivelDisplay = '—';
             
             console.log(`Verificando veículo: ${v.modelo} (${v.placa})`);
 
-            if (v.status === 'manutencao') {
-                status = 'manutencao';
-                detailsHtml = `<p><strong>Última KM:</strong> ${kmDisplay}</p>`;
-            } else if (veiculosEmUsoMap.has(v.placa)) {
+            // Nova lógica: Verifica PRIMEIRO se o veículo está em uso com base nas movimentações.
+            if (veiculosEmUsoMap.has(v.placa)) {
                 status = 'em_uso';
                 const mov = veiculosEmUsoMap.get(v.placa);
                 const motorista = motoristasCache[mov.motoristaId] || {};
@@ -544,6 +540,7 @@
                     <p><strong>Combustível:</strong> ${mov.combustivelRetirada || '—'}</p>
                     <p><strong>Destino:</strong> ${mov.destino || 'N/A'}</p>
                 `;
+            // Em seguida, verifica as reservas ativas.
             } else if (reservasAtivasMap.has(v.placa)) {
                 status = 'reservado';
                 const reserva = reservasAtivasMap.get(v.placa);
@@ -554,6 +551,11 @@
                     <p><strong>Data/Hora Fim:</strong> ${new Date(`${reserva.dataFim}T${reserva.horaFim}`).toLocaleString('pt-BR')}</p>
                     <p><strong>Destino:</strong> ${reserva.destino || 'N/A'}</p>
                 `;
+            // Por último, verifica se o status está em manutenção.
+            } else if (v.status === 'manutencao') {
+                status = 'manutencao';
+                detailsHtml = `<p><strong>Última KM:</strong> ${kmDisplay}</p>`;
+            // E a condição padrão é 'disponivel'.
             } else {
                 status = 'disponivel';
                 detailsHtml = `<p><strong>Última KM:</strong> ${kmDisplay}</p>`;
