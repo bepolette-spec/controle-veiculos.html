@@ -131,7 +131,7 @@
                                     <option value="3/4">3/4</option>
                                     <option value="1/2">1/2</option>
                                     <option value="1/4">1/4</option>
-                                    <option value="Vazio">Vazio</option>
+                                    <option value="Reserva">Reserva</option>
                                 </select>
                                 <label for="destino">Destino:</label><input type="text" id="destino" placeholder="Ex: Reunião Cliente X" required>
                                 <button type="submit" class="btn-primary"><span class="material-icons">check</span> Registrar Retirada</button>
@@ -152,7 +152,7 @@
                                     <option value="3/4">3/4</option>
                                     <option value="1/2">1/2</option>
                                     <option value="1/4">1/4</option>
-                                    <option value="Vazio">Vazio</option>
+                                    <option value="Reserva">Reserva</option>
                                 </select>
                                 <label for="observacoes">Observações:</label><textarea id="observacoes" rows="3" placeholder="Ex: Veículo entregue limpo..."></textarea>
                                 <button type="submit" class="btn-success"><span class="material-icons">keyboard_return</span> Registrar Devolução</button>
@@ -479,13 +479,20 @@
                         <p><strong>Data/Hora Início:</strong> ${new Date(`${reserva.dataInicio}T${reserva.horaInicio}`).toLocaleString('pt-BR')}</p>
                         <p><strong>Data/Hora Fim:</strong> ${new Date(`${reserva.dataFim}T${reserva.horaFim}`).toLocaleString('pt-BR')}</p>
                         <p><strong>Destino:</strong> ${reserva.destino || 'N/A'}</p>
+                        <p style="margin-top: 15px; color: var(--danger-color); font-weight: bold;"><span class="material-icons" style="font-size: 1.2rem; vertical-align: middle; margin-right: 5px;">warning</span>Combustível na reserva, favor abastecer!</p>
                     `;
                 } else if (v.status === 'manutencao') {
                     status = 'manutencao';
-                    detailsHtml = `<p><strong>Última KM:</strong> ${v.ultimaKm || 'N/A'}</p>`;
+                    detailsHtml = `
+                        <p><strong>Última KM:</strong> ${v.ultimaKm || 'N/A'}</p>
+                        <p><strong>Combustível:</strong> ${v.combustivel || 'N/A'}</p>
+                    `;
                 } else {
                     status = 'disponivel';
-                    detailsHtml = `<p><strong>Última KM:</strong> ${v.ultimaKm || 'N/A'}</p>`;
+                    detailsHtml = `
+                        <p><strong>Última KM:</strong> ${v.ultimaKm || 'N/A'}</p>
+                        <p><strong>Combustível:</strong> ${v.combustivel || 'N/A'}</p>
+                    `;
                 }
                 
                 const statusMap = {
@@ -668,6 +675,15 @@
                 combustivelDevolucao: document.getElementById("combustivelDevolucao").value,
                 observacoes: document.getElementById("observacoes").value,
             };
+            
+            // Atualiza o status e última KM do veículo no nó 'veiculos'
+            const veiculoId = movimentacoesCache[movimentacaoId].veiculoId;
+            update(ref(db, `veiculos/${veiculoId}`), {
+                status: 'disponivel',
+                ultimaKm: kmDevolucao,
+                combustivel: dadosDevolucao.combustivelDevolucao // SALVANDO NÍVEL DE COMBUSTÍVEL
+            });
+
             update(ref(db, `movimentacoes/${movimentacaoId}`), dadosDevolucao).then(() => {
                 showNotification("Devolução registrada com sucesso!");
                 e.target.reset();
