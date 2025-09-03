@@ -368,6 +368,7 @@
         let veiculosCache = {};
         let movimentacoesCache = {};
         let reservasCache = {};
+        let movimentacaoEmUsoCache = {};
         
         // Função de Notificação
         function showNotification(message, type = 'success') {
@@ -414,6 +415,7 @@
 
         onValue(ref(db, 'movimentacoes'), (snapshot) => {
             movimentacoesCache = snapshot.val() || {};
+            movimentacaoEmUsoCache = Object.values(movimentacoesCache).find(m => m.status === 'em_uso');
             renderHistoricoTable();
             updateVeiculoRetiradaSelect();
             updateVeiculoDevolucaoSelect();
@@ -667,7 +669,15 @@
         document.getElementById("formDevolucao").addEventListener("submit", (e) => {
             e.preventDefault();
             const movimentacaoId = document.getElementById("veiculoDevolucao").value;
-            const kmDevolucao = document.getElementById("kmDevolucao").value;
+            const kmDevolucao = parseInt(document.getElementById("kmDevolucao").value);
+            const movData = movimentacoesCache[movimentacaoId];
+            const kmRetirada = parseInt(movData.kmRetirada);
+
+            if (kmDevolucao < kmRetirada) {
+                showNotification("A KM de devolução não pode ser menor que a KM de retirada!", "error");
+                return;
+            }
+
             const dadosDevolucao = {
                 dataHoraDevolucao: new Date().toISOString(),
                 status: 'concluido',
@@ -693,13 +703,26 @@
         document.getElementById("formReserva").addEventListener("submit", (e) => {
             e.preventDefault();
             const veiculoPlaca = document.getElementById("veiculoReserva").value;
+            const dataInicioStr = document.getElementById("dataInicio").value;
+            const horaInicioStr = document.getElementById("horaInicio").value;
+            const dataFimStr = document.getElementById("dataFim").value;
+            const horaFimStr = document.getElementById("horaFim").value;
+
+            const dataHoraInicio = new Date(`${dataInicioStr}T${horaInicioStr}`);
+            const dataHoraFim = new Date(`${dataFimStr}T${horaFimStr}`);
+
+            if (dataHoraFim <= dataHoraInicio) {
+                showNotification("A data e hora de fim da reserva deve ser posterior à de início.", "error");
+                return;
+            }
+
             const reserva = {
                 veiculoId: veiculoPlaca,
                 motoristaId: document.getElementById("motoristaReserva").value,
-                dataInicio: document.getElementById("dataInicio").value,
-                horaInicio: document.getElementById("horaInicio").value,
-                dataFim: document.getElementById("dataFim").value,
-                horaFim: document.getElementById("horaFim").value,
+                dataInicio: dataInicioStr,
+                horaInicio: horaInicioStr,
+                dataFim: dataFimStr,
+                horaFim: horaFimStr,
                 destino: document.getElementById("destinoReserva").value
             };
             set(push(ref(db, 'reservas')), reserva).then(() => {
