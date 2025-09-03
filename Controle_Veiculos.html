@@ -423,8 +423,8 @@
             document.getElementById(targetSectionId).classList.add('active');
         });
     });
-
-   // Função para atualizar os selects de motoristas
+    
+    // Função para atualizar os selects de motoristas
     function updateMotoristaSelects() {
         const retiradaSelect = document.getElementById("motoristaRetirada");
         const reservaSelect = document.getElementById("motoristaReserva");
@@ -449,7 +449,6 @@
             renderHistoricoTable();
             renderProximasReservasTable();
             renderReservasTable();
-            updateMotoristaSelects(); // <-- Adicionada a chamada para popular os selects de motoristas
             updateVeiculoRetiradaSelect();
             updateVeiculoDevolucaoSelect();
             updateVeiculoReservaSelect();
@@ -465,6 +464,7 @@
         motoristasCache = snapshot.val() || {};
         dataLoaded.motoristas = true;
         console.log("Motoristas carregados.");
+        updateMotoristaSelects();
         checkAllDataLoadedAndRender();
     });
 
@@ -1035,7 +1035,7 @@
         document.getElementById("motoristaPodeReservar").value = m.podeReservar || 'sim';
         document.getElementById("motoristaSenha").value = m.senha || '';
         document.getElementById("cancelarEdicaoMotorista").style.display = 'inline-flex';
-        document.getElementById("formMotorista").scroll-into-view({ behavior: 'smooth' });
+        document.getElementById("formMotorista").scrollIntoView({ behavior: 'smooth' });
     };
     
     document.getElementById("cancelarEdicaoVeiculo").addEventListener('click', () => {
@@ -1061,5 +1061,6 @@
 </script>
 </body>
 </html>
+
 
 
