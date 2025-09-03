@@ -486,7 +486,8 @@
                 const v = veiculosCache[placa];
                 let status = v.status || 'disponivel';
                 let detailsHtml = '';
-                
+
+                // Prioriza o status de uso real sobre o status de cadastro
                 if (veiculosEmUso.has(v.placa)) {
                     status = 'em_uso';
                     const mov = Object.values(movimentacoesCache).find(m => m.veiculoId === v.placa && m.status === 'em_uso');
