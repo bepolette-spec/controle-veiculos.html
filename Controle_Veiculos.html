@@ -73,6 +73,9 @@
         .data-load-status { text-align: center; margin-top: 20px; font-weight: bold; color: var(--info-color); }
         .data-load-status.error { color: var(--danger-color); }
         .reservation-notice { background-color: var(--warning-color); color: var(--text-color); padding: 10px; border-radius: 5px; margin-top: 15px; font-weight: bold; font-size: 0.9rem; }
+        .veiculo-info-card { background-color: #e9ecef; border-left: 5px solid var(--info-color); padding: 15px; border-radius: 5px; margin-bottom: 20px; }
+        .veiculo-info-card p { margin: 5px 0; font-weight: bold; }
+        .veiculo-info-card span { font-weight: normal; color: #555; }
     </style>
 </head>
 <body>
@@ -130,6 +133,10 @@
                             <form id="formRetirada">
                                 <label for="motoristaRetirada">Motorista:</label><select id="motoristaRetirada" name="motorista" required></select>
                                 <label for="veiculoRetirada">Veículo (Disponíveis):</label><select id="veiculoRetirada" name="veiculo" required></select>
+                                <div id="veiculoInfo" class="veiculo-info-card" style="display:none;">
+                                    <p>Última KM: <span id="ultimaKmDisplay"></span></p>
+                                    <p>Nível Combustível: <span id="ultimoCombustivelDisplay"></span></p>
+                                </div>
                                 <label for="kmAtual">KM Atual:</label><input type="number" id="kmAtual" placeholder="Ex: 50000" required>
                                 <label for="combustivelRetirada">Nível Combustível (Retirada):</label>
                                 <select id="combustivelRetirada" required>
@@ -465,7 +472,7 @@
         onValue(ref(db, 'reservas'), (snapshot) => {
             reservasCache = snapshot.val() || {};
             renderReservasTable();
-            renderProximasReservasTable(); // Nova função para a nova tela
+            renderProximasReservasTable();
             updateVeiculoRetiradaSelect();
             updateVeiculoReservaSelect();
             renderStatusCards();
@@ -651,7 +658,6 @@
             }
         }
         
-        // Nova função para a tabela de próximas reservas
         function renderProximasReservasTable() {
             const tabela = document.getElementById("tabelaProximasReservas");
             const message = document.getElementById("proximasReservasLoadingMessage");
@@ -659,6 +665,10 @@
             let hasFutureReservations = false;
             const now = new Date();
             
+            const loggedInUser = JSON.parse(sessionStorage.getItem('loggedInUser'));
+            const isAdmin = loggedInUser && loggedInUser.role === 'admin';
+            const currentUserId = loggedInUser ? loggedInUser.id : null;
+
             for(const id in reservasCache) {
                 const r = reservasCache[id];
                 const dataHoraInicio = new Date(`${r.dataInicio}T${r.horaInicio}`);
@@ -667,6 +677,12 @@
                     hasFutureReservations = true;
                     const veiculoInfo = veiculosCache[r.veiculoId] || { modelo: 'N/A', placa: 'N/A' };
                     const motoristaInfo = motoristasCache[r.motoristaId] || { nome: 'N/A' };
+                    
+                    let actionsHtml = '<td></td>'; // Célula vazia por padrão
+                    if (isAdmin || r.motoristaId === currentUserId) {
+                         actionsHtml = `<td><button onclick="removerReserva('${id}')" class="btn-danger"><span class="material-icons">delete</span></button></td>`;
+                    }
+
                     const row = document.createElement("tr");
                     row.innerHTML = `
                         <td>${veiculoInfo.modelo} - ${veiculoInfo.placa}</td>
@@ -674,9 +690,7 @@
                         <td>${r.dataInicio} ${r.horaInicio}</td>
                         <td>${r.dataFim} ${r.horaFim}</td>
                         <td>${r.destino || 'N/A'}</td>
-                        <td>
-                            <button onclick="removerReserva('${id}')" class="btn-danger"><span class="material-icons">delete</span></button>
-                        </td>
+                        ${actionsHtml}
                     `;
                     tabela.appendChild(row);
                 }
@@ -709,7 +723,53 @@
                 }
             }
         }
+
+        function displayVeiculoInfo() {
+            const veiculoSelect = document.getElementById("veiculoRetirada");
+            const veiculoId = veiculoSelect.value;
+            const veiculoInfoDiv = document.getElementById("veiculoInfo");
+            const ultimaKmDisplay = document.getElementById("ultimaKmDisplay");
+            const ultimoCombustivelDisplay = document.getElementById("ultimoCombustivelDisplay");
+
+            if (veiculoId) {
+                const veiculo = veiculosCache[veiculoId];
+                if (veiculo) {
+                    ultimaKmDisplay.textContent = veiculo.ultimaKm || 'N/A';
+                    
+                    let ultimoCombustivel = 'N/A';
+                    let ultimaMovimentacao = null;
+                    let lastTimestamp = 0;
+
+                    // Encontra a última movimentação concluída para este veículo
+                    for (const movId in movimentacoesCache) {
+                        const mov = movimentacoesCache[movId];
+                        if (mov.veiculoId === veiculoId && mov.status === 'concluido') {
+                            const movTimestamp = new Date(mov.dataHoraDevolucao).getTime();
+                            if (movTimestamp > lastTimestamp) {
+                                lastTimestamp = movTimestamp;
+                                ultimaMovimentacao = mov;
+                            }
+                        }
+                    }
+
+                    if (ultimaMovimentacao) {
+                        ultimoCombustivel = ultimaMovimentacao.combustivelDevolucao || 'N/A';
+                    } else if (veiculo.combustivelInicial) {
+                        // Se não houver movimentação, usa o combustível inicial (se houver)
+                        ultimoCombustivel = veiculo.combustivelInicial;
+                    }
+                    
+                    ultimoCombustivelDisplay.textContent = ultimoCombustivel;
+                    veiculoInfoDiv.style.display = 'block';
+                }
+            } else {
+                veiculoInfoDiv.style.display = 'none';
+            }
+        }
         
+        // Listener para o evento de mudança no select de veículos
+        document.getElementById("veiculoRetirada").addEventListener('change', displayVeiculoInfo);
+
         function updateVeiculoReservaSelect() {
             const select = document.getElementById("veiculoReserva");
             select.innerHTML = '<option value="">Selecione um veículo disponível</option>';
@@ -765,6 +825,7 @@
             set(push(ref(db, 'movimentacoes')), retirada).then(() => {
                 showNotification("Retirada registrada com sucesso!");
                 e.target.reset();
+                displayVeiculoInfo();
             });
         });
 
