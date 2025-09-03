@@ -495,41 +495,29 @@
         statusGrid.innerHTML = '';
         const now = new Date();
 
-        const veiculosEmUso = new Map();
-        for(const id in movimentacoesCache) {
-            if(movimentacoesCache[id].status === 'em_uso') {
-                veiculosEmUso.set(movimentacoesCache[id].veiculoId, movimentacoesCache[id]);
+        // 1. Criar um mapa de veículos "em uso" a partir das movimentações
+        const veiculosEmUsoMap = new Map();
+        for (const id in movimentacoesCache) {
+            if (movimentacoesCache[id].status === 'em_uso') {
+                veiculosEmUsoMap.set(movimentacoesCache[id].veiculoId, movimentacoesCache[id]);
             }
         }
         
-        const ultimosCombustiveisDevolucao = {};
-        const ultimasKmDevolucao = {};
-        for (const id in movimentacoesCache) {
-            const mov = movimentacoesCache[id];
-            if (mov.status === 'concluido') {
-                const movTimestamp = new Date(mov.dataHoraDevolucao).getTime();
-                if (!ultimosCombustiveisDevolucao[mov.veiculoId] || movTimestamp > new Date(ultimosCombustiveisDevolucao[mov.veiculoId].dataHoraDevolucao).getTime()) {
-                     ultimosCombustiveisDevolucao[mov.veiculoId] = mov;
-                     ultimasKmDevolucao[mov.veiculoId] = mov.kmDevolucao;
-                }
-            }
-        }
-
-        const reservasAtivas = new Map();
-        const proximasReservas = new Map();
-
+        // 2. Criar um mapa de reservas ativas e futuras
+        const reservasAtivasMap = new Map();
+        const proximasReservasMap = new Map();
         for(const id in reservasCache) {
             const reserva = reservasCache[id];
             const dataHoraInicio = new Date(`${reserva.dataInicio}T${reserva.horaInicio}`);
             const dataHoraFim = new Date(`${reserva.dataFim}T${reserva.horaFim}`);
-
             if (now >= dataHoraInicio && now < dataHoraFim) {
-                reservasAtivas.set(reserva.veiculoId, reserva);
+                reservasAtivasMap.set(reserva.veiculoId, reserva);
             } else if (dataHoraInicio > now) {
-                proximasReservas.set(reserva.veiculoId, reserva);
+                proximasReservasMap.set(reserva.veiculoId, reserva);
             }
         }
 
+        // 3. Iterar sobre todos os veículos para definir o status e renderizar
         for (const placa in veiculosCache) {
             const v = veiculosCache[placa];
             let status = 'disponivel';
@@ -538,53 +526,36 @@
             let kmDisplay = v.ultimaKm || 'N/A';
             let combustivelDisplay = '—';
 
-            if (veiculosEmUso.has(v.placa)) {
+            if (v.status === 'manutencao') {
+                status = 'manutencao';
+                detailsHtml = `<p><strong>Última KM:</strong> ${kmDisplay}</p>`;
+            } else if (veiculosEmUsoMap.has(v.placa)) {
                 status = 'em_uso';
-                const mov = veiculosEmUso.get(v.placa);
+                const mov = veiculosEmUsoMap.get(v.placa);
                 const motorista = motoristasCache[mov.motoristaId] || {};
-                kmDisplay = mov.kmRetirada || 'N/A';
-                combustivelDisplay = mov.combustivelRetirada || '—';
                 detailsHtml = `
                     <p><strong>Motorista:</strong> ${motorista.nome || 'N/A'}</p>
-                    <p><strong>Telefone:</strong> ${motorista.telefone || 'N/A'}</p>
-                    <p><strong>Quilometragem:</strong> ${kmDisplay}</p>
-                    <p><strong>Combustível:</strong> ${combustivelDisplay}</p>
+                    <p><strong>Quilometragem:</strong> ${mov.kmRetirada || 'N/A'}</p>
+                    <p><strong>Combustível:</strong> ${mov.combustivelRetirada || '—'}</p>
                     <p><strong>Destino:</strong> ${mov.destino || 'N/A'}</p>
                 `;
-            } else if (reservasAtivas.has(v.placa)) {
+            } else if (reservasAtivasMap.has(v.placa)) {
                 status = 'reservado';
-                const reserva = reservasAtivas.get(v.placa);
+                const reserva = reservasAtivasMap.get(v.placa);
                 const motorista = motoristasCache[reserva.motoristaId] || {};
-                kmDisplay = ultimasKmDevolucao[v.placa] || v.ultimaKm || 'N/A';
-                combustivelDisplay = (ultimosCombustiveisDevolucao[v.placa] && ultimosCombustiveisDevolucao[v.placa].combustivelDevolucao) || '—';
                 detailsHtml = `
                     <p><strong>Motorista:</strong> ${motorista.nome || 'N/A'}</p>
-                    <p><strong>Telefone:</strong> ${motorista.telefone || 'N/A'}</p>
                     <p><strong>Data/Hora Início:</strong> ${new Date(`${reserva.dataInicio}T${reserva.horaInicio}`).toLocaleString('pt-BR')}</p>
                     <p><strong>Data/Hora Fim:</strong> ${new Date(`${reserva.dataFim}T${reserva.horaFim}`).toLocaleString('pt-BR')}</p>
                     <p><strong>Destino:</strong> ${reserva.destino || 'N/A'}</p>
                 `;
-                extraNoticeHtml = `<p class="reservation-notice">Última KM: ${kmDisplay} | Último Combustível: ${combustivelDisplay}</p>`;
-            } else if (v.status === 'manutencao') {
-                status = 'manutencao';
-                kmDisplay = ultimasKmDevolucao[v.placa] || v.ultimaKm || 'N/A';
-                combustivelDisplay = (ultimosCombustiveisDevolucao[v.placa] && ultimosCombustiveisDevolucao[v.placa].combustivelDevolucao) || '—';
-                detailsHtml = `
-                    <p><strong>Última KM:</strong> ${kmDisplay}</p>
-                    <p><strong>Combustível:</strong> ${combustivelDisplay}</p>
-                `;
             } else {
                 status = 'disponivel';
-                kmDisplay = ultimasKmDevolucao[v.placa] || v.ultimaKm || 'N/A';
-                combustivelDisplay = (ultimosCombustiveisDevolucao[v.placa] && ultimosCombustiveisDevolucao[v.placa].combustivelDevolucao) || '—';
-                detailsHtml = `
-                    <p><strong>Última KM:</strong> ${kmDisplay}</p>
-                    <p><strong>Combustível:</strong> ${combustivelDisplay}</p>
-                `;
-                if (proximasReservas.has(v.placa)) {
-                    const reservaFutura = proximasReservas.get(v.placa);
+                detailsHtml = `<p><strong>Última KM:</strong> ${kmDisplay}</p>`;
+                if (proximasReservasMap.has(v.placa)) {
+                    const reservaFutura = proximasReservasMap.get(v.placa);
                     const motorista = motoristasCache[reservaFutura.motoristaId] || {};
-                    extraNoticeHtml = `<p class="reservation-notice">Reservado para **${motorista.nome}** em ${new Date(`${reservaFutura.dataInicio}T${reservaFutura.horaInicio}`).toLocaleString('pt-BR')} </p>`;
+                    extraNoticeHtml = `<p class="reservation-notice">Reservado para **${motorista.nome}** em ${new Date(`${reservaFutura.dataInicio}T${reservaFutura.horaInicio}`).toLocaleString('pt-BR')}</p>`;
                 }
             }
             
@@ -1061,6 +1032,7 @@
 </script>
 </body>
 </html>
+
 
 
 
