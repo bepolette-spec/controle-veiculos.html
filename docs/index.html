@@ -133,10 +133,6 @@
                             <form id="formRetirada">
                                 <label for="motoristaRetirada">Motorista:</label><select id="motoristaRetirada" name="motorista" required></select>
                                 <label for="veiculoRetirada">Veículo (Disponíveis):</label><select id="veiculoRetirada" name="veiculo" required></select>
-                                <div id="veiculoInfo" class="veiculo-info-card" style="display:none;">
-                                    <p>Última KM: <span id="ultimaKmDisplay"></span></p>
-                                    <p>Nível Combustível: <span id="ultimoCombustivelDisplay"></span></p>
-                                </div>
                                 <label for="kmAtual">KM Atual:</label><input type="number" id="kmAtual" placeholder="Ex: 50000" required>
                                 <label for="combustivelRetirada">Nível Combustível (Retirada):</label>
                                 <select id="combustivelRetirada" required>
@@ -727,16 +723,15 @@
         function displayVeiculoInfo() {
             const veiculoSelect = document.getElementById("veiculoRetirada");
             const veiculoId = veiculoSelect.value;
-            const veiculoInfoDiv = document.getElementById("veiculoInfo");
-            const ultimaKmDisplay = document.getElementById("ultimaKmDisplay");
-            const ultimoCombustivelDisplay = document.getElementById("ultimoCombustivelDisplay");
-
+            const kmAtualInput = document.getElementById("kmAtual");
+            const combustivelRetiradaSelect = document.getElementById("combustivelRetirada");
+        
             if (veiculoId) {
                 const veiculo = veiculosCache[veiculoId];
                 if (veiculo) {
-                    ultimaKmDisplay.textContent = veiculo.ultimaKm || 'N/A';
+                    kmAtualInput.value = veiculo.ultimaKm || '';
                     
-                    let ultimoCombustivel = 'N/A';
+                    let ultimoCombustivel = '';
                     let ultimaMovimentacao = null;
                     let lastTimestamp = 0;
 
@@ -753,17 +748,17 @@
                     }
 
                     if (ultimaMovimentacao) {
-                        ultimoCombustivel = ultimaMovimentacao.combustivelDevolucao || 'N/A';
+                        ultimoCombustivel = ultimaMovimentacao.combustivelDevolucao || '';
                     } else if (veiculo.combustivelInicial) {
                         // Se não houver movimentação, usa o combustível inicial (se houver)
                         ultimoCombustivel = veiculo.combustivelInicial;
                     }
                     
-                    ultimoCombustivelDisplay.textContent = ultimoCombustivel;
-                    veiculoInfoDiv.style.display = 'block';
+                    combustivelRetiradaSelect.value = ultimoCombustivel;
                 }
             } else {
-                veiculoInfoDiv.style.display = 'none';
+                kmAtualInput.value = '';
+                combustivelRetiradaSelect.value = '';
             }
         }
         
@@ -825,7 +820,6 @@
             set(push(ref(db, 'movimentacoes')), retirada).then(() => {
                 showNotification("Retirada registrada com sucesso!");
                 e.target.reset();
-                displayVeiculoInfo();
             });
         });
 
@@ -983,7 +977,7 @@
             document.getElementById("motoristaPodeReservar").value = m.podeReservar || 'sim';
             document.getElementById("motoristaSenha").value = m.senha || '';
             document.getElementById("cancelarEdicaoMotorista").style.display = 'inline-flex';
-            document.getElementById("formMotorista").scrollIntoView({ behavior: 'smooth' });
+            document.getElementById("formMotorista").scroll-into-view({ behavior: 'smooth' });
         };
         
         // Lógica para os botões de cancelar edição
