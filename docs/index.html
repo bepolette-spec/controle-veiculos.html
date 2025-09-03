@@ -8,7 +8,7 @@
     <style>
         /* Estilos gerais, sidebar, cards, etc. */
         :root {
-            --primary-color: #007bff; --secondary-color: #6c757d; --success-color: #28a745; --danger-color: #dc3545; --warning-color: #ffc107; --info-color: #17a2b8; --bg-color: #f4f7f6; --sidebar-bg-color: #2c3e50; --sidebar-text-color: #ecf0f1; --sidebar-hover-bg: #34495e; --card-bg-color: #ffffff; --text-color: #343a40; --border-color: #e0e0e0; --shadow: 0 4px 12px rgba(0, 0, 0, 0.08); --input-border: #ced4da; --input-focus-border: #80bdff;
+            --primary-color: #007bff; --secondary-color: #6c757d; --success-color: #28a745; --danger-color: #dc3545; --warning-color: #ffc107; --info-color: #17a2b8; --bg-color: #f4f7f6; --sidebar-bg-color: #2c3e50; --sidebar-text-color: #ecf0f1; --sidebar-hover-bg: #34495e; --card-bg-color: #ffffff; --text-color: #343a3f; --border-color: #e0e0e0; --shadow: 0 4px 12px rgba(0, 0, 0, 0.08); --input-border: #ced4da; --input-focus-border: #80bdff;
         }
         body {
             font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-color); font-size: 16px;
@@ -489,11 +489,14 @@
             
             // Mapeia a última movimentação concluída por veículo para obter o último nível de combustível
             const ultimosCombustiveisDevolucao = {};
+            const ultimasKmDevolucao = {};
             for (const id in movimentacoesCache) {
                 const mov = movimentacoesCache[id];
-                if (mov.status === 'concluido' && mov.combustivelDevolucao) {
-                    if (!ultimosCombustiveisDevolucao[mov.veiculoId] || new Date(mov.dataHoraDevolucao) > new Date(ultimosCombustiveisDevolucao[mov.veiculoId].dataHoraDevolucao)) {
-                        ultimosCombustiveisDevolucao[mov.veiculoId] = mov;
+                if (mov.status === 'concluido') {
+                    const movTimestamp = new Date(mov.dataHoraDevolucao).getTime();
+                    if (!ultimosCombustiveisDevolucao[mov.veiculoId] || movTimestamp > new Date(ultimosCombustiveisDevolucao[mov.veiculoId].dataHoraDevolucao).getTime()) {
+                         ultimosCombustiveisDevolucao[mov.veiculoId] = mov;
+                         ultimasKmDevolucao[mov.veiculoId] = mov.kmDevolucao;
                     }
                 }
             }
@@ -516,9 +519,10 @@
 
             for (const placa in veiculosCache) {
                 const v = veiculosCache[placa];
-                let status = v.status || 'disponivel';
+                let status = 'disponivel';
                 let detailsHtml = '';
                 let extraNoticeHtml = '';
+                let kmDisplay = v.ultimaKm || 'N/A';
                 let combustivelDisplay = '—';
 
                 // Prioriza o status de uso real sobre o status de cadastro
@@ -526,11 +530,12 @@
                     status = 'em_uso';
                     const mov = veiculosEmUso.get(v.placa);
                     const motorista = motoristasCache[mov.motoristaId] || {};
+                    kmDisplay = mov.kmRetirada || 'N/A';
                     combustivelDisplay = mov.combustivelRetirada || '—';
                     detailsHtml = `
                         <p><strong>Motorista:</strong> ${motorista.nome || 'N/A'}</p>
                         <p><strong>Telefone:</strong> ${motorista.telefone || 'N/A'}</p>
-                        <p><strong>Quilometragem:</strong> ${mov.kmRetirada || 'N/A'}</p>
+                        <p><strong>Quilometragem:</strong> ${kmDisplay}</p>
                         <p><strong>Combustível:</strong> ${combustivelDisplay}</p>
                         <p><strong>Destino:</strong> ${mov.destino || 'N/A'}</p>
                     `;
@@ -538,6 +543,7 @@
                     status = 'reservado';
                     const reserva = reservasAtivas.get(v.placa);
                     const motorista = motoristasCache[reserva.motoristaId] || {};
+                    kmDisplay = ultimasKmDevolucao[v.placa] || v.ultimaKm || 'N/A';
                     combustivelDisplay = (ultimosCombustiveisDevolucao[v.placa] && ultimosCombustiveisDevolucao[v.placa].combustivelDevolucao) || '—';
                     detailsHtml = `
                         <p><strong>Motorista:</strong> ${motorista.nome || 'N/A'}</p>
@@ -545,20 +551,22 @@
                         <p><strong>Data/Hora Início:</strong> ${new Date(`${reserva.dataInicio}T${reserva.horaInicio}`).toLocaleString('pt-BR')}</p>
                         <p><strong>Data/Hora Fim:</strong> ${new Date(`${reserva.dataFim}T${reserva.horaFim}`).toLocaleString('pt-BR')}</p>
                         <p><strong>Destino:</strong> ${reserva.destino || 'N/A'}</p>
-                        <p><strong>Combustível:</strong> ${combustivelDisplay}</p>
                     `;
+                    extraNoticeHtml = `<p class="reservation-notice">Última KM: ${kmDisplay} | Último Combustível: ${combustivelDisplay}</p>`;
                 } else if (v.status === 'manutencao') {
                     status = 'manutencao';
+                    kmDisplay = ultimasKmDevolucao[v.placa] || v.ultimaKm || 'N/A';
                     combustivelDisplay = (ultimosCombustiveisDevolucao[v.placa] && ultimosCombustiveisDevolucao[v.placa].combustivelDevolucao) || '—';
                     detailsHtml = `
-                        <p><strong>Última KM:</strong> ${v.ultimaKm || 'N/A'}</p>
+                        <p><strong>Última KM:</strong> ${kmDisplay}</p>
                         <p><strong>Combustível:</strong> ${combustivelDisplay}</p>
                     `;
                 } else {
                     status = 'disponivel';
+                    kmDisplay = ultimasKmDevolucao[v.placa] || v.ultimaKm || 'N/A';
                     combustivelDisplay = (ultimosCombustiveisDevolucao[v.placa] && ultimosCombustiveisDevolucao[v.placa].combustivelDevolucao) || '—';
                     detailsHtml = `
-                        <p><strong>Última KM:</strong> ${v.ultimaKm || 'N/A'}</p>
+                        <p><strong>Última KM:</strong> ${kmDisplay}</p>
                         <p><strong>Combustível:</strong> ${combustivelDisplay}</p>
                     `;
                     if (proximasReservas.has(v.placa)) {
@@ -616,16 +624,28 @@
         function renderVeiculosTable() {
             const tabela = document.getElementById("tabelaVeiculos");
             tabela.innerHTML = '';
+            const veiculosEmUsoIds = new Set(Object.values(movimentacoesCache).filter(m => m.status === 'em_uso').map(m => m.veiculoId));
+            const veiculosReservadosIds = new Set(Object.keys(reservasCache));
+
             for (const placa in veiculosCache) {
                 const v = veiculosCache[placa];
-                const statusMap = { 'disponivel': 'Disponível', 'em_uso': 'Em Uso', 'manutencao': 'Em Manutenção', 'reservado': 'Reservado' };
+                let statusText = '';
+                if (veiculosEmUsoIds.has(placa)) {
+                    statusText = 'Em Uso';
+                } else if (veiculosReservadosIds.has(placa)) {
+                    statusText = 'Reservado';
+                } else if (v.status === 'manutencao') {
+                    statusText = 'Em Manutenção';
+                } else {
+                    statusText = 'Disponível';
+                }
                 const row = document.createElement("tr");
                 row.innerHTML = `
                     <td>${v.modelo}</td>
                     <td>${v.placa}</td>
                     <td>${v.cor || 'N/A'}</td>
                     <td>${v.ultimaKm || 'N/A'}</td>
-                    <td>${statusMap[v.status] || 'N/A'}</td>
+                    <td>${statusText}</td>
                     <td>
                         <button onclick="editarVeiculo('${v.placa}')" class="btn-warning"><span class="material-icons">edit</span></button>
                         <button onclick="removerVeiculo('${v.placa}')" class="btn-danger"><span class="material-icons">delete</span></button>
@@ -842,8 +862,7 @@
                 showNotification("Retirada registrada com sucesso!");
                 e.target.reset();
             });
-            // Adicionado: Atualiza o status do veículo para "em_uso"
-            update(ref(db, `veiculos/${veiculoPlaca}`), { status: 'em_uso' });
+            // O status do veículo agora é derivado da movimentação, não precisa de uma atualização separada.
         });
 
         document.getElementById("formDevolucao").addEventListener("submit", (e) => {
