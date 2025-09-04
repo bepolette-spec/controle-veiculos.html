@@ -160,6 +160,20 @@
         }
         .veiculo-info-card span { font-weight: normal; color: #555;
         }
+        .fuel-warning {
+            color: var(--danger-color);
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-top: -10px;
+            margin-bottom: 10px;
+        }
+        .cnh-warning {
+            color: var(--danger-color);
+            font-weight: bold;
+            font-size: 0.9em;
+            margin-top: 5px;
+            margin-bottom: 15px;
+        }
     </style>
 </head>
 <body>
@@ -216,6 +230,7 @@
                         <div class="card">
                             <form id="formRetirada">
                                 <label for="motoristaRetirada">Motorista:</label><select id="motoristaRetirada" name="motorista" required></select>
+                                <p id="cnhVencidaWarningRetirada" class="cnh-warning" style="display:none;">CNH vencida. Favor renovar.</p>
                                 <label for="veiculoRetirada">Veículo (Disponíveis):</label><select id="veiculoRetirada" name="veiculo" required></select>
                                 <label for="kmAtual">KM Atual:</label><input type="number" id="kmAtual" placeholder="Ex: 50000" required>
                                 <label for="combustivelRetirada">Nível Combustível (Retirada):</label>
@@ -227,6 +242,7 @@
                                     <option value="1/4">1/4</option>
                                     <option value="Reserva">Reserva</option>
                                 </select>
+                                <p id="combustivelWarning" class="fuel-warning" style="display:none;">Veículo na reserva, favor abastecer!</p>
                                 <label for="destino">Destino:</label><input type="text" id="destino" placeholder="Ex: Reunião Cliente X" required>
                                 <button type="submit" class="btn-primary"><span class="material-icons">check</span> Registrar Retirada</button>
                             </form>
@@ -259,6 +275,7 @@
                         <div class="card">
                             <form id="formReserva">
                                 <label for="motoristaReserva">Motorista:</label><select id="motoristaReserva" name="motorista" required></select>
+                                <p id="cnhVencidaWarningReserva" class="cnh-warning" style="display:none;">CNH vencida. Favor renovar.</p>
                                 <label for="veiculoReserva">Veículo:</label><select id="veiculoReserva" name="veiculo" required></select>
                                 <div class="form-row">
                                     <div>
@@ -514,7 +531,14 @@
             const allMotoristaSelects = document.querySelectorAll("select[name='motorista']");
             allMotoristaSelects.forEach(select => {
                 select.innerHTML = '<option value="">Selecione um motorista</option>';
-                for(const id in motoristasCache) { select.add(new Option(motoristasCache[id].nome, id)); }
+                for(const id in motoristasCache) { 
+                    const validadeCnh = new Date(motoristasCache[id].validade);
+                    const hoje = new Date();
+                    hoje.setHours(0, 0, 0, 0);
+                    if (validadeCnh >= hoje) {
+                        select.add(new Option(motoristasCache[id].nome, id)); 
+                    }
+                }
             });
             renderMotoristasTable();
         });
@@ -603,17 +627,19 @@
                 let status = 'disponivel';
                 let detailsHtml = '';
                 let extraNoticeHtml = '';
+                let combustivel = ultimosCombustiveisDevolucao[v.placa]?.combustivelDevolucao || '—';
 
                 if (v.status === 'manutencao') {
                     status = 'manutencao';
                     detailsHtml = `<p><strong>Última KM:</strong> ${ultimasKmDevolucao[v.placa] || v.ultimaKm || 'N/A'}</p>`;
-                    detailsHtml += `<p><strong>Último Combustível:</strong> ${ultimosCombustiveisDevolucao[v.placa]?.combustivelDevolucao || '—'}</p>`;
+                    detailsHtml += `<p><strong>Último Combustível:</strong> ${combustivel}</p>`;
                 } else if (veiculosEmUso.has(v.placa)) {
                     status = 'em_uso';
                     const mov = veiculosEmUso.get(v.placa);
                     const motorista = motoristasCache[mov.motoristaId] || {};
                     detailsHtml = `
                         <p><strong>Motorista:</strong> ${motorista.nome || 'N/A'}</p>
+                        <p><strong>Telefone:</strong> ${motorista.telefone || 'N/A'}</p>
                         <p><strong>Retirada:</strong> ${new Date(mov.dataHoraRetirada).toLocaleString('pt-BR')}</p>
                         <p><strong>Destino:</strong> ${mov.destino || 'N/A'}</p>
                     `;
@@ -623,6 +649,7 @@
                     const motorista = motoristasCache[reserva.motoristaId] || {};
                     detailsHtml = `
                         <p><strong>Motorista:</strong> ${motorista.nome || 'N/A'}</p>
+                        <p><strong>Telefone:</strong> ${motorista.telefone || 'N/A'}</p>
                         <p><strong>Início:</strong> ${new Date(`${reserva.dataInicio}T${reserva.horaInicio}`).toLocaleString('pt-BR')}</p>
                         <p><strong>Destino:</strong> ${reserva.destino || 'N/A'}</p>
                     `;
@@ -632,11 +659,15 @@
                     const motorista = motoristasCache[reservaFutura.motoristaId] || {};
                     extraNoticeHtml = `<p class="reservation-notice">Reservado para **${motorista.nome}** em ${new Date(`${reservaFutura.dataInicio}T${reservaFutura.horaInicio}`).toLocaleString('pt-BR')}</p>`;
                     detailsHtml = `<p><strong>Última KM:</strong> ${ultimasKmDevolucao[v.placa] || v.ultimaKm || 'N/A'}</p>`;
-                    detailsHtml += `<p><strong>Último Combustível:</strong> ${ultimosCombustiveisDevolucao[v.placa]?.combustivelDevolucao || '—'}</p>`;
+                    detailsHtml += `<p><strong>Último Combustível:</strong> ${combustivel}</p>`;
                 } else {
                     status = 'disponivel';
                     detailsHtml = `<p><strong>Última KM:</strong> ${ultimasKmDevolucao[v.placa] || v.ultimaKm || 'N/A'}</p>`;
-                    detailsHtml += `<p><strong>Último Combustível:</strong> ${ultimosCombustiveisDevolucao[v.placa]?.combustivelDevolucao || '—'}</p>`;
+                    detailsHtml += `<p><strong>Último Combustível:</strong> ${combustivel}</p>`;
+                }
+
+                if (combustivel === 'Reserva') {
+                    extraNoticeHtml += `<p class="fuel-warning">Veículo na reserva, favor abastecer!</p>`;
                 }
 
                 const statusMap = {
@@ -793,6 +824,7 @@
                         <td>${new Date(`${reserva.dataFim}T${reserva.horaFim}`).toLocaleString('pt-BR')}</td>
                         <td>${reserva.destino || '—'}</td>
                         <td>
+                            <button onclick="devolverReserva('${id}')" class="btn-success"><span class="material-icons">keyboard_return</span></button>
                             <button onclick="cancelarReserva('${id}')" class="btn-danger"><span class="material-icons">cancel</span></button>
                         </td>`;
                     tabela.appendChild(row);
@@ -869,6 +901,65 @@
                 }
             }
         }
+
+        // Event listener para preencher campos de Retirada
+        document.getElementById('veiculoRetirada').addEventListener('change', (e) => {
+            const placa = e.target.value;
+            const ultimosCombustiveisDevolucao = {};
+            const ultimasKmDevolucao = {};
+            for (const id in movimentacoesCache) {
+                const mov = movimentacoesCache[id];
+                if (mov.status === 'concluido') {
+                    const movTimestamp = new Date(mov.dataHoraDevolucao).getTime();
+                    if (!ultimosCombustiveisDevolucao[mov.veiculoId] || movTimestamp > new Date(ultimosCombustiveisDevolucao[mov.veiculoId].dataHoraDevolucao).getTime()) {
+                        ultimosCombustiveisDevolucao[mov.veiculoId] = mov;
+                        ultimasKmDevolucao[mov.veiculoId] = mov.kmDevolucao;
+                    }
+                }
+            }
+            const ultimoCombustivel = ultimosCombustiveisDevolucao[placa]?.combustivelDevolucao;
+            const ultimaKm = ultimasKmDevolucao[placa];
+
+            document.getElementById('kmAtual').value = ultimaKm || veiculosCache[placa]?.ultimaKm || '';
+            document.getElementById('combustivelRetirada').value = ultimoCombustivel || '';
+
+            const combustivelWarning = document.getElementById('combustivelWarning');
+            if (ultimoCombustivel === 'Reserva') {
+                combustivelWarning.style.display = 'block';
+            } else {
+                combustivelWarning.style.display = 'none';
+            }
+        });
+        
+        document.getElementById('motoristaRetirada').addEventListener('change', (e) => {
+            const motoristaId = e.target.value;
+            const cnhValidade = new Date(motoristasCache[motoristaId]?.validade);
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            const warning = document.getElementById('cnhVencidaWarningRetirada');
+            if (cnhValidade < hoje) {
+                warning.style.display = 'block';
+                document.getElementById('formRetirada').querySelector('button[type="submit"]').disabled = true;
+            } else {
+                warning.style.display = 'none';
+                document.getElementById('formRetirada').querySelector('button[type="submit"]').disabled = false;
+            }
+        });
+
+        document.getElementById('motoristaReserva').addEventListener('change', (e) => {
+            const motoristaId = e.target.value;
+            const cnhValidade = new Date(motoristasCache[motoristaId]?.validade);
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            const warning = document.getElementById('cnhVencidaWarningReserva');
+            if (cnhValidade < hoje) {
+                warning.style.display = 'block';
+                document.getElementById('formReserva').querySelector('button[type="submit"]').disabled = true;
+            } else {
+                warning.style.display = 'none';
+                document.getElementById('formReserva').querySelector('button[type="submit"]').disabled = false;
+            }
+        });
 
         // Funções para lidar com os formulários (CRUD)
         document.getElementById('formRetirada').addEventListener('submit', (e) => {
@@ -1076,6 +1167,38 @@
                     showNotification('Reserva cancelada com sucesso!', 'info');
                 }).catch(error => showNotification(`Erro ao cancelar reserva: ${error.message}`, 'error'));
             }
+        };
+
+        window.devolverReserva = (reservaId) => {
+            const reserva = reservasCache[reservaId];
+            if (!reserva) {
+                showNotification('Reserva não encontrada.', 'error');
+                return;
+            }
+
+            // Cria uma nova movimentação de devolução para a reserva
+            const movimentacaoId = push(ref(db, 'movimentacoes')).key;
+            const dataHoraDevolucao = new Date().toISOString();
+            
+            set(ref(db, `movimentacoes/${movimentacaoId}`), {
+                veiculoId: reserva.veiculoId,
+                motoristaId: reserva.motoristaId,
+                dataHoraRetirada: new Date(`${reserva.dataInicio}T${reserva.horaInicio}`).toISOString(),
+                dataHoraDevolucao: dataHoraDevolucao,
+                destino: reserva.destino,
+                status: 'concluido',
+                observacoes: 'Devolução antecipada de reserva.',
+                kmRetirada: veiculosCache[reserva.veiculoId]?.ultimaKm || 0,
+                combustivelRetirada: 'Cheio', // Assumindo cheio para devolução antecipada
+                kmDevolucao: veiculosCache[reserva.veiculoId]?.ultimaKm || 0,
+                combustivelDevolucao: 'Cheio' // Assumindo cheio para devolução antecipada
+            }).then(() => {
+                // Remove a reserva original
+                remove(ref(db, `reservas/${reservaId}`));
+                showNotification('Devolução antecipada da reserva registrada com sucesso!', 'success');
+            }).catch(error => {
+                showNotification(`Erro ao registrar devolução: ${error.message}`, 'error');
+            });
         };
 
         document.getElementById("limparHistorico").addEventListener('click', () => {
