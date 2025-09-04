@@ -12,19 +12,17 @@
             --text-color: #343a3f; --border-color: #e0e0e0; --shadow: 0 4px 12px rgba(0, 0, 0, 0.08); --input-border: #ced4da; --input-focus-border: #80bdff;
         }
         body {
-            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-color);
-            font-size: 16px;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; margin: 0; padding: 0; background-color: var(--bg-color); color: var(--text-color); font-size: 16px;
         }
         h1, h2, h3 { color: var(--secondary-color); margin-top: 0; margin-bottom: 20px;
         }
-        .sidebar { width: 250px; background-color: var(--sidebar-bg-color);
-            color: var(--sidebar-text-color); padding: 20px 0; box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); flex-shrink: 0;
+        .sidebar { width: 250px; background-color: var(--sidebar-bg-color); color: var(--sidebar-text-color); padding: 20px 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); flex-shrink: 0;
         }
         .sidebar h2 { text-align: center; color: white; margin-bottom: 30px; font-size: 1.8rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 20px; }
         .sidebar ul { list-style: none;
-            padding: 0; margin: 0;
-        }
+            padding: 0; margin: 0; }
         .sidebar ul li a { display: flex;
             align-items: center; padding: 12px 20px; color: var(--sidebar-text-color); transition: background-color 0.3s ease; font-size: 1.1rem;
         }
@@ -39,11 +37,9 @@
         .content-section.active { display: block;
         }
         .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px;
-            border-bottom: 2px solid var(--primary-color);
-        }
+            border-bottom: 2px solid var(--primary-color); }
         .card { background-color: var(--card-bg-color); border-radius: 8px; box-shadow: var(--shadow);
-            padding: 25px; margin-bottom: 25px;
-        }
+            padding: 25px; margin-bottom: 25px; }
         label { display: block; margin-bottom: 8px; font-weight: 600;
         }
         select, input, textarea { width: 100%; padding: 12px; margin-bottom: 15px;
@@ -65,8 +61,7 @@
         .btn-danger:hover { background-color: #c82333; transform: translateY(-1px);
         }
         .btn-warning { background-color: var(--warning-color);
-            color: var(--text-color);
-        }
+            color: var(--text-color);}
         .btn-warning:hover { background-color: #e0a800; transform: translateY(-1px);
         }
         .btn-secondary { background-color: var(--secondary-color); color: white;
@@ -76,21 +71,17 @@
         table { width: 100%; border-collapse: collapse; margin-top: 20px;
         }
         th, td { border: 1px solid var(--border-color); padding: 12px 15px; text-align: left;
-            vertical-align: middle;
-        }
+            vertical-align: middle; }
         th { background-color: #f2f2f2;
         }
         .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-top: 20px;
         }
         .status-card { padding: 25px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            background-color: white; margin-bottom: 20px; border-left: 5px solid;
-        }
+            background-color: white; margin-bottom: 20px; border-left: 5px solid; }
         .status-card h3 { display: flex;
-            align-items: center; justify-content: space-between; margin-bottom: 15px; font-size: 1.4rem;
-        }
+            align-items: center; justify-content: space-between; margin-bottom: 15px; font-size: 1.4rem; }
         .status-badge { display: inline-block;
-            padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 0.85rem;
-        }
+            padding: 5px 10px; border-radius: 4px; font-weight: bold; font-size: 0.85rem; }
         .status-disponivel { border-color: var(--success-color);
         }
         .status-disponivel .status-badge { background-color: var(--success-color); color: white;
@@ -113,8 +104,7 @@
         }
         .notification { position: fixed; top: 25px; right: 25px; padding: 15px 25px;
             border-radius: 8px; color: white; font-weight: bold; box-shadow: 0 4px 15px rgba(0,0,0,0.2); z-index: 1000; opacity: 0; visibility: hidden;
-            transition: opacity 0.5s ease-in-out;
-        }
+            transition: opacity 0.5s ease-in-out; }
         .notification.show { opacity: 1; visibility: visible;
         }
         .notification.success { background-color: var(--success-color);
@@ -124,8 +114,7 @@
         .notification.info { background-color: var(--info-color);
         }
         #login-container { display: flex; justify-content: center; align-items: center; width: 100vw; height: 100vh;
-            background-color: var(--bg-color);
-        }
+            background-color: var(--bg-color); }
         #login-card { width: 100%; max-width: 400px; padding: 40px;
         }
         #login-card h2 { text-align: center; font-size: 2rem; color: var(--text-color);
@@ -135,8 +124,7 @@
         .app-flex { display: flex; height: 100%;
         }
         #header { display: flex; justify-content: flex-end; align-items: center; padding: 0 30px;
-            background-color: white; border-bottom: 1px solid var(--border-color);
-        }
+            background-color: white; border-bottom: 1px solid var(--border-color); }
         #userInfo { margin-right: 20px; font-weight: 500;
         }
         .form-row { display: flex; gap: 15px;
@@ -150,29 +138,12 @@
         .data-load-status.error { color: var(--danger-color);
         }
         .reservation-notice { background-color: var(--warning-color); color: var(--text-color); padding: 10px; border-radius: 5px; margin-top: 15px;
-            font-weight: bold; font-size: 0.9rem;
-        }
+            font-weight: bold; font-size: 0.9rem; }
         .veiculo-info-card { background-color: #e9ecef; border-left: 5px solid var(--info-color);
-            padding: 15px; border-radius: 5px; margin-bottom: 20px;
-        }
+            padding: 15px; border-radius: 5px; margin-bottom: 20px; }
         .veiculo-info-card p { margin: 5px 0;
-            font-weight: bold;
-        }
+            font-weight: bold; }
         .veiculo-info-card span { font-weight: normal; color: #555;
-        }
-        .fuel-warning {
-            color: var(--danger-color);
-            font-weight: bold;
-            font-size: 0.9em;
-            margin-top: -10px;
-            margin-bottom: 10px;
-        }
-        .cnh-warning {
-            color: var(--danger-color);
-            font-weight: bold;
-            font-size: 0.9em;
-            margin-top: 5px;
-            margin-bottom: 15px;
         }
     </style>
 </head>
@@ -183,10 +154,8 @@
     <div id="login-container">
         <div id="login-card" class="card">
             <h2>Acessar Sistema</h2>
-            <p style="text-align: center; color: #6c757d;">Faça login com seu nome e senha.</p>
+            <p style="text-align: center; color: #6c757d;">Faça login com sua senha.</p>
             <form id="login-form">
-                <label for="loginNome">Nome:</label>
-                <input type="text" id="loginNome" required placeholder="Digite seu nome">
                 <label for="loginSenha">Senha:</label>
                 <input type="password" id="loginSenha" required placeholder="Digite sua senha">
                 <button type="submit" class="btn-primary" style="width: 100%;">Entrar</button>
@@ -230,7 +199,6 @@
                         <div class="card">
                             <form id="formRetirada">
                                 <label for="motoristaRetirada">Motorista:</label><select id="motoristaRetirada" name="motorista" required></select>
-                                <p id="cnhVencidaWarningRetirada" class="cnh-warning" style="display:none;">CNH vencida. Favor renovar.</p>
                                 <label for="veiculoRetirada">Veículo (Disponíveis):</label><select id="veiculoRetirada" name="veiculo" required></select>
                                 <label for="kmAtual">KM Atual:</label><input type="number" id="kmAtual" placeholder="Ex: 50000" required>
                                 <label for="combustivelRetirada">Nível Combustível (Retirada):</label>
@@ -242,7 +210,6 @@
                                     <option value="1/4">1/4</option>
                                     <option value="Reserva">Reserva</option>
                                 </select>
-                                <p id="combustivelWarning" class="fuel-warning" style="display:none;">Veículo na reserva, favor abastecer!</p>
                                 <label for="destino">Destino:</label><input type="text" id="destino" placeholder="Ex: Reunião Cliente X" required>
                                 <button type="submit" class="btn-primary"><span class="material-icons">check</span> Registrar Retirada</button>
                             </form>
@@ -275,7 +242,6 @@
                         <div class="card">
                             <form id="formReserva">
                                 <label for="motoristaReserva">Motorista:</label><select id="motoristaReserva" name="motorista" required></select>
-                                <p id="cnhVencidaWarningReserva" class="cnh-warning" style="display:none;">CNH vencida. Favor renovar.</p>
                                 <label for="veiculoReserva">Veículo:</label><select id="veiculoReserva" name="veiculo" required></select>
                                 <div class="form-row">
                                     <div>
@@ -302,7 +268,7 @@
                     <section id="proximas-reservas-section" class="content-section">
                         <div class="section-header"><h2>Próximas Reservas</h2></div>
                         <div class="card">
-                             <p class="data-load-status" id="proximasReservasLoadingMessage">Carregando reservas futuras...</p>
+                            <p class="data-load-status" id="proximasReservasLoadingMessage">Carregando reservas futuras...</p>
                             <table>
                                 <thead><tr><th>Veículo</th><th>Motorista</th><th>Data/Hora Início</th><th>Data/Hora Fim</th><th>Destino</th><th>Ações</th></tr></thead>
                                 <tbody id="tabelaProximasReservas"></tbody>
@@ -362,9 +328,6 @@
                                     <div>
                                         <label for="motoristaTelefone">Telefone:</label><input type="tel" id="motoristaTelefone" placeholder="Ex: (11) 99999-9999" required>
                                     </div>
-                                    <div>
-                                        <label for="motoristaCnh">CNH:</label><input type="text" id="motoristaCnh" placeholder="Número da CNH" required>
-                                    </div>
                                 </div>
                                 <div class="form-row">
                                     <div>
@@ -396,7 +359,7 @@
                             </form>
                             <h4>Motoristas Cadastrados</h4>
                             <table>
-                                <thead><tr><th>Nome</th><th>Telefone</th><th>CNH</th><th>Validade</th><th>Categoria</th><th>Pode Reservar</th><th>Ações</th></tr></thead>
+                                <thead><tr><th>Nome</th><th>Telefone</th><th>Validade</th><th>Categoria</th><th>Pode Reservar</th><th>Ações</th></tr></thead>
                                 <tbody id="tabelaMotoristas"></tbody>
                             </table>
                             
@@ -427,7 +390,7 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getDatabase(app);
-
+        
         // --- LÓGICA DE LOGIN ---
         const loginContainer = document.getElementById('login-container');
         const appContainer = document.getElementById('app-container');
@@ -455,11 +418,10 @@
         
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const nome = document.getElementById('loginNome').value.trim();
             const senha = document.getElementById('loginSenha').value.trim();
 
             // Lógica de login padrão para o primeiro acesso
-            if (nome === 'admin' && senha === 'admin123') {
+            if (senha === 'admin123') {
                 const adminUser = { nome: 'Administrador', role: 'admin' };
                 sessionStorage.setItem('loggedInUser', JSON.stringify(adminUser));
                 showApp(adminUser);
@@ -467,24 +429,16 @@
                 return;
             }
 
-            onValue(query(ref(db, 'motoristas'), orderByChild('nome'), equalTo(nome)), (snapshot) => {
+            // Busca o motorista pela senha
+            onValue(query(ref(db, 'motoristas'), orderByChild('senha'), equalTo(senha)), (snapshot) => {
                 if (snapshot.exists()) {
-                    let userFound = false;
-                    snapshot.forEach(childSnapshot => {
-                        const motorista = childSnapshot.val();
-                        if (motorista.senha === senha) {
-                            motorista.role = (motorista.nome.toLowerCase() === 'administrador') ? 'admin' : 'user';
-                            sessionStorage.setItem('loggedInUser', JSON.stringify(motorista));
-                            showApp(motorista);
-                            showNotification(`Bem-vindo, ${motorista.nome}!`, 'success');
-                            userFound = true;
-                        }
-                    });
-                    if (!userFound) {
-                        showNotification('Senha incorreta.', 'error');
-                    }
+                    const motorista = Object.values(snapshot.val())[0]; // Pega o primeiro (e único) resultado
+                    motorista.role = (motorista.nome.toLowerCase() === 'administrador') ? 'admin' : 'user';
+                    sessionStorage.setItem('loggedInUser', JSON.stringify(motorista));
+                    showApp(motorista);
+                    showNotification(`Bem-vindo, ${motorista.nome}!`, 'success');
                 } else {
-                    showNotification('Nome de usuário não encontrado.', 'error');
+                    showNotification('Senha incorreta.', 'error');
                 }
             }, { onlyOnce: true });
         });
@@ -501,7 +455,7 @@
         let veiculosCache = {};
         let movimentacoesCache = {};
         let reservasCache = {};
-
+        
         // Função de Notificação
         function showNotification(message, type = 'success') {
             const notificationBar = document.getElementById('notification-bar');
@@ -531,14 +485,7 @@
             const allMotoristaSelects = document.querySelectorAll("select[name='motorista']");
             allMotoristaSelects.forEach(select => {
                 select.innerHTML = '<option value="">Selecione um motorista</option>';
-                for(const id in motoristasCache) { 
-                    const validadeCnh = new Date(motoristasCache[id].validade);
-                    const hoje = new Date();
-                    hoje.setHours(0, 0, 0, 0);
-                    if (validadeCnh >= hoje) {
-                        select.add(new Option(motoristasCache[id].nome, id)); 
-                    }
-                }
+                for(const id in motoristasCache) { select.add(new Option(motoristasCache[id].nome, id)); }
             });
             renderMotoristasTable();
         });
@@ -585,14 +532,13 @@
             const statusGrid = document.getElementById("statusVeiculosGrid");
             statusGrid.innerHTML = '';
             const now = new Date();
-
             const veiculosEmUso = new Map();
-            for (const id in movimentacoesCache) {
-                if (movimentacoesCache[id].status === 'em_uso') {
+            for(const id in movimentacoesCache) {
+                if(movimentacoesCache[id].status === 'em_uso') {
                     veiculosEmUso.set(movimentacoesCache[id].veiculoId, movimentacoesCache[id]);
                 }
             }
-
+            // Mapeia a última movimentação concluída por veículo para obter o último nível de combustível
             const ultimosCombustiveisDevolucao = {};
             const ultimasKmDevolucao = {};
             for (const id in movimentacoesCache) {
@@ -605,17 +551,14 @@
                     }
                 }
             }
-            
             const reservasAtivas = new Map();
             const proximasReservas = new Map();
-            for (const id in reservasCache) {
+            for(const id in reservasCache) {
                 const reserva = reservasCache[id];
                 const dataHoraInicio = new Date(`${reserva.dataInicio}T${reserva.horaInicio}`);
                 const dataHoraFim = new Date(`${reserva.dataFim}T${reserva.horaFim}`);
-
-                if (dataHoraInicio > now && (dataHoraInicio.getTime() - now.getTime()) <= 3600000) {
-                    reservasAtivas.set(reserva.veiculoId, reserva);
-                } else if (now >= dataHoraInicio && now < dataHoraFim) {
+                // 1 hora antes da reserva ou reserva ativa
+                if ((dataHoraInicio - now) <= 3600000 && now < dataHoraFim) {
                     reservasAtivas.set(reserva.veiculoId, reserva);
                 } else if (dataHoraInicio > now) {
                     proximasReservas.set(reserva.veiculoId, reserva);
@@ -627,56 +570,60 @@
                 let status = 'disponivel';
                 let detailsHtml = '';
                 let extraNoticeHtml = '';
-                let combustivel = ultimosCombustiveisDevolucao[v.placa]?.combustivelDevolucao || '—';
+                let kmDisplay = v.ultimaKm || 'N/A';
+                let combustivelDisplay = '—';
 
-                if (v.status === 'manutencao') {
-                    status = 'manutencao';
-                    detailsHtml = `<p><strong>Última KM:</strong> ${ultimasKmDevolucao[v.placa] || v.ultimaKm || 'N/A'}</p>`;
-                    detailsHtml += `<p><strong>Último Combustível:</strong> ${combustivel}</p>`;
-                } else if (veiculosEmUso.has(v.placa)) {
+                // Prioriza o status de uso real sobre o status de cadastro
+                if (veiculosEmUso.has(v.placa)) {
                     status = 'em_uso';
                     const mov = veiculosEmUso.get(v.placa);
                     const motorista = motoristasCache[mov.motoristaId] || {};
+                    kmDisplay = mov.kmRetirada || 'N/A';
+                    combustivelDisplay = mov.combustivelRetirada || '—';
                     detailsHtml = `
                         <p><strong>Motorista:</strong> ${motorista.nome || 'N/A'}</p>
                         <p><strong>Telefone:</strong> ${motorista.telefone || 'N/A'}</p>
-                        <p><strong>Retirada:</strong> ${new Date(mov.dataHoraRetirada).toLocaleString('pt-BR')}</p>
+                        <p><strong>Quilometragem:</strong> ${kmDisplay}</p>
+                        <p><strong>Combustível:</strong> ${combustivelDisplay}</p>
                         <p><strong>Destino:</strong> ${mov.destino || 'N/A'}</p>
                     `;
                 } else if (reservasAtivas.has(v.placa)) {
                     status = 'reservado';
                     const reserva = reservasAtivas.get(v.placa);
                     const motorista = motoristasCache[reserva.motoristaId] || {};
+                    kmDisplay = ultimasKmDevolucao[v.placa] || v.ultimaKm || 'N/A';
+                    combustivelDisplay = (ultimosCombustiveisDevolucao[v.placa] && ultimosCombustiveisDevolucao[v.placa].combustivelDevolucao) || '—';
                     detailsHtml = `
                         <p><strong>Motorista:</strong> ${motorista.nome || 'N/A'}</p>
                         <p><strong>Telefone:</strong> ${motorista.telefone || 'N/A'}</p>
-                        <p><strong>Início:</strong> ${new Date(`${reserva.dataInicio}T${reserva.horaInicio}`).toLocaleString('pt-BR')}</p>
+                        <p><strong>Data/Hora Início:</strong> ${new Date(`${reserva.dataInicio}T${reserva.horaInicio}`).toLocaleString('pt-BR')}</p>
+                        <p><strong>Data/Hora Fim:</strong> ${new Date(`${reserva.dataFim}T${reserva.horaFim}`).toLocaleString('pt-BR')}</p>
                         <p><strong>Destino:</strong> ${reserva.destino || 'N/A'}</p>
                     `;
-                } else if (proximasReservas.has(v.placa)) {
-                    status = 'disponivel';
-                    const reservaFutura = proximasReservas.get(v.placa);
-                    const motorista = motoristasCache[reservaFutura.motoristaId] || {};
-                    extraNoticeHtml = `<p class="reservation-notice">Reservado para **${motorista.nome}** em ${new Date(`${reservaFutura.dataInicio}T${reservaFutura.horaInicio}`).toLocaleString('pt-BR')}</p>`;
-                    detailsHtml = `<p><strong>Última KM:</strong> ${ultimasKmDevolucao[v.placa] || v.ultimaKm || 'N/A'}</p>`;
-                    detailsHtml += `<p><strong>Último Combustível:</strong> ${combustivel}</p>`;
+                    extraNoticeHtml = `<p class="reservation-notice">Última KM: ${kmDisplay} | Último Combustível: ${combustivelDisplay}</p>`;
+                } else if (v.status === 'manutencao') {
+                    status = 'manutencao';
+                    kmDisplay = ultimasKmDevolucao[v.placa] || v.ultimaKm || 'N/A';
+                    combustivelDisplay = (ultimosCombustiveisDevolucao[v.placa] && ultimosCombustiveisDevolucao[v.placa].combustivelDevolucao) || '—';
+                    detailsHtml = `
+                        <p><strong>Última KM:</strong> ${kmDisplay}</p>
+                        <p><strong>Combustível:</strong> ${combustivelDisplay}</p>
+                    `;
                 } else {
                     status = 'disponivel';
-                    detailsHtml = `<p><strong>Última KM:</strong> ${ultimasKmDevolucao[v.placa] || v.ultimaKm || 'N/A'}</p>`;
-                    detailsHtml += `<p><strong>Último Combustível:</strong> ${combustivel}</p>`;
+                    kmDisplay = ultimasKmDevolucao[v.placa] || v.ultimaKm || 'N/A';
+                    combustivelDisplay = (ultimosCombustiveisDevolucao[v.placa] && ultimosCombustiveisDevolucao[v.placa].combustivelDevolucao) || '—';
+                    detailsHtml = `
+                        <p><strong>Última KM:</strong> ${kmDisplay}</p>
+                        <p><strong>Combustível:</strong> ${combustivelDisplay}</p>
+                    `;
+                    if (proximasReservas.has(v.placa)) {
+                        const reservaFutura = proximasReservas.get(v.placa);
+                        const motorista = motoristasCache[reservaFutura.motoristaId] || {};
+                        extraNoticeHtml = `<p class="reservation-notice">Reservado para **${motorista.nome}** em ${new Date(`${reservaFutura.dataInicio}T${reservaFutura.horaInicio}`).toLocaleString('pt-BR')} </p>`;
+                    }
                 }
-
-                if (combustivel === 'Reserva') {
-                    extraNoticeHtml += `<p class="fuel-warning">Veículo na reserva, favor abastecer!</p>`;
-                }
-
-                const statusMap = {
-                    'disponivel': 'Disponível',
-                    'em_uso': 'Em Uso',
-                    'reservado': 'Reservado',
-                    'manutencao': 'Em Manutenção'
-                };
-
+                const statusMap = { 'disponivel': 'Disponível', 'em_uso': 'Em Uso', 'reservado': 'Reservado', 'manutencao': 'Em Manutenção' };
                 const card = document.createElement("div");
                 card.className = `card status-card status-${status}`;
                 card.innerHTML = `
@@ -694,6 +641,7 @@
                 statusGrid.appendChild(card);
             }
         }
+
         function renderHistoricoTable() {
             const tabela = document.getElementById("tabelaHistorico");
             tabela.innerHTML = '';
@@ -714,39 +662,31 @@
                     <td>${h.combustivelDevolucao || '—'}</td>
                     <td>${h.destino || '—'}</td>
                     <td>${h.observacoes || '—'}</td>
-                    <td><button onclick="removerMovimentacao('${id}')" class="btn-danger"><span class="material-icons">delete</span></button></td>`;
+                    <td>
+                        ${h.status === 'em_uso' ? `<button class="btn-warning btn-sm" onclick="devolverVeiculo('${id}')"><span class="material-icons">keyboard_return</span> Devolver</button>` : '—'}
+                    </td>
+                `;
                 tabela.appendChild(row);
             }
         }
-
+        
         function renderVeiculosTable() {
             const tabela = document.getElementById("tabelaVeiculos");
             tabela.innerHTML = '';
-            const veiculosEmUsoIds = new Set(Object.values(movimentacoesCache).filter(m => m.status === 'em_uso').map(m => m.veiculoId));
-            const veiculosReservadosIds = new Set(Object.keys(reservasCache));
             for (const placa in veiculosCache) {
                 const v = veiculosCache[placa];
-                let statusText = '';
-                if (veiculosEmUsoIds.has(placa)) {
-                    statusText = 'Em Uso';
-                } else if (veiculosReservadosIds.has(placa)) {
-                    statusText = 'Reservado';
-                } else if (v.status === 'manutencao') {
-                    statusText = 'Em Manutenção';
-                } else {
-                    statusText = 'Disponível';
-                }
                 const row = document.createElement("tr");
                 row.innerHTML = `
                     <td>${v.modelo}</td>
                     <td>${v.placa}</td>
-                    <td>${v.cor || 'N/A'}</td>
-                    <td>${v.ultimaKm || 'N/A'}</td>
-                    <td>${statusText}</td>
+                    <td>${v.cor}</td>
+                    <td>${v.ultimaKm} km</td>
+                    <td>${v.status === 'disponivel' ? 'Disponível' : 'Em Manutenção'}</td>
                     <td>
-                        <button onclick="editarVeiculo('${v.placa}')" class="btn-warning"><span class="material-icons">edit</span></button>
-                        <button onclick="removerVeiculo('${v.placa}')" class="btn-danger"><span class="material-icons">delete</span></button>
-                    </td>`;
+                        <button class="btn-info btn-sm" onclick="editarVeiculo('${placa}')"><span class="material-icons">edit</span></button>
+                        <button class="btn-danger btn-sm" onclick="excluirVeiculo('${placa}')"><span class="material-icons">delete</span></button>
+                    </td>
+                `;
                 tabela.appendChild(row);
             }
         }
@@ -759,15 +699,15 @@
                 const row = document.createElement("tr");
                 row.innerHTML = `
                     <td>${m.nome}</td>
-                    <td>${m.telefone || 'N/A'}</td>
-                    <td>${m.cnh || 'N/A'}</td>
-                    <td>${m.validade || 'N/A'}</td>
-                    <td>${m.categoria || 'N/A'}</td>
+                    <td>${m.telefone}</td>
+                    <td>${m.validade}</td>
+                    <td>${m.categoria}</td>
                     <td>${m.podeReservar === 'sim' ? 'Sim' : 'Não'}</td>
                     <td>
-                        <button onclick="editarMotorista('${id}')" class="btn-warning"><span class="material-icons">edit</span></button>
-                        <button onclick="removerMotorista('${id}')" class="btn-danger"><span class="material-icons">delete</span></button>
-                    </td>`;
+                        <button class="btn-info btn-sm" onclick="editarMotorista('${id}')"><span class="material-icons">edit</span></button>
+                        <button class="btn-danger btn-sm" onclick="excluirMotorista('${id}')"><span class="material-icons">delete</span></button>
+                    </td>
+                `;
                 tabela.appendChild(row);
             }
         }
@@ -776,25 +716,23 @@
             const tabela = document.getElementById("tabelaReservasAndamento");
             tabela.innerHTML = '';
             const now = new Date();
-            for (const id in reservasCache) {
+            for(const id in reservasCache) {
                 const reserva = reservasCache[id];
-                const dataHoraInicio = new Date(`${reserva.dataInicio}T${reserva.horaInicio}`);
                 const dataHoraFim = new Date(`${reserva.dataFim}T${reserva.horaFim}`);
-
-                // Exibe apenas reservas ativas no momento
-                if (now >= dataHoraInicio && now < dataHoraFim) {
+                if (now < dataHoraFim) {
                     const veiculoInfo = veiculosCache[reserva.veiculoId] || { modelo: 'N/A', placa: 'N/A' };
                     const motoristaInfo = motoristasCache[reserva.motoristaId] || { nome: 'N/A' };
                     const row = document.createElement("tr");
                     row.innerHTML = `
                         <td>${veiculoInfo.modelo} - ${veiculoInfo.placa}</td>
                         <td>${motoristaInfo.nome}</td>
-                        <td>${dataHoraInicio.toLocaleString('pt-BR')}</td>
-                        <td>${dataHoraFim.toLocaleString('pt-BR')}</td>
-                        <td>${reserva.destino || '—'}</td>
+                        <td>${new Date(`${reserva.dataInicio}T${reserva.horaInicio}`).toLocaleString('pt-BR')}</td>
+                        <td>${new Date(`${reserva.dataFim}T${reserva.horaFim}`).toLocaleString('pt-BR')}</td>
+                        <td>${reserva.destino}</td>
                         <td>
-                            <button onclick="cancelarReserva('${id}')" class="btn-danger"><span class="material-icons">cancel</span></button>
-                        </td>`;
+                            <button class="btn-danger btn-sm" onclick="excluirReserva('${id}')"><span class="material-icons">delete</span></button>
+                        </td>
+                    `;
                     tabela.appendChild(row);
                 }
             }
@@ -803,348 +741,127 @@
         function renderProximasReservasTable() {
             const tabela = document.getElementById("tabelaProximasReservas");
             tabela.innerHTML = '';
-            const loadingMessage = document.getElementById("proximasReservasLoadingMessage");
-            const now = new Date();
+            const proximasReservasLoadingMessage = document.getElementById('proximasReservasLoadingMessage');
             let hasReservas = false;
-
-            for (const id in reservasCache) {
+            for(const id in reservasCache) {
                 const reserva = reservasCache[id];
                 const dataHoraInicio = new Date(`${reserva.dataInicio}T${reserva.horaInicio}`);
-                
-                // Exibe apenas reservas futuras que ainda não estão ativas
-                if (dataHoraInicio > now) {
-                    hasReservas = true;
+                if (dataHoraInicio > new Date()) {
                     const veiculoInfo = veiculosCache[reserva.veiculoId] || { modelo: 'N/A', placa: 'N/A' };
                     const motoristaInfo = motoristasCache[reserva.motoristaId] || { nome: 'N/A' };
                     const row = document.createElement("tr");
                     row.innerHTML = `
                         <td>${veiculoInfo.modelo} - ${veiculoInfo.placa}</td>
                         <td>${motoristaInfo.nome}</td>
-                        <td>${dataHoraInicio.toLocaleString('pt-BR')}</td>
+                        <td>${new Date(`${reserva.dataInicio}T${reserva.horaInicio}`).toLocaleString('pt-BR')}</td>
                         <td>${new Date(`${reserva.dataFim}T${reserva.horaFim}`).toLocaleString('pt-BR')}</td>
-                        <td>${reserva.destino || '—'}</td>
+                        <td>${reserva.destino}</td>
                         <td>
-                            <button onclick="devolverReserva('${id}')" class="btn-success"><span class="material-icons">keyboard_return</span></button>
-                            <button onclick="cancelarReserva('${id}')" class="btn-danger"><span class="material-icons">cancel</span></button>
-                        </td>`;
+                            <button class="btn-danger btn-sm" onclick="excluirReserva('${id}')"><span class="material-icons">delete</span></button>
+                        </td>
+                    `;
                     tabela.appendChild(row);
+                    hasReservas = true;
                 }
             }
             if (hasReservas) {
-                loadingMessage.style.display = 'none';
+                proximasReservasLoadingMessage.style.display = 'none';
             } else {
-                loadingMessage.textContent = 'Não há próximas reservas. O sistema está aguardando os dados do Firebase.';
-                loadingMessage.style.display = 'block';
+                proximasReservasLoadingMessage.textContent = 'Não há próximas reservas no momento.';
+                proximasReservasLoadingMessage.style.display = 'block';
             }
         }
-
-        // Funções para atualizar os selects dos formulários
-        function updateVeiculoRetiradaSelect() {
-            const select = document.getElementById('veiculoRetirada');
-            select.innerHTML = '<option value="">Selecione um veículo</option>';
-            const veiculosEmUso = new Set(Object.values(movimentacoesCache).filter(m => m.status === 'em_uso').map(m => m.veiculoId));
-            const now = new Date();
-
-            for (const placa in veiculosCache) {
-                const veiculo = veiculosCache[placa];
-                if (veiculo.status === 'manutencao' || veiculosEmUso.has(placa)) {
-                    continue;
-                }
-
-                let isReservado = false;
-                let reservaId = null;
-
-                for (const id in reservasCache) {
-                    const reserva = reservasCache[id];
-                    if (reserva.veiculoId === placa) {
-                        const dataHoraInicio = new Date(`${reserva.dataInicio}T${reserva.horaInicio}`);
-                        const dataHoraFim = new Date(`${reserva.dataFim}T${reserva.horaFim}`);
-                        // Verifica se está reservado e se a reserva está a menos de 1 hora do início
-                        if (dataHoraInicio.getTime() - now.getTime() <= 3600000 && now < dataHoraFim) {
-                            isReservado = true;
-                            reservaId = id;
-                            break;
-                        }
-                    }
-                }
-                
-                if (!isReservado) {
-                    const option = new Option(`${veiculo.modelo} - ${veiculo.placa}`, placa);
-                    select.add(option);
-                }
-            }
-        }
-
-        function updateVeiculoDevolucaoSelect() {
-            const select = document.getElementById('veiculoDevolucao');
-            select.innerHTML = '<option value="">Selecione um veículo</option>';
-            for(const id in movimentacoesCache) {
-                const mov = movimentacoesCache[id];
-                if(mov.status === 'em_uso') {
-                    const veiculo = veiculosCache[mov.veiculoId] || {};
-                    const option = new Option(`${veiculo.modelo} - ${veiculo.placa}`, mov.veiculoId);
-                    option.setAttribute('data-movimentacao-id', id);
-                    select.add(option);
-                }
-            }
-        }
-
-        function updateVeiculoReservaSelect() {
-            const select = document.getElementById('veiculoReserva');
-            select.innerHTML = '<option value="">Selecione um veículo</option>';
-            const veiculosEmUso = new Set(Object.values(movimentacoesCache).filter(m => m.status === 'em_uso').map(m => m.veiculoId));
-            const veiculosReservados = new Set(Object.values(reservasCache).map(r => r.veiculoId));
-            for (const placa in veiculosCache) {
-                const veiculo = veiculosCache[placa];
-                if (veiculo.status !== 'manutencao' && !veiculosEmUso.has(placa) && !veiculosReservados.has(placa)) {
-                    select.add(new Option(`${veiculo.modelo} - ${veiculo.placa}`, placa));
-                }
-            }
-        }
-
-        // Event listener para preencher campos de Retirada
-        document.getElementById('veiculoRetirada').addEventListener('change', (e) => {
-            const placa = e.target.value;
-            const ultimosCombustiveisDevolucao = {};
-            const ultimasKmDevolucao = {};
-            for (const id in movimentacoesCache) {
-                const mov = movimentacoesCache[id];
-                if (mov.status === 'concluido') {
-                    const movTimestamp = new Date(mov.dataHoraDevolucao).getTime();
-                    if (!ultimosCombustiveisDevolucao[mov.veiculoId] || movTimestamp > new Date(ultimosCombustiveisDevolucao[mov.veiculoId].dataHoraDevolucao).getTime()) {
-                        ultimosCombustiveisDevolucao[mov.veiculoId] = mov;
-                        ultimasKmDevolucao[mov.veiculoId] = mov.kmDevolucao;
-                    }
-                }
-            }
-            const ultimoCombustivel = ultimosCombustiveisDevolucao[placa]?.combustivelDevolucao;
-            const ultimaKm = ultimasKmDevolucao[placa];
-
-            document.getElementById('kmAtual').value = ultimaKm || veiculosCache[placa]?.ultimaKm || '';
-            document.getElementById('combustivelRetirada').value = ultimoCombustivel || '';
-
-            const combustivelWarning = document.getElementById('combustivelWarning');
-            if (ultimoCombustivel === 'Reserva') {
-                combustivelWarning.style.display = 'block';
-            } else {
-                combustivelWarning.style.display = 'none';
-            }
-        });
         
-        document.getElementById('motoristaRetirada').addEventListener('change', (e) => {
-            const motoristaId = e.target.value;
-            const cnhValidade = new Date(motoristasCache[motoristaId]?.validade);
-            const hoje = new Date();
-            hoje.setHours(0, 0, 0, 0);
-            const warning = document.getElementById('cnhVencidaWarningRetirada');
-            if (cnhValidade < hoje) {
-                warning.style.display = 'block';
-                document.getElementById('formRetirada').querySelector('button[type="submit"]').disabled = true;
-            } else {
-                warning.style.display = 'none';
-                document.getElementById('formRetirada').querySelector('button[type="submit"]').disabled = false;
-            }
-        });
+        // Funções de Gerenciamento (CRUD)
 
-        document.getElementById('motoristaReserva').addEventListener('change', (e) => {
-            const motoristaId = e.target.value;
-            const cnhValidade = new Date(motoristasCache[motoristaId]?.validade);
-            const hoje = new Date();
-            hoje.setHours(0, 0, 0, 0);
-            const warning = document.getElementById('cnhVencidaWarningReserva');
-            if (cnhValidade < hoje) {
-                warning.style.display = 'block';
-                document.getElementById('formReserva').querySelector('button[type="submit"]').disabled = true;
-            } else {
-                warning.style.display = 'none';
-                document.getElementById('formReserva').querySelector('button[type="submit"]').disabled = false;
-            }
-        });
-
-        // Funções para lidar com os formulários (CRUD)
-        document.getElementById('formRetirada').addEventListener('submit', (e) => {
+        // Formulário Veículo
+        const formVeiculo = document.getElementById("formVeiculo");
+        formVeiculo.addEventListener('submit', (e) => {
             e.preventDefault();
-            const veiculoId = document.getElementById('veiculoRetirada').value;
-            const motoristaId = document.getElementById('motoristaRetirada').value;
-            const kmRetirada = document.getElementById('kmAtual').value;
-            const combustivelRetirada = document.getElementById('combustivelRetirada').value;
-            const destino = document.getElementById('destino').value;
-            const dataHoraRetirada = new Date().toISOString();
-
-            if (veiculosCache[veiculoId].status === 'manutencao') {
-                showNotification('Não é possível retirar um veículo em manutenção.', 'error');
-                return;
-            }
-
-            const movimentacaoId = push(ref(db, 'movimentacoes')).key;
-            set(ref(db, `movimentacoes/${movimentacaoId}`), {
-                veiculoId,
-                motoristaId,
-                kmRetirada: Number(kmRetirada),
-                combustivelRetirada,
-                destino,
-                dataHoraRetirada,
-                status: 'em_uso'
-            }).then(() => {
-                showNotification('Retirada registrada com sucesso!', 'success');
-                document.getElementById('formRetirada').reset();
-            }).catch(error => {
-                showNotification(`Erro ao registrar retirada: ${error.message}`, 'error');
-            });
-        });
-
-        document.getElementById('formDevolucao').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const veiculoId = document.getElementById('veiculoDevolucao').value;
-            const kmDevolucao = document.getElementById('kmDevolucao').value;
-            const combustivelDevolucao = document.getElementById('combustivelDevolucao').value;
-            const observacoes = document.getElementById('observacoes').value;
-            const dataHoraDevolucao = new Date().toISOString();
-
-            if(Number(kmDevolucao) < veiculosCache[veiculoId].ultimaKm) {
-                showNotification('KM de devolução deve ser maior que a última KM registrada.', 'error');
-                return;
-            }
-            
-            const movimentacaoId = Object.keys(movimentacoesCache).find(id => movimentacoesCache[id].veiculoId === veiculoId && movimentacoesCache[id].status === 'em_uso');
-
-            if (!movimentacaoId) {
-                showNotification('Nenhuma movimentação "Em Uso" encontrada para este veículo.', 'error');
-                return;
-            }
-
-            const updates = {};
-            updates[`movimentacoes/${movimentacaoId}/status`] = 'concluido';
-            updates[`movimentacoes/${movimentacaoId}/kmDevolucao`] = Number(kmDevolucao);
-            updates[`movimentacoes/${movimentacaoId}/combustivelDevolucao`] = combustivelDevolucao;
-            updates[`movimentacoes/${movimentacaoId}/observacoes`] = observacoes;
-            updates[`movimentacoes/${movimentacaoId}/dataHoraDevolucao`] = dataHoraDevolucao;
-            updates[`veiculos/${veiculoId}/ultimaKm`] = Number(kmDevolucao);
-
-            update(ref(db), updates).then(() => {
-                showNotification('Devolução registrada com sucesso!', 'success');
-                document.getElementById('formDevolucao').reset();
-            }).catch(error => {
-                showNotification(`Erro ao registrar devolução: ${error.message}`, 'error');
-            });
-        });
-
-        document.getElementById('formReserva').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const veiculoId = document.getElementById('veiculoReserva').value;
-            const motoristaId = document.getElementById('motoristaReserva').value;
-            const dataInicio = document.getElementById('dataInicio').value;
-            const horaInicio = document.getElementById('horaInicio').value;
-            const dataFim = document.getElementById('dataFim').value;
-            const horaFim = document.getElementById('horaFim').value;
-            const destino = document.getElementById('destinoReserva').value;
-
-            // Validação de datas
-            const dataHoraInicio = new Date(`${dataInicio}T${horaInicio}`);
-            const dataHoraFim = new Date(`${dataFim}T${horaFim}`);
-
-            if (dataHoraInicio >= dataHoraFim) {
-                showNotification('A data/hora de início deve ser anterior à data/hora de fim.', 'error');
-                return;
-            }
-
-            const reservaId = push(ref(db, 'reservas')).key;
-            set(ref(db, `reservas/${reservaId}`), {
-                veiculoId,
-                motoristaId,
-                dataInicio,
-                horaInicio,
-                dataFim,
-                horaFim,
-                destino
-            }).then(() => {
-                showNotification('Reserva criada com sucesso!', 'success');
-                document.getElementById('formReserva').reset();
-            }).catch(error => {
-                showNotification(`Erro ao criar reserva: ${error.message}`, 'error');
-            });
-        });
-
-        document.getElementById('formVeiculo').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const id = document.getElementById('veiculoIdEdit').value;
-            const veiculo = {
-                modelo: document.getElementById('veiculoModelo').value,
-                placa: document.getElementById('veiculoPlaca').value,
-                cor: document.getElementById('veiculoCor').value,
-                ultimaKm: Number(document.getElementById('veiculoKm').value),
-                status: document.getElementById('veiculoStatus').value
+            const id = document.getElementById("veiculoIdEdit").value || document.getElementById("veiculoPlaca").value.trim().toUpperCase();
+            const veiculoData = {
+                modelo: document.getElementById("veiculoModelo").value.trim(),
+                placa: id,
+                cor: document.getElementById("veiculoCor").value.trim(),
+                ultimaKm: Number(document.getElementById("veiculoKm").value),
+                status: document.getElementById("veiculoStatus").value
             };
-
-            if (id) {
-                update(ref(db, `veiculos/${id}`), veiculo).then(() => {
-                    showNotification('Veículo atualizado com sucesso!', 'success');
-                    document.getElementById('formVeiculo').reset();
-                    document.getElementById('veiculoIdEdit').value = '';
-                    document.getElementById('cancelarEdicaoVeiculo').style.display = 'none';
-                }).catch(error => showNotification(`Erro ao atualizar veículo: ${error.message}`, 'error'));
-            } else {
-                set(ref(db, `veiculos/${veiculo.placa}`), veiculo).then(() => {
-                    showNotification('Veículo salvo com sucesso!', 'success');
-                    document.getElementById('formVeiculo').reset();
-                }).catch(error => showNotification(`Erro ao salvar veículo: ${error.message}`, 'error'));
-            }
+            set(ref(db, 'veiculos/' + id), veiculoData)
+                .then(() => {
+                    showNotification("Veículo salvo com sucesso!", 'success');
+                    formVeiculo.reset();
+                    document.getElementById("veiculoIdEdit").value = '';
+                    document.getElementById("cancelarEdicaoVeiculo").style.display = 'none';
+                })
+                .catch(error => showNotification("Erro ao salvar veículo: " + error.message, 'error'));
         });
 
-        window.editarVeiculo = (placa) => {
+        window.excluirVeiculo = function(placa) {
+            if (confirm("Tem certeza que deseja excluir este veículo?")) {
+                remove(ref(db, 'veiculos/' + placa))
+                    .then(() => showNotification("Veículo excluído com sucesso!", 'info'))
+                    .catch(error => showNotification("Erro ao excluir veículo: " + error.message, 'error'));
+            }
+        };
+
+        window.editarVeiculo = function(placa) {
             const v = veiculosCache[placa];
-            document.getElementById("veiculoIdEdit").value = v.placa;
+            document.getElementById("veiculoIdEdit").value = placa;
             document.getElementById("veiculoModelo").value = v.modelo;
             document.getElementById("veiculoPlaca").value = v.placa;
-            document.getElementById("veiculoCor").value = v.cor || '';
-            document.getElementById("veiculoKm").value = v.ultimaKm || '';
-            document.getElementById("veiculoStatus").value = v.status || 'disponivel';
+            document.getElementById("veiculoPlaca").disabled = true; // Impede a edição da placa
+            document.getElementById("veiculoCor").value = v.cor;
+            document.getElementById("veiculoKm").value = v.ultimaKm;
+            document.getElementById("veiculoStatus").value = v.status;
             document.getElementById("cancelarEdicaoVeiculo").style.display = 'inline-flex';
             document.getElementById("formVeiculo").scrollIntoView({ behavior: 'smooth' });
         };
+        
+        // Formulário Motorista
+        const formMotorista = document.getElementById("formMotorista");
+        formMotorista.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = document.getElementById("motoristaIdEdit").value || push(ref(db, 'motoristas')).key;
+            const nome = document.getElementById("motoristaNome").value.trim();
+            const telefone = document.getElementById("motoristaTelefone").value.trim();
+            const validade = document.getElementById("motoristaCnhValidade").value.trim();
+            const categoria = document.getElementById("motoristaCnhCategoria").value.trim();
+            const podeReservar = document.getElementById("motoristaPodeReservar").value;
+            const senha = document.getElementById("motoristaSenha").value.trim();
 
-        window.removerVeiculo = (placa) => {
-            if(confirm("Tem certeza que deseja remover este veículo?")) {
-                remove(ref(db, `veiculos/${placa}`)).then(() => {
-                    showNotification('Veículo removido com sucesso!', 'info');
-                }).catch(error => showNotification(`Erro ao remover veículo: ${error.message}`, 'error'));
+            const motoristaData = {
+                id: id,
+                nome: nome,
+                telefone: telefone,
+                validade: validade,
+                categoria: categoria,
+                podeReservar: podeReservar,
+                senha: senha
+            };
+
+            set(ref(db, 'motoristas/' + id), motoristaData)
+                .then(() => {
+                    showNotification("Motorista salvo com sucesso!", 'success');
+                    formMotorista.reset();
+                    document.getElementById("motoristaIdEdit").value = '';
+                    document.getElementById("cancelarEdicaoMotorista").style.display = 'none';
+                })
+                .catch(error => showNotification("Erro ao salvar motorista: " + error.message, 'error'));
+        });
+
+        window.excluirMotorista = function(id) {
+            if (confirm("Tem certeza que deseja excluir este motorista?")) {
+                remove(ref(db, 'motoristas/' + id))
+                    .then(() => showNotification("Motorista excluído com sucesso!", 'info'))
+                    .catch(error => showNotification("Erro ao excluir motorista: " + error.message, 'error'));
             }
         };
 
-        document.getElementById('formMotorista').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const id = document.getElementById('motoristaIdEdit').value;
-            const motorista = {
-                nome: document.getElementById('motoristaNome').value,
-                telefone: document.getElementById('motoristaTelefone').value,
-                cnh: document.getElementById('motoristaCnh').value,
-                validade: document.getElementById('motoristaCnhValidade').value,
-                categoria: document.getElementById('motoristaCnhCategoria').value,
-                podeReservar: document.getElementById('motoristaPodeReservar').value,
-                senha: document.getElementById('motoristaSenha').value
-            };
-            
-            if (id) {
-                update(ref(db, `motoristas/${id}`), motorista).then(() => {
-                    showNotification('Motorista atualizado com sucesso!', 'success');
-                    document.getElementById('formMotorista').reset();
-                    document.getElementById('motoristaIdEdit').value = '';
-                    document.getElementById('cancelarEdicaoMotorista').style.display = 'none';
-                }).catch(error => showNotification(`Erro ao atualizar motorista: ${error.message}`, 'error'));
-            } else {
-                push(ref(db, 'motoristas'), motorista).then(() => {
-                    showNotification('Motorista salvo com sucesso!', 'success');
-                    document.getElementById('formMotorista').reset();
-                }).catch(error => showNotification(`Erro ao salvar motorista: ${error.message}`, 'error'));
-            }
-        });
-
-        window.editarMotorista = (id) => {
+        window.editarMotorista = function(id) {
             const m = motoristasCache[id];
             document.getElementById("motoristaIdEdit").value = id;
-            document.getElementById("motoristaNome").value = m.nome;
+            document.getElementById("motoristaNome").value = m.nome || '';
             document.getElementById("motoristaTelefone").value = m.telefone || '';
-            document.getElementById("motoristaCnh").value = m.cnh || '';
             document.getElementById("motoristaCnhValidade").value = m.validade || '';
             document.getElementById("motoristaCnhCategoria").value = m.categoria || '';
             document.getElementById("motoristaPodeReservar").value = m.podeReservar || 'sim';
@@ -1152,69 +869,215 @@
             document.getElementById("cancelarEdicaoMotorista").style.display = 'inline-flex';
             document.getElementById("formMotorista").scrollIntoView({ behavior: 'smooth' });
         };
-
-        window.removerMotorista = (id) => {
-            if(confirm("Tem certeza que deseja remover este motorista?")) {
-                remove(ref(db, `motoristas/${id}`)).then(() => {
-                    showNotification('Motorista removido com sucesso!', 'info');
-                }).catch(error => showNotification(`Erro ao remover motorista: ${error.message}`, 'error'));
-            }
-        };
-
-        window.cancelarReserva = (id) => {
-            if(confirm("Tem certeza que deseja cancelar esta reserva?")) {
-                remove(ref(db, `reservas/${id}`)).then(() => {
-                    showNotification('Reserva cancelada com sucesso!', 'info');
-                }).catch(error => showNotification(`Erro ao cancelar reserva: ${error.message}`, 'error'));
-            }
-        };
-
-        window.devolverReserva = (reservaId) => {
-            const reserva = reservasCache[reservaId];
-            if (!reserva) {
-                showNotification('Reserva não encontrada.', 'error');
+        
+        // Formulário Retirada
+        const formRetirada = document.getElementById("formRetirada");
+        formRetirada.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const veiculoId = document.getElementById("veiculoRetirada").value;
+            const motoristaId = document.getElementById("motoristaRetirada").value;
+            const veiculo = veiculosCache[veiculoId];
+            const motorista = motoristasCache[motoristaId];
+            if (!veiculo || !motorista) {
+                showNotification("Veículo ou motorista inválido.", 'error');
                 return;
             }
 
-            // Cria uma nova movimentação de devolução para a reserva
-            const movimentacaoId = push(ref(db, 'movimentacoes')).key;
-            const dataHoraDevolucao = new Date().toISOString();
-            
-            set(ref(db, `movimentacoes/${movimentacaoId}`), {
-                veiculoId: reserva.veiculoId,
-                motoristaId: reserva.motoristaId,
-                dataHoraRetirada: new Date(`${reserva.dataInicio}T${reserva.horaInicio}`).toISOString(),
-                dataHoraDevolucao: dataHoraDevolucao,
-                destino: reserva.destino,
-                status: 'concluido',
-                observacoes: 'Devolução antecipada de reserva.',
-                kmRetirada: veiculosCache[reserva.veiculoId]?.ultimaKm || 0,
-                combustivelRetirada: 'Cheio', // Assumindo cheio para devolução antecipada
-                kmDevolucao: veiculosCache[reserva.veiculoId]?.ultimaKm || 0,
-                combustivelDevolucao: 'Cheio' // Assumindo cheio para devolução antecipada
-            }).then(() => {
-                // Remove a reserva original
-                remove(ref(db, `reservas/${reservaId}`));
-                showNotification('Devolução antecipada da reserva registrada com sucesso!', 'success');
-            }).catch(error => {
-                showNotification(`Erro ao registrar devolução: ${error.message}`, 'error');
-            });
-        };
-
-        document.getElementById("limparHistorico").addEventListener('click', () => {
-            if(confirm("Esta ação irá remover permanentemente todo o histórico de movimentações CONCLUÍDAS. Deseja continuar?")) {
-                const historicoRef = ref(db, 'movimentacoes');
-                onValue(historicoRef, (snapshot) => {
-                    snapshot.forEach((child) => {
-                        if (child.val().status === 'concluido') {
-                            remove(ref(db, `movimentacoes/${child.key}`));
-                        }
-                    });
-                    showNotification('Histórico de movimentações concluídas limpo.', 'info');
-                }, { onlyOnce: true });
+            // Checar se o veículo já está em uso ou reservado para outra pessoa
+            const veiculoEmUso = Object.values(movimentacoesCache).find(m => m.veiculoId === veiculoId && m.status === 'em_uso');
+            const reservaAtiva = Object.values(reservasCache).find(r => r.veiculoId === veiculoId && new Date(`${r.dataFim}T${r.horaFim}`) > new Date());
+            if (veiculoEmUso || reservaAtiva) {
+                showNotification("Este veículo não está disponível no momento.", 'error');
+                return;
             }
+
+            const novaMovimentacao = {
+                veiculoId: veiculoId,
+                motoristaId: motoristaId,
+                dataHoraRetirada: new Date().toISOString(),
+                kmRetirada: Number(document.getElementById("kmAtual").value),
+                combustivelRetirada: document.getElementById("combustivelRetirada").value,
+                destino: document.getElementById("destino").value,
+                status: 'em_uso'
+            };
+
+            push(ref(db, 'movimentacoes'), novaMovimentacao)
+                .then(() => {
+                    const veiculoRef = ref(db, 'veiculos/' + veiculoId);
+                    update(veiculoRef, { status: 'em_uso' });
+                    // Remove reserva se existir e o motorista for o mesmo
+                    const reservaParaExcluir = Object.entries(reservasCache).find(([key, reserva]) => reserva.veiculoId === veiculoId && reserva.motoristaId === motoristaId);
+                    if (reservaParaExcluir) {
+                        remove(ref(db, 'reservas/' + reservaParaExcluir[0]));
+                    }
+                    showNotification("Retirada registrada com sucesso!", 'success');
+                    formRetirada.reset();
+                })
+                .catch(error => showNotification("Erro ao registrar retirada: " + error.message, 'error'));
+        });
+
+        // Formulário Devolução
+        const formDevolucao = document.getElementById("formDevolucao");
+        formDevolucao.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const veiculoId = document.getElementById("veiculoDevolucao").value;
+            const movimentacao = Object.entries(movimentacoesCache).find(([key, mov]) => mov.veiculoId === veiculoId && mov.status === 'em_uso');
+            if (!movimentacao) {
+                showNotification("Veículo não está em uso.", 'error');
+                return;
+            }
+            const [id, dados] = movimentacao;
+
+            const kmDevolucao = Number(document.getElementById("kmDevolucao").value);
+            if (kmDevolucao <= dados.kmRetirada) {
+                showNotification("A quilometragem de devolução deve ser maior que a de retirada.", 'error');
+                return;
+            }
+
+            const atualizacaoDevolucao = {
+                dataHoraDevolucao: new Date().toISOString(),
+                kmDevolucao: kmDevolucao,
+                combustivelDevolucao: document.getElementById("combustivelDevolucao").value,
+                observacoes: document.getElementById("observacoes").value.trim(),
+                status: 'concluido'
+            };
+
+            update(ref(db, 'movimentacoes/' + id), atualizacaoDevolucao)
+                .then(() => {
+                    const veiculoRef = ref(db, 'veiculos/' + veiculoId);
+                    update(veiculoRef, { ultimaKm: kmDevolucao, status: 'disponivel' });
+                    showNotification("Devolução registrada com sucesso!", 'success');
+                    formDevolucao.reset();
+                })
+                .catch(error => showNotification("Erro ao registrar devolução: " + error.message, 'error'));
         });
         
+        // Formulário Reserva
+        const formReserva = document.getElementById("formReserva");
+        formReserva.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const veiculoId = document.getElementById("veiculoReserva").value;
+            const motoristaId = document.getElementById("motoristaReserva").value;
+            const dataInicio = document.getElementById("dataInicio").value;
+            const horaInicio = document.getElementById("horaInicio").value;
+            const dataFim = document.getElementById("dataFim").value;
+            const horaFim = document.getElementById("horaFim").value;
+            const destino = document.getElementById("destinoReserva").value.trim();
+
+            if (new Date(`${dataInicio}T${horaInicio}`) >= new Date(`${dataFim}T${horaFim}`)) {
+                showNotification("A data e hora de fim da reserva deve ser posterior à data e hora de início.", 'error');
+                return;
+            }
+
+            const veiculoEmUso = Object.values(movimentacoesCache).find(m => m.veiculoId === veiculoId && m.status === 'em_uso');
+            const reservaConflitante = Object.values(reservasCache).find(r => 
+                r.veiculoId === veiculoId &&
+                (
+                    (new Date(`${r.dataInicio}T${r.horaInicio}`) <= new Date(`${dataInicio}T${horaInicio}`) && new Date(`${r.dataFim}T${r.horaFim}`) >= new Date(`${dataInicio}T${horaInicio}`)) ||
+                    (new Date(`${r.dataInicio}T${r.horaInicio}`) <= new Date(`${dataFim}T${horaFim}`) && new Date(`${r.dataFim}T${r.horaFim}`) >= new Date(`${dataFim}T${horaFim}`))
+                )
+            );
+
+            if (veiculoEmUso || reservaConflitante) {
+                showNotification("Este veículo já está em uso ou tem uma reserva conflitante neste período.", 'error');
+                return;
+            }
+
+            const novaReserva = {
+                veiculoId: veiculoId,
+                motoristaId: motoristaId,
+                dataInicio: dataInicio,
+                horaInicio: horaInicio,
+                dataFim: dataFim,
+                horaFim: horaFim,
+                destino: destino
+            };
+
+            push(ref(db, 'reservas'), novaReserva)
+                .then(() => {
+                    showNotification("Reserva criada com sucesso!", 'success');
+                    formReserva.reset();
+                })
+                .catch(error => showNotification("Erro ao criar reserva: " + error.message, 'error'));
+        });
+
+        window.excluirReserva = function(id) {
+            if (confirm("Tem certeza que deseja cancelar esta reserva?")) {
+                remove(ref(db, 'reservas/' + id))
+                    .then(() => showNotification("Reserva cancelada com sucesso!", 'info'))
+                    .catch(error => showNotification("Erro ao cancelar reserva: " + error.message, 'error'));
+            }
+        };
+
+        window.devolverVeiculo = function(movimentacaoId) {
+            const mov = movimentacoesCache[movimentacaoId];
+            if (mov) {
+                const veiculoId = mov.veiculoId;
+                document.getElementById('devolucao-section').classList.add('active');
+                document.getElementById('veiculoDevolucao').value = veiculoId;
+                document.getElementById('devolucao-section').scrollIntoView({ behavior: 'smooth' });
+                showNotification("Por favor, preencha os dados de devolução.", 'info');
+            } else {
+                showNotification("Movimentação não encontrada.", 'error');
+            }
+        };
+
+        window.limparHistorico = function() {
+            if (confirm("Esta ação irá remover todas as movimentações concluídas. Deseja continuar?")) {
+                const updates = {};
+                for (const id in movimentacoesCache) {
+                    if (movimentacoesCache[id].status === 'concluido') {
+                        updates[`/movimentacoes/${id}`] = null;
+                    }
+                }
+                update(ref(db), updates)
+                    .then(() => showNotification("Histórico antigo removido com sucesso!", 'info'))
+                    .catch(error => showNotification("Erro ao remover histórico: " + error.message, 'error'));
+            }
+        };
+        
+        function updateVeiculoRetiradaSelect() {
+            const veiculoRetiradaSelect = document.getElementById("veiculoRetirada");
+            const veiculosDisponiveis = Object.values(veiculosCache).filter(v => v.status === 'disponivel');
+            const veiculosReservados = Object.values(reservasCache).map(r => r.veiculoId);
+            const veiculosEmUso = Object.values(movimentacoesCache).filter(m => m.status === 'em_uso').map(m => m.veiculoId);
+            
+            veiculoRetiradaSelect.innerHTML = '<option value="">Selecione um veículo</option>';
+            
+            for (const placa in veiculosCache) {
+                const v = veiculosCache[placa];
+                if (v.status === 'disponivel' && !veiculosReservados.includes(placa) && !veiculosEmUso.includes(placa)) {
+                    const option = new Option(`${v.modelo} - ${v.placa}`, v.placa);
+                    veiculoRetiradaSelect.add(option);
+                }
+            }
+        }
+        
+        function updateVeiculoDevolucaoSelect() {
+            const veiculoDevolucaoSelect = document.getElementById("veiculoDevolucao");
+            veiculoDevolucaoSelect.innerHTML = '<option value="">Selecione um veículo</option>';
+            const veiculosEmUso = Object.values(movimentacoesCache).filter(m => m.status === 'em_uso');
+            veiculosEmUso.forEach(mov => {
+                const veiculo = veiculosCache[mov.veiculoId];
+                if (veiculo) {
+                    veiculoDevolucaoSelect.add(new Option(`${veiculo.modelo} - ${veiculo.placa}`, veiculo.placa));
+                }
+            });
+        }
+        
+        function updateVeiculoReservaSelect() {
+            const veiculoReservaSelect = document.getElementById("veiculoReserva");
+            veiculoReservaSelect.innerHTML = '<option value="">Selecione um veículo</option>';
+            const veiculosDisponiveis = Object.values(veiculosCache).filter(v => v.status === 'disponivel');
+            veiculosDisponiveis.forEach(v => {
+                const veiculoEmUso = Object.values(movimentacoesCache).find(m => m.veiculoId === v.placa && m.status === 'em_uso');
+                if (!veiculoEmUso) {
+                    veiculoReservaSelect.add(new Option(`${v.modelo} - ${v.placa}`, v.placa));
+                }
+            });
+        }
+        
+        // Lógica para os botões de cancelar edição
         document.getElementById("cancelarEdicaoVeiculo").addEventListener('click', () => {
             document.getElementById("formVeiculo").reset();
             document.getElementById("veiculoIdEdit").value = '';
@@ -1227,6 +1090,7 @@
             document.getElementById("cancelarEdicaoMotorista").style.display = 'none';
         });
         
+        // Checa a sessão do usuário ao carregar a página
         document.addEventListener('DOMContentLoaded', () => {
             const loggedInUser = sessionStorage.getItem('loggedInUser');
             if (loggedInUser) {
