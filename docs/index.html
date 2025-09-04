@@ -17,7 +17,7 @@
         h1, h2, h3 { color: var(--secondary-color); margin-top: 0; margin-bottom: 20px;
         }
         .sidebar { width: 250px; background-color: var(--sidebar-bg-color); color: var(--sidebar-text-color); padding: 20px 0;
-            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); flex-shrink: 0;
+            box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1); flex-shrink: 0; transition: transform 0.3s ease-in-out;
         }
         .sidebar h2 { text-align: center; color: white; margin-bottom: 30px; font-size: 1.8rem;
             border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 20px; }
@@ -123,7 +123,7 @@
         }
         .app-flex { display: flex; height: 100%;
         }
-        #header { display: flex; justify-content: flex-end; align-items: center; padding: 0 30px;
+        #header { display: flex; justify-content: space-between; align-items: center; padding: 0 30px;
             background-color: white; border-bottom: 1px solid var(--border-color); }
         #userInfo { margin-right: 20px; font-weight: 500;
         }
@@ -145,6 +145,18 @@
             font-weight: bold; }
         .veiculo-info-card span { font-weight: normal; color: #555;
         }
+        #menu-toggle { display: none; }
+        @media (max-width: 768px) {
+            .app-flex { flex-direction: column; }
+            .sidebar {
+                position: fixed; top: 0; left: 0; height: 100%; z-index: 100;
+                transform: translateX(-100%);
+            }
+            .sidebar.open { transform: translateX(0); }
+            #header { padding: 0 15px; }
+            #menu-toggle { display: block; background: transparent; border: none; font-size: 2rem;
+                color: var(--secondary-color); cursor: pointer; padding: 10px 0; }
+        }
     </style>
 </head>
 <body>
@@ -165,7 +177,7 @@
 
     <div id="app-container">
         <div class="app-flex">
-            <aside class="sidebar">
+            <aside id="sidebar" class="sidebar">
                 <h2>Sistema Frota</h2>
                 <nav>
                     <ul>
@@ -182,8 +194,11 @@
 
             <div style="display: flex; flex-direction: column; width: 100%;">
                 <header id="header">
-                    <p id="userInfo"></p>
-                    <button id="logout-button" class="btn-danger">Sair</button>
+                    <button id="menu-toggle" class="material-icons">menu</button>
+                    <div style="display: flex; align-items: center;">
+                        <p id="userInfo" style="margin-right: 20px; font-weight: 500;"></p>
+                        <button id="logout-button" class="btn-danger">Sair</button>
+                    </div>
                 </header>
                 <main class="main-content">
                     
@@ -467,6 +482,10 @@
         // Lógica de Navegação entre telas
         const navLinks = document.querySelectorAll('.sidebar ul li a');
         const contentSections = document.querySelectorAll('.content-section');
+        const sidebar = document.getElementById('sidebar');
+        const menuToggle = document.getElementById('menu-toggle');
+        const mainContent = document.querySelector('.main-content');
+
         navLinks.forEach(link => {
             link.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -475,7 +494,20 @@
                 contentSections.forEach(section => section.classList.remove('active'));
                 link.classList.add('active');
                 document.getElementById(targetSectionId).classList.add('active');
+                if (window.innerWidth <= 768) {
+                    sidebar.classList.remove('open');
+                }
             });
+        });
+
+        menuToggle.addEventListener('click', () => {
+            sidebar.classList.toggle('open');
+        });
+
+        mainContent.addEventListener('click', () => {
+            if (window.innerWidth <= 768 && sidebar.classList.contains('open')) {
+                sidebar.classList.remove('open');
+            }
         });
 
         // Listeners do Firebase para carregar dados
