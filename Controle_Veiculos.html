@@ -413,218 +413,221 @@
     </div>
 
    <script type="module">
-    [cite_start]import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js"; [cite: 51]
-    [cite_start]import { getDatabase, ref, onValue, push, set, update, remove } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js"; [cite: 52]
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
+    import { getDatabase, ref, onValue, push, set, update, remove } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
 
     // **ATUALIZE ESTAS CONFIGURAÇÕES COM AS SUAS REAIS DO FIREBASE**
     const firebaseConfig = {
-        [cite_start]apiKey: "AIzaSyANtVoKUjocbqVOyrdQptlTs62RGOoNUN0", [cite: 53]
-        [cite_start]authDomain: "carrosfrota-a58e5.firebaseapp.com", [cite: 53]
-        [cite_start]databaseURL: "https://carrosfrota-a58e5-default-rtdb.firebaseio.com", [cite: 53]
-        [cite_start]projectId: "carrosfrota-a58e5", [cite: 53]
-        [cite_start]storageBucket: "carrosfrota-a58e5.firebasestorage.app", [cite: 53]
-        [cite_start]messagingSenderId: "107456511174", [cite: 53]
-        [cite_start]appId: "1:107456511174:web:220b3bc227cb450d6eebc7" [cite: 53]
+        apiKey: "AIzaSyANtVoKUjocbqVOyrdQptlTs62RGOoNUN0",
+        authDomain: "carrosfrota-a58e5.firebaseapp.com",
+        databaseURL: "https://carrosfrota-a58e5-default-rtdb.firebaseio.com",
+        projectId: "carrosfrota-a58e5",
+        storageBucket: "carrosfrota-a58e5.firebasestorage.app",
+        messagingSenderId: "107456511174",
+        appId: "1:107456511174:web:220b3bc227cb450d6eebc7"
     };
 
-    [cite_start]const app = initializeApp(firebaseConfig); [cite: 54]
-    [cite_start]const db = getDatabase(app); [cite: 54]
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-    // <<<<<<<<<<<<<<< CORREÇÃO: CHAMADA PARA INICIAR O CARREGAMENTO DE DADOS >>>>>>>>>>>>>>>
+    // <<<<<<<<<<<<<<< CORREÇÃO DE INICIALIZAÇÃO >>>>>>>>>>>>>>>
+    // Esta linha é essencial para iniciar a escuta do Firebase assim que o script é carregado.
     setupRealtimeListeners(); 
-    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
+    // <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+    
     // --- LÓGICA DE LOGIN E ACESSO ---
-    [cite_start]const loginContainer = document.getElementById('login-container'); [cite: 54]
-    [cite_start]const appContainer = document.getElementById('app-container'); [cite: 55]
-    [cite_start]const loginForm = document.getElementById('login-form'); [cite: 55]
-    [cite_start]const logoutButton = document.getElementById('logout-button'); [cite: 55]
-    [cite_start]const adminMenuItem = document.getElementById('admin-menu-item'); [cite: 55]
-    [cite_start]const userInfoDisplay = document.getElementById('userInfo'); [cite: 55]
-    [cite_start]const statusLoadingMessage = document.getElementById('statusLoadingMessage'); [cite: 56]
+    const loginContainer = document.getElementById('login-container');
+    const appContainer = document.getElementById('app-container');
+    const loginForm = document.getElementById('login-form');
+    const logoutButton = document.getElementById('logout-button');
+    const adminMenuItem = document.getElementById('admin-menu-item');
+    const userInfoDisplay = document.getElementById('userInfo');
+    const statusLoadingMessage = document.getElementById('statusLoadingMessage');
 
     let loggedInUser = null;
 
     function showApp(user) {
-        [cite_start]loggedInUser = user; [cite: 56]
-        [cite_start]loginContainer.style.display = 'none'; [cite: 56]
-        [cite_start]appContainer.style.display = 'block'; [cite: 56]
-        [cite_start]userInfoDisplay.textContent = `Olá, ${user.nome}`; [cite: 57]
-        [cite_start]adjustMotoristaTableHeader(user.role); [cite: 57]
+        loggedInUser = user;
+        loginContainer.style.display = 'none';
+        appContainer.style.display = 'block';
+        userInfoDisplay.textContent = `Olá, ${user.nome}`;
+        adjustMotoristaTableHeader(user.role);
         if (user.role === 'admin') {
-            [cite_start]adminMenuItem.style.display = 'block'; [cite: 57]
+            adminMenuItem.style.display = 'block';
         } else {
-            [cite_start]adminMenuItem.style.display = 'none'; [cite: 57]
-            [cite_start]populateMotoristaRetirada(); [cite: 57]
+            adminMenuItem.style.display = 'none';
+            populateMotoristaRetirada();
         }
     }
 
     function adjustMotoristaTableHeader(role) {
-        [cite_start]const tableHeader = document.getElementById('motorista-table-header'); [cite: 58]
+        const tableHeader = document.getElementById('motorista-table-header');
         if (role !== 'admin') {
-            [cite_start]tableHeader.innerHTML = '<th>Nome</th><th>Telefone</th><th>CNH</th><th>Validade</th><th>Categoria</th><th>Pode Reservar</th><th>Ações</th>'; [cite: 58]
+            tableHeader.innerHTML = '<th>Nome</th><th>Telefone</th><th>CNH</th><th>Validade</th><th>Categoria</th><th>Pode Reservar</th><th>Ações</th>';
         } else {
-            [cite_start]tableHeader.innerHTML = '<th>Nome</th><th>Telefone</th><th>CNH</th><th>Validade</th><th>Categoria</th><th>Pode Reservar</th><th>Senha</th><th>Ações</th>'; [cite: 59]
+            tableHeader.innerHTML = '<th>Nome</th><th>Telefone</th><th>CNH</th><th>Validade</th><th>Categoria</th><th>Pode Reservar</th><th>Senha</th><th>Ações</th>';
         }
     }
 
     function showLogin() {
-        [cite_start]loginContainer.style.display = 'flex'; [cite: 59]
-        [cite_start]appContainer.style.display = 'none'; [cite: 60]
-        [cite_start]loggedInUser = null; [cite: 60]
-        [cite_start]sessionStorage.removeItem('loggedInUser'); [cite: 60]
+        loginContainer.style.display = 'flex';
+        appContainer.style.display = 'none';
+        loggedInUser = null;
+        sessionStorage.removeItem('loggedInUser');
     }
 
     loginForm.addEventListener('submit', (e) => {
-        [cite_start]e.preventDefault(); [cite: 60]
-        [cite_start]const senha = document.getElementById('loginSenha').value; [cite: 60]
+        e.preventDefault();
+        const senha = document.getElementById('loginSenha').value;
 
+        // CORREÇÃO: VERIFICAÇÃO DE SENHA DO ADMINISTRADOR (ADMIN123)
         if (senha === 'admin123') {
-            [cite_start]const adminUser = { nome: 'Administrador', role: 'admin' }; [cite: 60]
-            [cite_start]sessionStorage.setItem('loggedInUser', JSON.stringify(adminUser)); [cite: 60]
-            [cite_start]showApp(adminUser); [cite: 60]
-            [cite_start]showNotification(`Bem-vindo, Administrador!`, 'success'); [cite: 60]
+            const adminUser = { nome: 'Administrador', role: 'admin' };
+            sessionStorage.setItem('loggedInUser', JSON.stringify(adminUser));
+            showApp(adminUser);
+            showNotification(`Bem-vindo, Administrador!`, 'success');
         } else {
+            // Lógica de Login para Motoristas (Busca no Firebase)
             onValue(ref(db, 'motoristas'), (snapshot) => {
-                [cite_start]let motoristaEncontrado = null; [cite: 60]
+                let motoristaEncontrado = null;
                 snapshot.forEach(childSnapshot => {
-                    [cite_start]const motorista = childSnapshot.val(); [cite: 60]
-                    [cite_start]motorista.id = childSnapshot.key; [cite: 60]
+                    const motorista = childSnapshot.val();
+                    motorista.id = childSnapshot.key;
                     if (motorista.senha === senha) {
-                        [cite_start]motoristaEncontrado = motorista; [cite: 60]
+                        motoristaEncontrado = motorista;
                     }
                 });
 
                 if (motoristaEncontrado) {
-                    [cite_start]motoristaEncontrado.role = 'user'; [cite: 60]
-                    [cite_start]sessionStorage.setItem('loggedInUser', JSON.stringify(motoristaEncontrado)); [cite: 60]
-                    [cite_start]showApp(motoristaEncontrado); [cite: 60]
-                    [cite_start]showNotification(`Bem-vindo, ${motoristaEncontrado.nome}!`, 'success'); [cite: 60]
+                    motoristaEncontrado.role = 'user';
+                    sessionStorage.setItem('loggedInUser', JSON.stringify(motoristaEncontrado));
+                    showApp(motoristaEncontrado);
+                    showNotification(`Bem-vindo, ${motoristaEncontrado.nome}!`, 'success');
                 } else {
-                    [cite_start]showNotification('Senha incorreta.', 'error'); [cite: 60]
+                    showNotification('Senha incorreta.', 'error');
                 }
             }, { once: true });
         }
 
-        document.getElementById('loginSenha').value = ''; [cite_start]// Limpa o campo [cite: 60]
+        document.getElementById('loginSenha').value = ''; // Limpa o campo
     });
 
     logoutButton.addEventListener('click', () => {
-        [cite_start]showLogin(); [cite: 61]
-        [cite_start]showNotification('Você foi desconectado.', 'info'); [cite: 61]
+        showLogin();
+        showNotification('Você foi desconectado.', 'info');
     });
 
     // Tenta restaurar a sessão ao carregar
-    [cite_start]const savedUser = sessionStorage.getItem('loggedInUser'); [cite: 62]
+    const savedUser = sessionStorage.getItem('loggedInUser');
     if (savedUser) {
-        [cite_start]showApp(JSON.parse(savedUser)); [cite: 62]
+        showApp(JSON.parse(savedUser));
     }
 
     // --- CÓDIGO FUNCIONAL COMPLETO DO APLICATIVO ---
     // Cache local para os dados
-    [cite_start]let motoristasCache = {}; [cite: 63]
-    [cite_start]let veiculosCache = {}; [cite: 64]
-    [cite_start]let movimentacoesCache = {}; [cite: 64]
-    [cite_start]let reservasCache = {}; [cite: 64]
+    let motoristasCache = {};
+    let veiculosCache = {};
+    let movimentacoesCache = {};
+    let reservasCache = {};
 
     // Função de Notificação
     function showNotification(message, type = 'success') {
-        [cite_start]const notificationBar = document.getElementById('notification-bar'); [cite: 65]
-        [cite_start]notificationBar.textContent = message; [cite: 65]
-        [cite_start]notificationBar.className = `notification ${type} show`; [cite: 66]
+        const notificationBar = document.getElementById('notification-bar');
+        notificationBar.textContent = message;
+        notificationBar.className = `notification ${type} show`;
         setTimeout(() => {
-            [cite_start]notificationBar.classList.remove('show'); [cite: 66]
+            notificationBar.classList.remove('show');
         }, 3000);
     }
 
     // Lógica de Navegação entre telas
-    [cite_start]const navLinks = document.querySelectorAll('.sidebar ul li a'); [cite: 67]
-    [cite_start]const contentSections = document.querySelectorAll('.content-section'); [cite: 67]
+    const navLinks = document.querySelectorAll('.sidebar ul li a');
+    const contentSections = document.querySelectorAll('.content-section');
 
     navLinks.forEach(link => {
         link.addEventListener('click', (e) => {
-            [cite_start]e.preventDefault(); [cite: 68]
-            [cite_start]navLinks.forEach(l => l.classList.remove('active')); [cite: 68]
-            [cite_start]link.classList.add('active'); [cite: 68]
-            [cite_start]const targetSection = link.getAttribute('data-section'); [cite: 68]
+            e.preventDefault();
+            navLinks.forEach(l => l.classList.remove('active'));
+            link.classList.add('active');
+            const targetSection = link.getAttribute('data-section');
             contentSections.forEach(section => {
-                [cite_start]section.classList.remove('active'); [cite: 68]
+                section.classList.remove('active');
                 if (section.id === `${targetSection}-section`) {
-                    [cite_start]section.classList.add('active'); [cite: 68]
+                    section.classList.add('active');
 
                     // Se for a seção de histórico, renderize o conteúdo com filtros
                     if (targetSection === 'historico') {
-                        [cite_start]renderHistorico(); [cite: 68]
+                        renderHistorico();
                     }
                 }
             });
 
             // Fechar sidebar em mobile após clique
-            [cite_start]document.getElementById('sidebar').classList.remove('open'); [cite: 68, 69]
+            document.getElementById('sidebar').classList.remove('open');
         });
     });
 
     // Toggle do menu em mobile
     document.getElementById('menu-toggle').addEventListener('click', () => {
-        [cite_start]document.getElementById('sidebar').classList.toggle('open'); [cite: 69]
+        document.getElementById('sidebar').classList.toggle('open');
     });
 
     // =========================================================================
     // --- FUNÇÕES UTILITÁRIAS ---
     // =========================================================================
     function formatarDataHora(timestamp) {
-        [cite_start]if (!timestamp) return 'N/A'; [cite: 70]
-        [cite_start]const date = new Date(timestamp); [cite: 71]
-        [cite_start]return date.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }); [cite: 71]
+        if (!timestamp) return 'N/A';
+        const date = new Date(timestamp);
+        return date.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
     }
 
     function formatarDataHoraInput(timestamp) {
-        [cite_start]if (!timestamp) return { date: '', time: '' }; [cite: 72]
-        [cite_start]const date = new Date(timestamp); [cite: 72]
-        [cite_start]const data = date.toISOString().split('T')[0]; [cite: 73]
-        [cite_start]const hora = date.toTimeString().slice(0, 5); [cite: 73]
-        [cite_start]return { date: data, time: hora }; [cite: 73]
+        if (!timestamp) return { date: '', time: '' };
+        const date = new Date(timestamp);
+        const data = date.toISOString().split('T')[0];
+        const hora = date.toTimeString().slice(0, 5);
+        return { date: data, time: hora };
     }
 
     // =========================================================================
     // --- MOTORISTAS ---
     // =========================================================================
-    [cite_start]const motoristaRetirada = document.getElementById('motoristaRetirada'); [cite: 74]
-    [cite_start]const motoristaReserva = document.getElementById('motoristaReserva'); [cite: 74]
-    [cite_start]const filtroMotorista = document.getElementById('filtroMotorista'); [cite: 75]
+    const motoristaRetirada = document.getElementById('motoristaRetirada');
+    const motoristaReserva = document.getElementById('motoristaReserva');
+    const filtroMotorista = document.getElementById('filtroMotorista');
 
     function populateMotoristaDropdowns() {
         // Limpa todos os dropdowns
-        [cite_start]motoristaRetirada.innerHTML = '<option value="">Selecione o Motorista</option>'; [cite: 75]
-        [cite_start]motoristaReserva.innerHTML = '<option value="">Selecione o Motorista</option>'; [cite: 76]
-        [cite_start]filtroMotorista.innerHTML = '<option value="">Todos os Motoristas</option>'; [cite: 76]
+        motoristaRetirada.innerHTML = '<option value="">Selecione o Motorista</option>';
+        motoristaReserva.innerHTML = '<option value="">Selecione o Motorista</option>';
+        filtroMotorista.innerHTML = '<option value="">Todos os Motoristas</option>';
 
         Object.values(motoristasCache).forEach(motorista => {
             // Preenche Motorista Retirada/Reserva
-            if (loggedInUser.role === 'admin' || loggedInUser.id === motorista.id) {
-                [cite_start]const option = document.createElement('option'); [cite: 77]
-                [cite_start]option.value = motorista.id; [cite: 77]
-                [cite_start]option.textContent = motorista.nome; [cite: 77]
-                [cite_start]motoristaRetirada.appendChild(option.cloneNode(true)); [cite: 77]
-                [cite_start]motoristaReserva.appendChild(option.cloneNode(true)); [cite: 77]
+            if (loggedInUser && (loggedInUser.role === 'admin' || loggedInUser.id === motorista.id)) {
+                const option = document.createElement('option');
+                option.value = motorista.id;
+                option.textContent = motorista.nome;
+                motoristaRetirada.appendChild(option.cloneNode(true));
+                motoristaReserva.appendChild(option.cloneNode(true));
             }
 
             // Preenche Filtro de Histórico
-            [cite_start]const filtroOption = document.createElement('option'); [cite: 77]
-            [cite_start]filtroOption.value = motorista.id; [cite: 77]
-            [cite_start]filtroOption.textContent = motorista.nome; [cite: 77]
-            [cite_start]filtroMotorista.appendChild(filtroOption); [cite: 77]
+            const filtroOption = document.createElement('option');
+            filtroOption.value = motorista.id;
+            filtroOption.textContent = motorista.nome;
+            filtroMotorista.appendChild(filtroOption);
         });
 
         // Se for motorista, seleciona automaticamente seu nome na retirada e reserva
         if (loggedInUser && loggedInUser.role === 'user' && loggedInUser.id) {
-            [cite_start]motoristaRetirada.value = loggedInUser.id; [cite: 78]
-            [cite_start]motoristaReserva.value = loggedInUser.id; [cite: 79]
+            motoristaRetirada.value = loggedInUser.id;
+            motoristaReserva.value = loggedInUser.id;
         }
     }
 
     onValue(ref(db, 'motoristas'), (snapshot) => {
-        [cite_start]motoristasCache = {}; [cite: 79]
+        motoristasCache = {};
         snapshot.forEach(childSnapshot => {
             const motorista = childSnapshot.val();
             motorista.id = childSnapshot.key;
@@ -640,7 +643,7 @@
     });
 
     function displayMotoristas() {
-        if (loggedInUser.role !== 'admin') return;
+        if (!loggedInUser || loggedInUser.role !== 'admin') return;
 
         const tabelaMotoristas = document.getElementById('tabelaMotoristas');
         tabelaMotoristas.innerHTML = '';
@@ -768,7 +771,7 @@
     }
 
     function displayVeiculosAdmin() {
-        if (loggedInUser.role !== 'admin') return;
+        if (!loggedInUser || loggedInUser.role !== 'admin') return;
 
         const tabelaVeiculos = document.getElementById('tabelaVeiculos');
         tabelaVeiculos.innerHTML = '';
@@ -828,17 +831,10 @@
     // --- FUNÇÃO CENTRAL DE ESCUTA (CHAMADA AGORA NO INÍCIO DO SCRIPT) ---
     // =========================================================================
 
-    // Esta função foi criada para encapsular os listeners do Firebase.
-    // Ela é essencial para que o app sincronize os dados.
+    // Esta função existe apenas para fins de clareza e organização, garantindo
+    // que todos os listeners onValue() sejam disparados assim que o script carregar.
     function setupRealtimeListeners() {
-        // Os onValue listeners já estão definidos acima, mas vamos garantir que esta função
-        // existe e engloba o que for necessário para iniciar o sistema, se for o caso de futuras expansões.
-        // No momento, todos os listeners estão definidos globalmente e são inicializados
-        // quando a função setupRealtimeListeners() é chamada.
-
-        // Não há código adicional aqui, pois os listeners onValue() já estão rodando
-        // no escopo global e são disparados após a inicialização do Firebase e 
-        // a chamada desta função.
+        // Nada mais é necessário aqui, pois os onValue listeners já estão definidos globalmente.
     }
 
 
@@ -1105,7 +1101,7 @@
 
     // Exibir Reservas em Andamento (na seção ADMIN)
     function displayReservasEmAndamento() {
-        if (loggedInUser.role !== 'admin') return;
+        if (!loggedInUser || loggedInUser.role !== 'admin') return;
 
         const tabela = document.getElementById('tabelaReservasAndamento');
         tabela.innerHTML = '';
@@ -1169,7 +1165,7 @@
                 <td>${mov.destino}</td>
                 <td>${mov.observacoes || 'N/A'}</td>
                 <td>
-                    <button class="btn-danger btn-sm" onclick="deleteMovimentacao('${mov.id}')" ${loggedInUser.role !== 'admin' ? 'disabled' : ''}>Excluir</button>
+                    <button class="btn-danger btn-sm" onclick="deleteMovimentacao('${mov.id}')" ${loggedInUser && loggedInUser.role !== 'admin' ? 'disabled' : ''}>Excluir</button>
                 </td>
             `;
         });
@@ -1182,7 +1178,7 @@
 
     // Limpar Histórico Antigo (Apenas Admin)
     document.getElementById('limparHistorico').addEventListener('click', () => {
-        if (loggedInUser.role !== 'admin') return showNotification('Acesso negado.', 'error');
+        if (!loggedInUser || loggedInUser.role !== 'admin') return showNotification('Acesso negado.', 'error');
         if (!confirm('ATENÇÃO: Isso irá DELETAR PERMANENTEMENTE todas as movimentações de histórico (status "devolvido"). Tem certeza?')) return;
 
         let promises = [];
@@ -1204,7 +1200,7 @@
     // --- Motoristas ---
 
     function editMotorista(id) {
-        if (loggedInUser.role !== 'admin') return showNotification('Acesso negado.', 'error');
+        if (!loggedInUser || loggedInUser.role !== 'admin') return showNotification('Acesso negado.', 'error');
         const motorista = motoristasCache[id];
         if (!motorista) return showNotification('Motorista não encontrado.', 'error');
 
@@ -1225,7 +1221,7 @@
     }
 
     function deleteMotorista(id) {
-        if (loggedInUser.role !== 'admin') return showNotification('Acesso negado.', 'error');
+        if (!loggedInUser || loggedInUser.role !== 'admin') return showNotification('Acesso negado.', 'error');
         if (!confirm('Tem certeza que deseja excluir este motorista? Todas as movimentações e reservas vinculadas permanecerão, mas o motorista não poderá mais logar.')) return;
 
         // Note: A exclusão aqui é direta. Em um sistema de produção, você faria uma "exclusão lógica"
@@ -1244,7 +1240,7 @@
 
     document.getElementById('formMotorista').addEventListener('submit', (e) => {
         e.preventDefault();
-        if (loggedInUser.role !== 'admin') return showNotification('Acesso negado.', 'error');
+        if (!loggedInUser || loggedInUser.role !== 'admin') return showNotification('Acesso negado.', 'error');
 
         const id = document.getElementById('motoristaIdEdit').value;
         const nome = document.getElementById('motoristaNome').value;
@@ -1288,7 +1284,7 @@
     // --- Veículos ---
 
     function editVeiculo(id) {
-        if (loggedInUser.role !== 'admin') return showNotification('Acesso negado.', 'error');
+        if (!loggedInUser || loggedInUser.role !== 'admin') return showNotification('Acesso negado.', 'error');
         const veiculo = veiculosCache[id];
         if (!veiculo) return showNotification('Veículo não encontrado.', 'error');
 
@@ -1304,7 +1300,7 @@
     }
 
     function deleteVeiculo(id) {
-        if (loggedInUser.role !== 'admin') return showNotification('Acesso negado.', 'error');
+        if (!loggedInUser || loggedInUser.role !== 'admin') return showNotification('Acesso negado.', 'error');
         if (veiculosCache[id] && veiculosCache[id].status === 'em-uso') {
             return showNotification('Não é possível excluir um veículo que está em uso.', 'error');
         }
@@ -1324,7 +1320,7 @@
 
     document.getElementById('formVeiculo').addEventListener('submit', (e) => {
         e.preventDefault();
-        if (loggedInUser.role !== 'admin') return showNotification('Acesso negado.', 'error');
+        if (!loggedInUser || loggedInUser.role !== 'admin') return showNotification('Acesso negado.', 'error');
 
         const id = document.getElementById('veiculoIdEdit').value;
         const veiculoData = {
@@ -1350,4 +1346,5 @@
 </script>
 </body>
 </html>
+
 
