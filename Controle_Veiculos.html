@@ -413,10 +413,11 @@
     </div>
 
     <script type="module">
+        // Importa as funções necessárias do Firebase SDK via CDN (necessário para arquivos HTML simples)
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js";
         import { getDatabase, ref, onValue, push, set, update, remove } from "https://www.gstatic.com/firebasejs/12.2.1/firebase-database.js";
         
-        // **ATUALIZE ESTAS CONFIGURAÇÕES COM AS SUAS REAIS DO FIREBASE**
+        // Sua configuração do aplicativo web Firebase (objeto "config")
         const firebaseConfig = {
             apiKey: "AIzaSyANtVoKUjocbqVOyrdQptlTs62RGOoNUN0",
             authDomain: "carrosfrota-a58e5.firebaseapp.com",
@@ -427,7 +428,9 @@
             appId: "1:107456511174:web:220b3bc227cb450d6eebc7"
         };
 
+        // Inicializa o Firebase
         const app = initializeApp(firebaseConfig);
+        // Conecta ao Realtime Database (RTDB)
         const db = getDatabase(app);
 
         // --- LÓGICA DE LOGIN E ACESSO ---
@@ -1278,3 +1281,4 @@
     </script>
 </body>
 </html>
+
