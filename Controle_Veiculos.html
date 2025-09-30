@@ -393,7 +393,7 @@
         // --- Funções de População e Renderização de Dados ---
         
         // ---------------------------------------------
-        // FUNÇÕES DE POPULAÇÃO E LÓGICA DE SELEÇÃO DE VEÍCULOS (ATUALIZADAS CONFORME REQUISIÇÃO)
+        // FUNÇÕES DE POPULAÇÃO E LÓGICA DE SELEÇÃO DE VEÍCULOS (ATUALIZADAS CONFORME REQUISIÇÃO ANTERIOR)
         // ---------------------------------------------
 
         function populateVeiculoSelects() {
@@ -642,12 +642,12 @@
 
                 if (mov.tipo === 'Retirada') {
                     tipo = 'Retirada';
-                    dataHora = new Date(mov.dataRetirada).toLocaleString('pt-BR');
+                    dataHora = new Date(mov.dataRetirada + 'T' + mov.horaRetirada).toLocaleString('pt-BR');
                     km = mov.kmRetirada.toLocaleString('pt-BR') + ' km';
                     combustivel = mov.combustivelRetirada;
                 } else {
                     tipo = 'Devolução';
-                    dataHora = new Date(mov.dataDevolucao).toLocaleString('pt-BR');
+                    dataHora = new Date(mov.dataDevolucao + 'T' + mov.horaDevolucao).toLocaleString('pt-BR');
                     km = mov.kmDevolucao.toLocaleString('pt-BR') + ' km';
                     combustivel = mov.combustivelDevolucao;
                 }
@@ -692,8 +692,8 @@
             // Filtrar e ordenar apenas reservas futuras (não canceladas)
             const now = new Date();
             const sortedReservas = Object.values(reservasCache)
-                .filter(r => new Date(r.dataFim) >= now && !r.cancelada)
-                .sort((a, b) => new Date(a.dataInicio) - new Date(b.dataInicio));
+                .filter(r => new Date(r.dataFim + 'T' + r.horaFim) >= now && !r.cancelada)
+                .sort((a, b) => new Date(a.dataInicio + 'T' + a.horaInicio) - new Date(b.dataInicio + 'T' + b.horaInicio));
 
             sortedReservas.forEach(reserva => {
                 const veiculo = veiculosCache[reserva.veiculoId]?.modelo + ' (' + veiculosCache[reserva.veiculoId]?.placa + ')' || 'Veículo Desconhecido';
@@ -899,9 +899,29 @@
             // Usuários
             onValue(ref(db, 'usuarios'), (snapshot) => {
                 usuariosCache = {};
+                let adminFound = false; // Flag para verificar se um admin existe
+
                 snapshot.forEach(childSnapshot => {
-                    usuariosCache[childSnapshot.key] = { id: childSnapshot.key, ...childSnapshot.val() };
+                    const user = { id: childSnapshot.key, ...childSnapshot.val() };
+                    usuariosCache[childSnapshot.key] = user;
+                    if (user.role === 'admin') {
+                        adminFound = true;
+                    }
                 });
+
+                // --- CORREÇÃO APLICADA AQUI: Usuário Administrador de Fallback ---
+                // Garante que, mesmo que o Firebase esteja vazio, o login "admin123" funcione
+                if (!adminFound) {
+                    const defaultAdminId = "admin123";
+                    usuariosCache[defaultAdminId] = {
+                        id: defaultAdminId,
+                        nome: "Admin Principal (Fallback)",
+                        role: "admin"
+                    };
+                    // Nota: Não é necessário salvar no Firebase aqui, apenas no cache interno para o login.
+                }
+                // --- FIM CORREÇÃO ---
+                
                 populateMotoristaSelects();
                 renderUsuariosAdminTable();
             }, (error) => {
@@ -1139,14 +1159,10 @@
                 
                 if (isConflict || isEmUso) {
                     showNotification('Conflito de reserva detectado. Verifique o status.', 'error');
-                    // Melhoria: Não impedir, mas alertar. O usuário pode reservar um carro que está 'Disponível' mas tem reserva futura.
-                    // A validação de disponibilidade final deve ser na hora da retirada.
-                    // Por enquanto, apenas alerta se há conflito no período.
                     
                     // Exibir detalhes do conflito (Simplificado: apenas o aviso)
                     document.getElementById('reservas-conflito').style.display = 'block';
                     document.getElementById('conflitos-list').innerHTML = `<li>Conflito com outra reserva ou veículo em uso!</li>`;
-                    // return; // Não impedimos, apenas avisamos.
                 }
 
                 const reservaData = {
@@ -1188,9 +1204,7 @@
                 const usuarioData = {
                     nome: nome,
                     role: role,
-                    // Aqui, em um sistema real, você não salvaria a senha.
-                    // Mas para fins de simulação de login/ID:
-                    // senhaId: senha || id // Mantém o ID como a "senha" se não for alterada
+                    // Note: Não é salvo a senha no objeto, apenas o ID é usado como senha de login.
                 };
 
 
