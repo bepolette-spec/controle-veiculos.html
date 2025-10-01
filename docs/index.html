@@ -891,20 +891,45 @@ function handleVeiculoChangeRetirada(event) {
 }
 
     // Função para popular a lista de veículos na devolução
-    function populateVeiculosDevolucao() {
-        const select = document.getElementById('veiculoDevolucao');
-        select.innerHTML = '<option value="">Selecione um veículo</option>';
-        
-        for (let veiculoId in veiculosCache) {
-            const veiculo = veiculosCache[veiculoId];
-            if (veiculo.status === 'em-uso') {
-                const option = document.createElement('option');
-                option.value = veiculoId;
+function populateVeiculosDevolucao() {
+    const select = document.getElementById('veiculoDevolucao');
+    select.innerHTML = '<option value="">Selecione um veículo</option>';
+    
+    for (let veiculoId in veiculosCache) {
+        const veiculo = veiculosCache[veiculoId];
+        if (veiculo.status === 'em-uso') {
+            const option = document.createElement('option');
+            option.value = veiculoId;
+            
+            // VERIFICA SE É ADMIN E ADICIONA O NOME DO MOTORISTA
+            if (loggedInUser && loggedInUser.role === 'admin') {
+                // Encontra a movimentação em andamento para este veículo
+                let nomeMotorista = '';
+                for (let movId in movimentacoesCache) {
+                    const mov = movimentacoesCache[movId];
+                    if (mov.veiculoId === veiculoId && mov.status === 'em-andamento') {
+                        const motorista = motoristasCache[mov.motoristaId];
+                        if (motorista) {
+                            nomeMotorista = motorista.nome;
+                        }
+                        break;
+                    }
+                }
+                
+                if (nomeMotorista) {
+                    option.textContent = `${veiculo.modelo} - ${veiculo.placa} (Retirado por: ${nomeMotorista})`;
+                } else {
+                    option.textContent = `${veiculo.modelo} - ${veiculo.placa} (Motorista não identificado)`;
+                }
+            } else {
+                // Para usuários normais, mostra apenas veículo e placa
                 option.textContent = `${veiculo.modelo} - ${veiculo.placa}`;
-                select.appendChild(option);
             }
+            
+            select.appendChild(option);
         }
     }
+}
 
     // Função para popular a lista de veículos na reserva
     function populateVeiculosReserva() {
