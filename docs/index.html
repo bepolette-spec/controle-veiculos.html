@@ -656,6 +656,51 @@ function findLastDevolucaoByVeiculo(veiculoId) {
     return ultimaDevolucao;
 }
 
+// === FUNÇÕES DE VALIDAÇÃO ADICIONADAS ===
+
+// Função para validar KM de devolução
+function validarKmDevolucao(veiculoId, kmDevolucao) {
+    // Encontra a movimentação em andamento para este veículo
+    for (let movId in movimentacoesCache) {
+        const mov = movimentacoesCache[movId];
+        if (mov.veiculoId === veiculoId && mov.status === 'em-andamento') {
+            if (parseInt(kmDevolucao) < parseInt(mov.kmRetirada)) {
+                return {
+                    valido: false,
+                    mensagem: `Erro: Quilometragem de devolução precisa ser maior que ${mov.kmRetirada} km`
+                };
+            }
+            return { valido: true };
+        }
+    }
+    return { valido: true };
+}
+
+// Função para validar KM de retirada
+function validarKmRetirada(veiculoId, kmRetirada) {
+    const ultimaDevolucao = findLastDevolucaoByVeiculo(veiculoId);
+    
+    if (ultimaDevolucao) {
+        if (parseInt(kmRetirada) < parseInt(ultimaDevolucao.kmDevolucao)) {
+            return {
+                valido: false,
+                mensagem: `Erro: Quilometragem de retirada precisa ser maior que ${ultimaDevolucao.kmDevolucao} km`
+            };
+        }
+    } else {
+        // Se não há devolução anterior, verifica contra o KM cadastrado do veículo
+        const veiculo = veiculosCache[veiculoId];
+        if (veiculo && parseInt(kmRetirada) < parseInt(veiculo.km)) {
+            return {
+                valido: false,
+                mensagem: `Erro: Quilometragem de retirada precisa ser maior que ${veiculo.km} km`
+            };
+        }
+    }
+    
+    return { valido: true };
+}
+
 // NOVA FUNÇÃO: Manipular mudança no seletor de veículos
 function handleVeiculoChangeRetirada(event) {
     const veiculoId = event.target.value;
@@ -1447,6 +1492,13 @@ function populateVeiculosDevolucao() {
         const kmAtual = document.getElementById('kmAtual').value;
         const combustivelRetirada = document.getElementById('combustivelRetirada').value;
         const destino = document.getElementById('destino').value;
+
+        // VALIDAÇÃO 1: KM Retirada não pode ser menor que última KM Devolução
+    const validacaoKm = validarKmRetirada(veiculoId, kmAtual);
+    if (!validacaoKm.valido) {
+        showNotification(validacaoKm.mensagem, 'error');
+        return;
+    }
         
         // Verifica se o veículo ainda está disponível
         if (verificarVeiculoIndisponivel(veiculoId)) {
@@ -1495,6 +1547,13 @@ function populateVeiculosDevolucao() {
         const kmDevolucao = document.getElementById('kmDevolucao').value;
         const combustivelDevolucao = document.getElementById('combustivelDevolucao').value;
         const observacoes = document.getElementById('observacoes').value;
+
+        // VALIDAÇÃO 1: KM Devolução não pode ser menor que KM Retirada
+    const validacaoKm = validarKmDevolucao(veiculoId, kmDevolucao);
+    if (!validacaoKm.valido) {
+        showNotification(validacaoKm.mensagem, 'error');
+        return;
+    }
         
         // Encontra a movimentação em andamento para este veículo
         let movimentacaoId = null;
