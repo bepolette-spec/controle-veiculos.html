@@ -528,19 +528,22 @@
     let loggedInUser = null;
 
     function showApp(user) {
-        loggedInUser = user;
-        loginContainer.style.display = 'none';
-        appContainer.style.display = 'block';
-        userInfoDisplay.textContent = `Olá, ${user.nome}`;
-        adjustMotoristaTableHeader(user.role);
-        if (user.role === 'admin') {
-            adminMenuItem.style.display = 'block';
-        } else {
-            adminMenuItem.style.display = 'none';
-            populateMotoristaRetirada();
-        }
-        setupRealtimeListeners(); // <--- CHAMA OS LISTENERS APÓS O LOGIN
+    loggedInUser = user;
+    loginContainer.style.display = 'none';
+    appContainer.style.display = 'block';
+    userInfoDisplay.textContent = `Olá, ${user.nome}`;
+    adjustMotoristaTableHeader(user.role);
+    
+    if (user.role === 'admin') {
+        adminMenuItem.style.display = 'block';
+    } else {
+        adminMenuItem.style.display = 'none';
+        // REMOVA esta linha problemática:
+        // populateMotoristaRetirada(); ← ESTÁ CAUSANDO ERRO
     }
+    
+    setupRealtimeListeners(); // ← CHAMA OS LISTENERS CORRETAMENTE
+}
 
     function adjustMotoristaTableHeader(role) {
         const tableHeader = document.getElementById('motorista-table-header');
@@ -571,28 +574,28 @@
             showNotification(`Bem-vindo, Administrador!`, 'success');
         } else {
             // Login Motorista
-            onValue(ref(db, 'motoristas'), (snapshot) => {
-                let motoristaEncontrado = null;
-                snapshot.forEach(childSnapshot => {
-         
-                    const motorista = childSnapshot.val();
-                    motorista.id = childSnapshot.key;
-                    if (motorista.senha === senha) {
-                        motoristaEncontrado = motorista;
-              
-                    }
-                });
+onValue(ref(db, 'motoristas'), (snapshot) => {
+    let motoristaEncontrado = null;
+    snapshot.forEach(childSnapshot => {
+        const motorista = childSnapshot.val();
+        // CORREÇÃO: Salvar o ID corretamente
+        if (motorista.senha === senha) {
+            motoristaEncontrado = {
+                ...motorista,
+                id: childSnapshot.key,  // ← ID CORRETO
+                role: 'user'
+            };
+        }
+    });
 
-                if (motoristaEncontrado) {
-                    motoristaEncontrado.role = 'user';
-                    motoristaEncontrado.id = childSnapshot.key;
-                    sessionStorage.setItem('loggedInUser', JSON.stringify(motoristaEncontrado));
-                    showApp(motoristaEncontrado);
-                    showNotification(`Bem-vindo, ${motoristaEncontrado.nome}!`, 'success');
-                } else {
-                    showNotification('Senha incorreta.', 'error');
-                }
-            }, { once: true });
+    if (motoristaEncontrado) {
+        sessionStorage.setItem('loggedInUser', JSON.stringify(motoristaEncontrado));
+        showApp(motoristaEncontrado);
+        showNotification(`Bem-vindo, ${motoristaEncontrado.nome}!`, 'success');
+    } else {
+        showNotification('Senha incorreta.', 'error');
+    }
+}, { once: true });
         }
         document.getElementById('loginSenha').value = ''; // Limpa o campo
     });
