@@ -705,6 +705,70 @@ function validarKmRetirada(veiculoId, kmRetirada) {
     return { valido: true };
 }
 
+// === NOVAS FUNÇÕES PARA RESERVAS ===
+
+// NOVA FUNÇÃO: Verificar se o motorista pode retirar o veículo reservado
+function verificarPermissaoRetiradaReserva(veiculoId, motoristaId) {
+    const agora = new Date().getTime();
+    
+    for (let reservaId in reservasCache) {
+        const reserva = reservasCache[reservaId];
+        if (reserva.veiculoId === veiculoId && reserva.status === 'ativa') {
+            const inicioTimestamp = parseDateTimeToTimestamp(reserva.dataInicio, reserva.horaInicio);
+            const fimTimestamp = parseDateTimeToTimestamp(reserva.dataFim, reserva.horaFim);
+            
+            if (inicioTimestamp && fimTimestamp) {
+                const umaHoraAntes = inicioTimestamp - (60 * 60 * 1000);
+                
+                // Verifica se está dentro do período da reserva (1 hora antes até o fim)
+                if (agora >= umaHoraAntes && agora <= fimTimestamp) {
+                    // Se não for o motorista da reserva, não pode retirar
+                    if (reserva.motoristaId !== motoristaId) {
+                        const motoristaReserva = motoristasCache[reserva.motoristaId];
+                        return {
+                            permitido: false,
+                            mensagem: `Este veículo está reservado para ${motoristaReserva ? motoristaReserva.nome : 'outro motorista'} no período de ${formatDateTime(reserva.dataInicio, reserva.horaInicio)} até ${formatDateTime(reserva.dataFim, reserva.horaFim)}. Apenas o motorista da reserva pode retirar neste período.`
+                        };
+                    }
+                }
+            }
+        }
+    }
+    
+    return { permitido: true };
+}
+
+// NOVA FUNÇÃO: Finalizar reserva quando o veículo for devolvido
+function finalizarReservaAposDevolucao(veiculoId) {
+    const agora = new Date().getTime();
+    let reservaParaFinalizar = null;
+    
+    // Encontra a reserva ativa para este veículo
+    for (let reservaId in reservasCache) {
+        const reserva = reservasCache[reservaId];
+        if (reserva.veiculoId === veiculoId && reserva.status === 'ativa') {
+            const fimTimestamp = parseDateTimeToTimestamp(reserva.dataFim, reserva.horaFim);
+            
+            // Se já passou do horário de fim OU se está dentro do período mas o veículo foi devolvido
+            if (fimTimestamp && (agora > fimTimestamp)) {
+                reservaParaFinalizar = { id: reservaId, ...reserva };
+                break;
+            }
+        }
+    }
+    
+    if (reservaParaFinalizar) {
+        update(ref(db, `reservas/${reservaParaFinalizar.id}`), {
+            status: 'concluida',
+            dataConclusao: new Date().getTime()
+        }).then(() => {
+            console.log(`Reserva ${reservaParaFinalizar.id} finalizada após devolução`);
+        }).catch((error) => {
+            console.error('Erro ao finalizar reserva:', error);
+        });
+    }
+}
+
 // NOVA FUNÇÃO: Manipular mudança no seletor de veículos
 function handleVeiculoChangeRetirada(event) {
     const veiculoId = event.target.value;
@@ -784,40 +848,42 @@ function handleVeiculoChangeRetirada(event) {
         return timeStr; 
     }
     
-    // Função para verificar se um veículo está indisponível por reserva
-    function verificarVeiculoIndisponivel(veiculoId) {
-        const agora = new Date().getTime();
-        const veiculo = veiculosCache[veiculoId];
-        
-        if (!veiculo) return false;
-        
-        // Verifica se o veículo está em uso
-        if (veiculo.status === 'em-uso') return true;
-        
-        // Verifica se o veículo está em manutenção
-        if (veiculo.status === 'manutencao') return true;
-        
-        // Verifica se há reservas que tornam o veículo indisponível
-        for (let reservaId in reservasCache) {
-            const reserva = reservasCache[reservaId];
-            if (reserva.veiculoId === veiculoId && reserva.status === 'ativa') {
-                const inicioTimestamp = parseDateTimeToTimestamp(reserva.dataInicio, reserva.horaInicio);
-                const fimTimestamp = parseDateTimeToTimestamp(reserva.dataFim, reserva.horaFim);
+    // Função para verificar se um veículo está indisponível por reserva (ATUALIZADA)
+function verificarVeiculoIndisponivel(veiculoId, motoristaId = null) {
+    const agora = new Date().getTime();
+    const veiculo = veiculosCache[veiculoId];
+    
+    if (!veiculo) return false;
+    
+    // Verifica se o veículo está em uso
+    if (veiculo.status === 'em-uso') return true;
+    
+    // Verifica se o veículo está em manutenção
+    if (veiculo.status === 'manutencao') return true;
+    
+    // Verifica se há reservas que tornam o veículo indisponível
+    for (let reservaId in reservasCache) {
+        const reserva = reservasCache[reservaId];
+        if (reserva.veiculoId === veiculoId && reserva.status === 'ativa') {
+            const inicioTimestamp = parseDateTimeToTimestamp(reserva.dataInicio, reserva.horaInicio);
+            const fimTimestamp = parseDateTimeToTimestamp(reserva.dataFim, reserva.horaFim);
+            
+            if (inicioTimestamp && fimTimestamp) {
+                // Verifica se estamos dentro do período da reserva (com 1 hora de antecedência)
+                const umaHoraAntes = inicioTimestamp - (60 * 60 * 1000);
                 
-                if (inicioTimestamp && fimTimestamp) {
-                    // Verifica se estamos dentro do período da reserva (com 1 hora de antecedência)
-                    const umaHoraAntes = inicioTimestamp - (60 * 60 * 1000); // 1 hora antes
-                    
-                    if (agora >= umaHoraAntes && agora <= fimTimestamp) {
-                        return true;
+                if (agora >= umaHoraAntes && agora <= fimTimestamp) {
+                    // Se for o motorista da reserva, pode retirar
+                    if (motoristaId && reserva.motoristaId === motoristaId) {
+                        return false; // Permite retirada para o motorista da reserva
                     }
+                    return true; // Bloqueia para outros motoristas
                 }
             }
         }
-        
-        return false;
     }
-
+    return false;
+}
     // Função para atualizar status dos veículos baseado em reservas
     function atualizarStatusVeiculosPorReserva() {
         const agora = new Date().getTime();
@@ -857,28 +923,35 @@ function handleVeiculoChangeRetirada(event) {
         }
     }
 
-    // Função para verificar e atualizar status das reservas
-    function verificarEAtualizarReservas() {
-        const agora = new Date().getTime();
-        let atualizacoes = {};
-        
-        for (let reservaId in reservasCache) {
-            const reserva = reservasCache[reservaId];
-            if (reserva.status === 'ativa') {
-                const fimTimestamp = parseDateTimeToTimestamp(reserva.dataFim, reserva.horaFim);
-                
-                if (fimTimestamp && agora > fimTimestamp) {
-                    atualizacoes[reservaId] = { status: 'expirada' };
-                }
-            }
-        }
-        
-        if (Object.keys(atualizacoes).length > 0) {
-            for (let reservaId in atualizacoes) {
-                update(ref(db, `reservas/${reservaId}`), atualizacoes[reservaId]);
+    // Função para verificar e atualizar status das reservas (ATUALIZADA)
+function verificarEAtualizarReservas() {
+    const agora = new Date().getTime();
+    let atualizacoes = {};
+    
+    for (let reservaId in reservasCache) {
+        const reserva = reservasCache[reservaId];
+        if (reserva.status === 'ativa') {
+            const fimTimestamp = parseDateTimeToTimestamp(reserva.dataFim, reserva.horaFim);
+            
+            // Verifica se o veículo está em uso - se estiver, não expira a reserva
+            const veiculo = veiculosCache[reserva.veiculoId];
+            const veiculoEmUso = veiculo && veiculo.status === 'em-uso';
+            
+            if (fimTimestamp && agora > fimTimestamp && !veiculoEmUso) {
+                atualizacoes[reservaId] = { 
+                    status: 'expirada',
+                    dataConclusao: new Date().getTime()
+                };
             }
         }
     }
+    
+    if (Object.keys(atualizacoes).length > 0) {
+        for (let reservaId in atualizacoes) {
+            update(ref(db, `reservas/${reservaId}`), atualizacoes[reservaId]);
+        }
+    }
+}
 
     // Função para configurar os listeners em tempo real
     function setupRealtimeListeners() {
@@ -919,23 +992,49 @@ function handleVeiculoChangeRetirada(event) {
         });
     }
 
-    // Função para popular a lista de veículos na retirada
-    function populateVeiculosRetirada() {
+    // Função para popular a lista de veículos na retirada (ATUALIZADA)
+function populateVeiculosRetirada() {
     const select = document.getElementById('veiculoRetirada');
     select.innerHTML = '<option value="">Selecione um veículo</option>';
     
     for (let veiculoId in veiculosCache) {
         const veiculo = veiculosCache[veiculoId];
-        // Verifica se o veículo está disponível (não em uso, manutenção ou reservado)
-        if (veiculo.status === 'disponivel' && !verificarVeiculoIndisponivel(veiculoId)) {
+        
+        // Verifica se o veículo está disponível considerando reservas
+        const motoristaId = loggedInUser.role === 'admin' ? null : loggedInUser.id;
+        const disponivel = veiculo.status === 'disponivel' && !verificarVeiculoIndisponivel(veiculoId, motoristaId);
+        
+        if (disponivel) {
             const option = document.createElement('option');
             option.value = veiculoId;
-            option.textContent = `${veiculo.modelo} - ${veiculo.placa}`;
+            
+            // Verifica se há reserva ativa para este veículo
+            let textoReserva = '';
+            for (let reservaId in reservasCache) {
+                const reserva = reservasCache[reservaId];
+                if (reserva.veiculoId === veiculoId && reserva.status === 'ativa') {
+                    const inicioTimestamp = parseDateTimeToTimestamp(reserva.dataInicio, reserva.horaInicio);
+                    const fimTimestamp = parseDateTimeToTimestamp(reserva.dataFim, reserva.horaFim);
+                    const agora = new Date().getTime();
+                    const umaHoraAntes = inicioTimestamp - (60 * 60 * 1000);
+                    
+                    if (agora >= umaHoraAntes && agora <= fimTimestamp) {
+                        const motoristaReserva = motoristasCache[reserva.motoristaId];
+                        if (motoristaReserva && motoristaReserva.id === loggedInUser.id) {
+                            textoReserva = ' (Sua reserva)';
+                        } else {
+                            textoReserva = ' (Reservado)';
+                        }
+                        break;
+                    }
+                }
+            }
+            
+            option.textContent = `${veiculo.modelo} - ${veiculo.placa}${textoReserva}`;
             select.appendChild(option);
         }
     }
 
-    // ADICIONAR ESTA LINHA: Event listener para atualizar o card quando o veículo mudar
     select.addEventListener('change', handleVeiculoChangeRetirada);
 }
 
@@ -1515,13 +1614,20 @@ function populateMotoristasRetirada() {
         showNotification(validacaoKm.mensagem, 'error');
         return;
     }
+
+            // VALIDAÇÃO 2: Verifica se o motorista tem permissão para retirar veículo reservado
+    const validacaoReserva = verificarPermissaoRetiradaReserva(veiculoId, motoristaId);
+    if (!validacaoReserva.permitido) {
+        showNotification(validacaoReserva.mensagem, 'error');
+        return;
+    }
         
-        // Verifica se o veículo ainda está disponível
-        if (verificarVeiculoIndisponivel(veiculoId)) {
-            showNotification('Este veículo não está mais disponível para retirada.', 'error');
-            populateVeiculosRetirada();
-            return;
-        }
+            // VALIDAÇÃO 3: Verifica se o veículo ainda está disponível
+    if (verificarVeiculoIndisponivel(veiculoId, motoristaId)) {
+        showNotification('Este veículo não está mais disponível para retirada.', 'error');
+        populateVeiculosRetirada();
+        return;
+    }
         
         const dataAtual = new Date();
         const dataRetirada = dataAtual.toLocaleDateString('pt-BR');
@@ -1604,6 +1710,7 @@ function populateMotoristasRetirada() {
                 status: 'disponivel',
                 km: kmDevolucao
             }).then(() => {
+                finalizarReservaAposDevolucao(veiculoId);
                 showNotification('Devolução registrada com sucesso!', 'success');
                 document.getElementById('formDevolucao').reset();
             }).catch((error) => {
@@ -1884,3 +1991,4 @@ function populateMotoristasRetirada() {
     </script>
 </body>
 </html>
+
