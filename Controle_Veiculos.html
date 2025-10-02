@@ -1159,22 +1159,32 @@ function populateMotoristasRetirada() {
     }
 }
 
-    // Função para popular motoristas na reserva
-    function populateMotoristasReserva() {
-        const select = document.getElementById('motoristaReserva');
-        select.innerHTML = '<option value="">Selecione um motorista</option>';
+   // FUNÇÃO CORRIGIDA: Popular motoristas na reserva
+function populateMotoristasReserva() {
+    const select = document.getElementById('motoristaReserva');
+    select.innerHTML = '<option value="">Selecione um motorista</option>';
+    
+    for (let motoristaId in motoristasCache) {
+        const motorista = motoristasCache[motoristaId];
         
-        for (let motoristaId in motoristasCache) {
-            const motorista = motoristasCache[motoristaId];
-            // Mostra apenas motoristas que podem reservar
+        // CORREÇÃO: Se for admin, mostra todos os motoristas que podem reservar
+        if (loggedInUser.role === 'admin') {
             if (motorista.podeReservar === 'sim') {
                 const option = document.createElement('option');
                 option.value = motoristaId;
                 option.textContent = motorista.nome;
                 select.appendChild(option);
             }
+        } 
+        // CORREÇÃO: Se for usuário normal, mostra apenas ele mesmo (se puder reservar)
+        else if (motoristaId === loggedInUser.id && motorista.podeReservar === 'sim') {
+            const option = document.createElement('option');
+            option.value = motoristaId;
+            option.textContent = motorista.nome;
+            select.appendChild(option);
         }
     }
+}
 
     // Função para popular status dos veículos
     function populateVeiculosStatus() {
