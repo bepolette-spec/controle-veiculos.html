@@ -680,6 +680,48 @@ function validarKmDevolucao(veiculoId, kmDevolucao) {
     return { valido: true };
 }
 
+// === FUNÇÃO PARA VALIDAR CNH VENCIDA ===
+function validarCnhMotorista(motoristaId) {
+    const motorista = motoristasCache[motoristaId];
+    if (!motorista || !motorista.cnhValidade) {
+        return {
+            valida: false,
+            mensagem: 'CNH do motorista não encontrada ou data de validade não informada.'
+        };
+    }
+
+    // Converte a data de validade para objeto Date
+    let dataValidade;
+    if (motorista.cnhValidade.includes('-')) {
+        // Formato ISO (YYYY-MM-DD)
+        const [year, month, day] = motorista.cnhValidade.split('-').map(Number);
+        dataValidade = new Date(year, month - 1, day);
+    } else if (motorista.cnhValidade.includes('/')) {
+        // Formato brasileiro (DD/MM/YYYY)
+        const [day, month, year] = motorista.cnhValidade.split('/').map(Number);
+        dataValidade = new Date(year, month - 1, day);
+    } else {
+        return {
+            valida: false,
+            mensagem: 'Formato de data de validade da CNH inválido.'
+        };
+    }
+
+    // Data atual (sem horas, para comparar apenas datas)
+    const hoje = new Date();
+    hoje.setHours(0, 0, 0, 0);
+    dataValidade.setHours(0, 0, 0, 0);
+
+    if (dataValidade < hoje) {
+        return {
+            valida: false,
+            mensagem: `CNH VENCIDA! A validade era ${formatDate(motorista.cnhValidade)}. Motorista não pode realizar retiradas/reservas. Atualize o cadastro.`
+        };
+    }
+
+    return { valida: true };
+}
+
 // Função para validar KM de retirada
 function validarKmRetirada(veiculoId, kmRetirada) {
     const ultimaDevolucao = findLastDevolucaoByVeiculo(veiculoId);
@@ -829,16 +871,29 @@ function handleVeiculoChangeRetirada(event) {
         return date.toLocaleDateString('pt-BR', { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' });
     }
 
-    // Função para formatar data (mantida, mas mais simples)
     function formatDate(dateStr) {
-        if (!dateStr) return 'N/A';
+    if (!dateStr) return 'N/A';
+    
+    // Tenta parsear como formato ISO (YYYY-MM-DD) primeiro
+    if (dateStr.includes('-')) {
+        const [year, month, day] = dateStr.split('-').map(Number);
+        const date = new Date(year, month - 1, day);
+        if (!isNaN(date.getTime())) {
+            return date.toLocaleDateString('pt-BR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        }
+    }
+    
+    // Tenta parsear como formato brasileiro (DD/MM/YYYY)
+    if (dateStr.includes('/')) {
         const [day, month, year] = dateStr.split('/').map(Number);
         const date = new Date(year, month - 1, day);
-        
-        if (isNaN(date.getTime())) return 'N/A';
-        
-        return date.toLocaleDateString('pt-BR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        if (!isNaN(date.getTime())) {
+            return date.toLocaleDateString('pt-BR', { year: 'numeric', month: '2-digit', day: '2-digit' });
+        }
     }
+    
+    return 'N/A';
+}
 
     function formatTime(timeStr) {
         if (!timeStr) return 'N/A';
@@ -1648,6 +1703,13 @@ function populateMotoristasReserva() {
         const combustivelRetirada = document.getElementById('combustivelRetirada').value;
         const destino = document.getElementById('destino').value;
 
+        // NOVA VALIDAÇÃO: Verifica se a CNH está vencida
+    const validacaoCnh = validarCnhMotorista(motoristaId);
+    if (!validacaoCnh.valida) {
+        showNotification(validacaoCnh.mensagem, 'error');
+        return;
+    }
+
         // VALIDAÇÃO 1: KM Retirada não pode ser menor que última KM Devolução
     const validacaoKm = validarKmRetirada(veiculoId, kmAtual);
     if (!validacaoKm.valido) {
@@ -1772,6 +1834,13 @@ function populateMotoristasReserva() {
         const dataFim = document.getElementById('dataFim').value;
         const horaFim = document.getElementById('horaFim').value;
         const destino = document.getElementById('destinoReserva').value;
+
+        // NOVA VALIDAÇÃO: Verifica se a CNH está vencida
+    const validacaoCnh = validarCnhMotorista(motoristaId);
+    if (!validacaoCnh.valida) {
+        showNotification(validacaoCnh.mensagem, 'error');
+        return;
+    }
         
         // Converte as datas para o formato brasileiro
         const dataInicioBr = dataInicio.split('-').reverse().join('/');
