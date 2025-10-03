@@ -1241,74 +1241,116 @@ function populateMotoristasReserva() {
     }
 }
 
-    // Função para popular status dos veículos
-    function populateVeiculosStatus() {
-        const grid = document.getElementById('statusVeiculosGrid');
-        grid.innerHTML = '';
+    // Função para popular status dos veículos (ATUALIZADA)
+function populateVeiculosStatus() {
+    const grid = document.getElementById('statusVeiculosGrid');
+    grid.innerHTML = '';
+    
+    if (Object.keys(veiculosCache).length === 0) {
+        statusLoadingMessage.textContent = 'Nenhum veículo cadastrado.';
+        return;
+    }
+    
+    statusLoadingMessage.textContent = '';
+    
+    for (let veiculoId in veiculosCache) {
+        const veiculo = veiculosCache[veiculoId];
+        const card = document.createElement('div');
+        card.className = `status-card status-${veiculo.status}`;
         
-        if (Object.keys(veiculosCache).length === 0) {
-            statusLoadingMessage.textContent = 'Nenhum veículo cadastrado.';
-            return;
+        let statusText = '';
+        let statusClass = '';
+        
+        switch(veiculo.status) {
+            case 'disponivel':
+                statusText = 'Disponível';
+                statusClass = 'status-disponivel';
+                break;
+            case 'em-uso':
+                statusText = 'Em Uso';
+                statusClass = 'status-em-uso';
+                break;
+            case 'reservado':
+                statusText = 'Reservado';
+                statusClass = 'status-reservado';
+                break;
+            case 'manutencao':
+                statusText = 'Em Manutenção';
+                statusClass = 'status-manutencao';
+                break;
         }
         
-        statusLoadingMessage.textContent = '';
+        // NOVO: Buscar última movimentação para obter combustível e destino
+        let ultimoCombustivel = 'N/A';
+        let destinoAtual = 'N/A';
+        let motoristaAtual = 'N/A';
         
-        for (let veiculoId in veiculosCache) {
-            const veiculo = veiculosCache[veiculoId];
-            const card = document.createElement('div');
-            card.className = `status-card status-${veiculo.status}`;
-            
-            let statusText = '';
-            let statusClass = '';
-            
-            switch(veiculo.status) {
-                case 'disponivel':
-                    statusText = 'Disponível';
-                    statusClass = 'status-disponivel';
-                    break;
-                case 'em-uso':
-                    statusText = 'Em Uso';
-                    statusClass = 'status-em-uso';
-                    break;
-                case 'reservado':
-                    statusText = 'Reservado';
-                    statusClass = 'status-reservado';
-                    break;
-                case 'manutencao':
-                    statusText = 'Em Manutenção';
-                    statusClass = 'status-manutencao';
-                    break;
-            }
-            
-            // Verifica se há reservas ativas para este veículo
-            let reservaInfo = '';
-            for (let reservaId in reservasCache) {
-                const reserva = reservasCache[reservaId];
-                if (reserva.veiculoId === veiculoId && reserva.status === 'ativa') {
-                    const motorista = motoristasCache[reserva.motoristaId];
-                    reservaInfo = `
-                        <div class="reservation-notice">
-                            <strong>Reserva Ativa:</strong> ${motorista ? motorista.nome : 'N/A'}<br>
-                            <strong>Período:</strong> ${formatDateTime(reserva.dataInicio, reserva.horaInicio)} - ${formatDateTime(reserva.dataFim, reserva.horaFim)}
-                        </div>
-                    `;
+        if (veiculo.status === 'em-uso') {
+            // Busca a movimentação em andamento para este veículo
+            for (let movId in movimentacoesCache) {
+                const mov = movimentacoesCache[movId];
+                if (mov.veiculoId === veiculoId && mov.status === 'em-andamento') {
+                    ultimoCombustivel = mov.combustivelRetirada || 'N/A';
+                    destinoAtual = mov.destino || 'N/A';
+                    
+                    // Busca nome do motorista
+                    const motorista = motoristasCache[mov.motoristaId];
+                    motoristaAtual = motorista ? motorista.nome : 'N/A';
                     break;
                 }
             }
-            
-            card.innerHTML = `
-                <h3>${veiculo.modelo} <span class="status-badge">${statusText}</span></h3>
-                <div class="card-details">
-                    <p><strong>Placa:</strong> ${veiculo.placa}</p>
-                    <p><strong>Cor:</strong> ${veiculo.cor}</p>
-                    <p><strong>Última KM:</strong> ${veiculo.km}</p>
-                </div>
-                ${reservaInfo}
-            `;
-            
-            grid.appendChild(card);
+        } else {
+            // Para veículos disponíveis, busca o último combustível da última devolução
+            const ultimaDevolucao = findLastDevolucaoByVeiculo(veiculoId);
+            if (ultimaDevolucao) {
+                ultimoCombustivel = ultimaDevolucao.combustivelDevolucao || 'N/A';
+            }
         }
+        
+        // Verifica se há reservas ativas para este veículo
+        let reservaInfo = '';
+        for (let reservaId in reservasCache) {
+            const reserva = reservasCache[reservaId];
+            if (reserva.veiculoId === veiculoId && reserva.status === 'ativa') {
+                const motorista = motoristasCache[reserva.motoristaId];
+                reservaInfo = `
+                    <div class="reservation-notice">
+                        <strong>Reserva Ativa:</strong> ${motorista ? motorista.nome : 'N/A'}<br>
+                        <strong>Período:</strong> ${formatDateTime(reserva.dataInicio, reserva.horaInicio)} - ${formatDateTime(reserva.dataFim, reserva.horaFim)}<br>
+                        <strong>Destino:</strong> ${reserva.destino || 'N/A'}
+                    </div>
+                `;
+                break;
+            }
+        }
+        
+        // NOVO: Informações adicionais quando o veículo está em uso
+        let usoInfo = '';
+        if (veiculo.status === 'em-uso') {
+            usoInfo = `
+                <div class="card-details" style="background-color: #fff3cd; padding: 10px; border-radius: 5px; margin-top: 10px; border-left: 4px solid var(--warning-color);">
+                    <p style="margin: 0; font-weight: bold; color: #856404;">🚗 Em Uso</p>
+                    <p style="margin: 5px 0 0 0;"><strong>Motorista:</strong> ${motoristaAtual}</p>
+                    <p style="margin: 5px 0 0 0;"><strong>Destino:</strong> ${destinoAtual}</p>
+                </div>
+            `;
+        }
+        
+        card.innerHTML = `
+            <h3>${veiculo.modelo} <span class="status-badge">${statusText}</span></h3>
+            <div class="card-details">
+                <p><strong>Placa:</strong> ${veiculo.placa}</p>
+                <p><strong>Cor:</strong> ${veiculo.cor}</p>
+                <p><strong>Última KM:</strong> ${veiculo.km}</p>
+                <p><strong>Combustível:</strong> ${ultimoCombustivel}</p>
+            </div>
+            ${usoInfo}
+            ${reservaInfo}
+        `;
+        
+        grid.appendChild(card);
     }
+}
 
     // Função para popular próximas reservas
     function populateProximasReservas() {
@@ -2100,3 +2142,4 @@ function populateMotoristasReserva() {
     </script>
 </body>
 </html>
+
