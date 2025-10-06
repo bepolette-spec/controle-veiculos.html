@@ -1125,6 +1125,7 @@ function populateVeiculosRetirada() {
 
     // Função para popular a lista de veículos na devolução
 
+// Função para popular a lista de veículos na devolução (CORRIGIDA)
 function populateVeiculosDevolucao() {
     const select = document.getElementById('veiculoDevolucao');
     select.innerHTML = '<option value="">Selecione um veículo</option>';
@@ -1163,6 +1164,10 @@ function populateVeiculosDevolucao() {
             }
         }
     }
+    
+    // DEBUG: Verificar se encontrou veículos em uso
+    console.log('Veículos em uso encontrados:', Object.keys(veiculosCache).filter(id => veiculosCache[id].status === 'em-uso').length);
+    console.log('Movimentações em andamento:', Object.keys(movimentacoesCache).filter(id => movimentacoesCache[id].status === 'em-andamento').length);
 }
 
     // Função para popular a lista de veículos na reserva
@@ -1241,7 +1246,7 @@ function populateMotoristasReserva() {
     }
 }
 
-    // Função para popular status dos veículos (ATUALIZADA)
+ // Função para popular status dos veículos (ATUALIZADA COM DEBUG)
 function populateVeiculosStatus() {
     const grid = document.getElementById('statusVeiculosGrid');
     grid.innerHTML = '';
@@ -1296,6 +1301,7 @@ function populateVeiculosStatus() {
                     // Busca nome do motorista
                     const motorista = motoristasCache[mov.motoristaId];
                     motoristaAtual = motorista ? motorista.nome : 'N/A';
+                    console.log(`DEBUG: Veículo ${veiculo.modelo} em uso - Motorista: ${motoristaAtual}, Destino: ${destinoAtual}, Combustível: ${ultimoCombustivel}`);
                     break;
                 }
             }
@@ -1304,6 +1310,7 @@ function populateVeiculosStatus() {
             const ultimaDevolucao = findLastDevolucaoByVeiculo(veiculoId);
             if (ultimaDevolucao) {
                 ultimoCombustivel = ultimaDevolucao.combustivelDevolucao || 'N/A';
+                console.log(`DEBUG: Veículo ${veiculo.modelo} disponível - Último combustível: ${ultimoCombustivel}`);
             }
         }
         
@@ -1350,8 +1357,16 @@ function populateVeiculosStatus() {
         
         grid.appendChild(card);
     }
+    
+    // DEBUG: Log para verificar dados
+    console.log('DEBUG populateVeiculosStatus:');
+    console.log('- Total veículos:', Object.keys(veiculosCache).length);
+    console.log('- Veículos em uso:', Object.keys(veiculosCache).filter(id => veiculosCache[id].status === 'em-uso'));
+    console.log('- Total movimentações:', Object.keys(movimentacoesCache).length);
+    console.log('- Movimentações em andamento:', Object.keys(movimentacoesCache).filter(id => movimentacoesCache[id].status === 'em-andamento'));
 }
 
+       
     // Função para popular próximas reservas
     function populateProximasReservas() {
         const tbody = document.getElementById('tabelaProximasReservas');
