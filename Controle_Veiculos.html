@@ -2096,19 +2096,6 @@ function populateVeiculosStatus() {
         select.addEventListener('change', populateHistorico);
     });
 
-        // Botão de debug temporário
-    const debugButton = document.createElement('button');
-    debugButton.textContent = 'Debug Dados';
-    debugButton.className = 'btn-warning';
-    debugButton.style.marginTop = '20px';
-    debugButton.addEventListener('click', debugDados);
-    
-    // Adiciona o botão apenas se a seção de administração existir
-    const adminSection = document.getElementById('administracao-section');
-    if (adminSection) {
-        adminSection.appendChild(debugButton);
-    }
-
     // --- NAVEGAÇÃO E UI ---
 
     // Navegação entre seções
@@ -2190,6 +2177,3 @@ function populateVeiculosStatus() {
     </script>
 </body>
 </html>
-
-
-
