@@ -640,14 +640,21 @@ onValue(ref(db, 'motoristas'), (snapshot) => {
     }
 
     // NOVA FUNÇÃO: Buscar última devolução do veículo específico
+// FUNÇÃO CORRIGIDA: Buscar última devolução do veículo específico
 function findLastDevolucaoByVeiculo(veiculoId) {
     let ultimaDevolucao = null;
     let ultimoTimestamp = 0;
 
-    // Filtra e encontra a última movimentação com status 'concluida' para o veículo específico
     for (let movId in movimentacoesCache) {
         const mov = movimentacoesCache[movId];
-        if (mov.veiculoId === veiculoId && mov.status === 'concluida' && mov.dataDevolucao) {
+        
+        // CORREÇÃO: Verifica se é uma movimentação concluída E tem dados de devolução
+        if (mov.veiculoId === veiculoId && 
+            mov.status === 'concluida' && 
+            mov.dataDevolucao && 
+            mov.horaDevolucao &&
+            mov.kmDevolucao) {
+            
             const currentTimestamp = parseDateTimeToTimestamp(mov.dataDevolucao, mov.horaDevolucao);
             
             if (currentTimestamp && currentTimestamp > ultimoTimestamp) {
@@ -1145,20 +1152,33 @@ function populateVeiculosRetirada() {
 
     // Função para popular a lista de veículos na devolução
 
-// Função para popular a lista de veículos na devolução (CORRIGIDA)
+// FUNÇÃO CORRIGIDA: Popular a lista de veículos na devolução
 function populateVeiculosDevolucao() {
     const select = document.getElementById('veiculoDevolucao');
     select.innerHTML = '<option value="">Selecione um veículo</option>';
     
+    let veiculosEncontrados = 0;
+    let movimentacoesEncontradas = 0;
+    
     for (let veiculoId in veiculosCache) {
         const veiculo = veiculosCache[veiculoId];
+        
+        // DEBUG: Verificar status do veículo
+        console.log(`Veículo ${veiculo.modelo}: status = ${veiculo.status}`);
+        
         if (veiculo.status === 'em-uso') {
-            // Encontra a movimentação em andamento para este veículo
+            veiculosEncontrados++;
+            
+            // Busca TODAS as movimentações para este veículo
             let movimentacaoEncontrada = null;
             for (let movId in movimentacoesCache) {
                 const mov = movimentacoesCache[movId];
+                
+                // CORREÇÃO: Verifica se é uma movimentação em andamento
                 if (mov.veiculoId === veiculoId && mov.status === 'em-andamento') {
                     movimentacaoEncontrada = mov;
+                    movimentacoesEncontradas++;
+                    console.log(`Movimentação encontrada para ${veiculo.modelo}:`, mov);
                     break;
                 }
             }
@@ -1185,9 +1205,12 @@ function populateVeiculosDevolucao() {
         }
     }
     
-    // DEBUG: Verificar se encontrou veículos em uso
-    console.log('Veículos em uso encontrados:', Object.keys(veiculosCache).filter(id => veiculosCache[id].status === 'em-uso').length);
-    console.log('Movimentações em andamento:', Object.keys(movimentacoesCache).filter(id => movimentacoesCache[id].status === 'em-andamento').length);
+    // DEBUG: Log detalhado
+    console.log('=== DEBUG DEVOLUÇÃO ===');
+    console.log('Total veículos em uso:', veiculosEncontrados);
+    console.log('Total movimentações em andamento encontradas:', movimentacoesEncontradas);
+    console.log('Usuário logado ID:', loggedInUser.id);
+    console.log('Usuário logado nome:', loggedInUser.nome);
 }
 
     // Função para popular a lista de veículos na reserva
@@ -2096,20 +2119,6 @@ function populateVeiculosStatus() {
         select.addEventListener('change', populateHistorico);
     });
 
-       // === DEBUG TEMPORÁRIO - REMOVA DEPOIS DE RESOLVER O PROBLEMA ===
-    // Botão de debug temporário
-    const debugButton = document.createElement('button');
-    debugButton.textContent = 'Debug Dados';
-    debugButton.className = 'btn-warning';
-    debugButton.style.marginTop = '20px';
-    debugButton.addEventListener('click', debugDados);
-    
-    // Adiciona o botão apenas se a seção de administração existir
-    const adminSection = document.getElementById('administracao-section');
-    if (adminSection) {
-        adminSection.appendChild(debugButton);
-    }
-
     // --- NAVEGAÇÃO E UI ---
 
     // Navegação entre seções
@@ -2191,5 +2200,6 @@ function populateVeiculosStatus() {
     </script>
 </body>
 </html>
+
 
 
