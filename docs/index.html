@@ -660,6 +660,26 @@ function findLastDevolucaoByVeiculo(veiculoId) {
     return ultimaDevolucao;
 }
 
+       // FUNÇÃO DE DEBUG PARA VERIFICAR DADOS
+function debugDados() {
+    console.log('=== DEBUG DADOS ===');
+    console.log('Veículos:', veiculosCache);
+    console.log('Movimentações:', movimentacoesCache);
+    console.log('Motoristas:', motoristasCache);
+    
+    // Verificar movimentação específica do S10
+    const movS10 = Object.values(movimentacoesCache).find(mov => 
+        mov.veiculoId === '-Oaex4uYFqMv5CB-vuWW' && mov.status === 'em-andamento'
+    );
+    console.log('Movimentação S10 em andamento:', movS10);
+    
+    // Verificar motorista da movimentação
+    if (movS10) {
+        const motorista = motoristasCache[movS10.motoristaId];
+        console.log('Motorista da movimentação:', motorista);
+    }
+}
+       
 // === FUNÇÕES DE VALIDAÇÃO ADICIONADAS ===
 
 // Função para validar KM de devolução
@@ -2076,6 +2096,19 @@ function populateVeiculosStatus() {
         select.addEventListener('change', populateHistorico);
     });
 
+        // Botão de debug temporário
+    const debugButton = document.createElement('button');
+    debugButton.textContent = 'Debug Dados';
+    debugButton.className = 'btn-warning';
+    debugButton.style.marginTop = '20px';
+    debugButton.addEventListener('click', debugDados);
+    
+    // Adiciona o botão apenas se a seção de administração existir
+    const adminSection = document.getElementById('administracao-section');
+    if (adminSection) {
+        adminSection.appendChild(debugButton);
+    }
+
     // --- NAVEGAÇÃO E UI ---
 
     // Navegação entre seções
@@ -2157,4 +2190,5 @@ function populateVeiculosStatus() {
     </script>
 </body>
 </html>
+
 
