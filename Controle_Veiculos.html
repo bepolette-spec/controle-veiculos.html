@@ -800,7 +800,15 @@ function startDataIntegrityCheck() {
 // FUNÇÃO AUXILIAR: Adicionar botão de sincronização (apenas para admin)
 function addSyncButton() {
     const header = document.getElementById('header');
+    
+    // VERIFICA SE JÁ EXISTE UM BOTÃO DE SINCRONIZAÇÃO
+    const existingSyncButton = document.getElementById('sync-button');
+    if (existingSyncButton) {
+        return; // Já existe, não cria outro
+    }
+    
     const syncButton = document.createElement('button');
+    syncButton.id = 'sync-button'; // ADICIONE ESTA LINHA
     syncButton.className = 'btn-warning';
     syncButton.innerHTML = '<span class="material-icons">sync</span> Sincronizar';
     syncButton.style.marginRight = '10px';
@@ -809,6 +817,7 @@ function addSyncButton() {
     const userInfoDiv = header.querySelector('div');
     header.insertBefore(syncButton, userInfoDiv);
 }
+       
 // Função para validar KM de devolução
 function validarKmDevolucao(veiculoId, kmDevolucao) {
     // Encontra a movimentação em andamento para este veículo
@@ -2397,3 +2406,4 @@ console.log('🔧 Sistema de Controle de Veículos - Versão Corrigida Carregada
     </script>
 </body>
 </html>
+
