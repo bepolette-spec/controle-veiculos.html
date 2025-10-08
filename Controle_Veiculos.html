@@ -543,15 +543,25 @@ function showApp(user) {
     
     // Inicializações melhoradas
     setupRealtimeListeners();
+    setupAdminSectionListener(); 
     forceDataSync(); // Força sincronização inicial
     startDataIntegrityCheck(); // Inicia verificação de integridade
-    
-    // Adiciona botão de sincronização manual para debug
-    if (loggedInUser.role === 'admin') {
-        addSyncButton();
-    }
 }
 
+       function setupAdminSectionListener() {
+    const adminLink = document.querySelector('a[data-section="administracao"]');
+    if (adminLink) {
+        adminLink.addEventListener('click', () => {
+            if (loggedInUser.role === 'admin') {
+                console.log('👨‍💼 Acessando seção Administração - Carregando dados...');
+                populateVeiculosAdmin();
+                populateMotoristasAdmin();
+                populateReservasAndamento();
+            }
+        });
+    }
+}
+       
     function adjustMotoristaTableHeader(role) {
         const tableHeader = document.getElementById('motorista-table-header');
         if (role !== 'admin') {
@@ -717,6 +727,12 @@ function forceDataSync() {
     ]).then(() => {
         console.log('✅ Sincronização completa');
         updateAllUI();
+
+        if (loggedInUser.role === 'admin') {
+            populateVeiculosAdmin();
+            populateMotoristasAdmin();
+            populateReservasAndamento();
+        }
     }).catch(error => {
         console.error('❌ Erro na sincronização:', error);
         showNotification('Erro ao sincronizar dados', 'error');
@@ -778,6 +794,12 @@ function updateAllUI() {
     populateMotoristasReserva();
     populateProximasReservas();
     populateHistorico();
+
+    if (loggedInUser.role === 'admin') {
+        populateVeiculosAdmin();
+        populateMotoristasAdmin();
+        populateReservasAndamento();
+    }
 }
 
 // NOVA FUNÇÃO: Verificar integridade dos dados periodicamente
@@ -796,28 +818,7 @@ function startDataIntegrityCheck() {
         
     }, 30000); // Verifica a cada 30 segundos
 }
-
-// FUNÇÃO AUXILIAR: Adicionar botão de sincronização (apenas para admin)
-function addSyncButton() {
-    const header = document.getElementById('header');
-    
-    // VERIFICA SE JÁ EXISTE UM BOTÃO DE SINCRONIZAÇÃO
-    const existingSyncButton = document.getElementById('sync-button');
-    if (existingSyncButton) {
-        return; // Já existe, não cria outro
-    }
-    
-    const syncButton = document.createElement('button');
-    syncButton.id = 'sync-button'; // ADICIONE ESTA LINHA
-    syncButton.className = 'btn-warning';
-    syncButton.innerHTML = '<span class="material-icons">sync</span> Sincronizar';
-    syncButton.style.marginRight = '10px';
-    syncButton.addEventListener('click', forceDataSync);
-    
-    const userInfoDiv = header.querySelector('div');
-    header.insertBefore(syncButton, userInfoDiv);
-}
-       
+     
 // Função para validar KM de devolução
 function validarKmDevolucao(veiculoId, kmDevolucao) {
     // Encontra a movimentação em andamento para este veículo
@@ -1209,6 +1210,7 @@ function setupRealtimeListeners() {
             populateVeiculosRetirada();
             populateVeiculosDevolucao();
             populateVeiculosStatus();
+            populateVeiculosAdmin();
         } catch (error) {
             console.error('Erro ao processar veículos:', error);
         }
@@ -1260,6 +1262,8 @@ function setupRealtimeListeners() {
         }
     });
 }
+
+       
     // FUNÇÃO CORRIGIDA: Popular a lista de veículos na retirada
 function populateVeiculosRetirada() {
     const select = document.getElementById('veiculoRetirada');
@@ -1309,9 +1313,6 @@ function populateVeiculosRetirada() {
     select.addEventListener('change', handleVeiculoChangeRetirada);
 }
 
-    // Função para popular a lista de veículos na devolução
-
-// FUNÇÃO CORRIGIDA: Popular a lista de veículos na devolução
 // FUNÇÃO MELHORADA: Popular veículos para devolução
 function populateVeiculosDevolucao() {
     const select = document.getElementById('veiculoDevolucao');
@@ -2406,4 +2407,3 @@ console.log('🔧 Sistema de Controle de Veículos - Versão Corrigida Carregada
     </script>
 </body>
 </html>
-
