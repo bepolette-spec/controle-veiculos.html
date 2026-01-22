@@ -666,8 +666,7 @@ function findLastDevolucaoByVeiculo(veiculoId) {
         if (mov.veiculoId === veiculoId && 
             mov.status === 'concluida' && 
             mov.dataDevolucao && 
-            mov.horaDevolucao &&
-            mov.kmDevolucao) {
+            mov.horaDevolucao) {
             
             const currentTimestamp = parseDateTimeToTimestamp(mov.dataDevolucao, mov.horaDevolucao);
             
@@ -2315,3 +2314,4 @@ console.log('🔧 Sistema de Controle de Veículos - Versão Corrigida Carregada
     </script>
 </body>
 </html>
+
